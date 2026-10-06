@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -118,6 +119,144 @@
             padding-left: .8rem;
             color: #cbd5e1;
             margin: .7rem 0;
+        }
+
+        /* ================================
+           QUIZ UI
+        ================================= */
+
+        .quiz-option {
+            position: relative;
+            width: 100%;
+            min-height: 62px;
+            padding: 15px 18px;
+            border-radius: 18px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .quiz-option:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.01);
+            background: rgba(255,255,255,.09);
+            border-color: rgba(129,140,248,.55);
+            box-shadow: 0 12px 30px rgba(0,0,0,.18);
+        }
+
+        .quiz-option:active:not(:disabled) {
+            transform: translateY(0) scale(.99);
+        }
+
+        .quiz-option:disabled {
+            cursor: default;
+        }
+
+        .quiz-option.correct {
+            background: rgba(34,197,94,.20) !important;
+            border-color: rgba(74,222,128,.8) !important;
+            box-shadow: 0 0 25px rgba(34,197,94,.18);
+        }
+
+        .quiz-option.incorrect {
+            background: rgba(239,68,68,.18) !important;
+            border-color: rgba(248,113,113,.75) !important;
+            box-shadow: 0 0 25px rgba(239,68,68,.12);
+        }
+
+        .quiz-option.correct .quiz-letter {
+            background: rgba(34,197,94,.8);
+            border-color: rgba(134,239,172,.8);
+        }
+
+        .quiz-option.incorrect .quiz-letter {
+            background: rgba(239,68,68,.8);
+            border-color: rgba(252,165,165,.8);
+        }
+
+        .quiz-letter {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(99,102,241,.18);
+            border: 1px solid rgba(129,140,248,.3);
+            color: #c7d2fe;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all .2s ease;
+        }
+
+        .quiz-progress-track {
+            height: 7px;
+            background: rgba(255,255,255,.07);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .quiz-progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width .35s ease;
+        }
+
+        .quiz-feedback {
+            animation: feedbackIn .25s ease;
+        }
+
+        @keyframes feedbackIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quiz-score-ring {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(15,23,42,.95) 58%,
+                    transparent 59%
+                ),
+                conic-gradient(
+                    #6366f1 0deg,
+                    #a855f7 0deg,
+                    rgba(255,255,255,.08) 0deg
+                );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .5s ease;
+        }
+
+        .quiz-score-inner {
+            text-align: center;
+        }
+
+        .quiz-stat {
+            background: rgba(255,255,255,.035);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px;
+            padding: 15px;
         }
     </style>
 </head>
@@ -471,7 +610,7 @@
 
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
+                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
                                 </path>
 
                             </svg>
@@ -545,10 +684,24 @@
     let currentFeature = null;
     let isLoading = false;
 
+    /* ==========================================
+       QUIZ STATE
+    ========================================== */
 
-    // ==========================================
-    // SELECT FEATURE
-    // ==========================================
+    let quizTopic = "";
+    let quizQuestionNumber = 0;
+    let quizCorrect = 0;
+    let quizIncorrect = 0;
+    let quizCurrentQuestion = null;
+    let quizAnswered = false;
+    let quizHistory = [];
+
+    const TOTAL_QUESTIONS = 20;
+
+
+    /* ==========================================
+       SELECT FEATURE
+    ========================================== */
 
     function selectFeature(feature) {
 
@@ -571,14 +724,10 @@
         const sendBtn =
             document.getElementById("send-btn");
 
-
-        // Never clear the user's current text here.
         userInput.disabled = false;
         sendBtn.disabled = false;
 
-
         removeEmptyState();
-
 
         if (feature === "quiz") {
 
@@ -586,16 +735,15 @@
                 "Quiz Maker Mode";
 
             subtitleElem.innerText =
-                "Type a topic to generate a custom practice quiz.";
+                "Type a topic to generate a 20-question interactive quiz.";
 
             userInput.placeholder =
-                "Enter a topic to generate a quiz...";
+                "Enter a topic to generate a 20-question quiz...";
 
             indicator.className =
                 "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
 
         }
-
 
         else if (feature === "homework") {
 
@@ -613,14 +761,13 @@
 
         }
 
-
         userInput.focus();
     }
 
 
-    // ==========================================
-    // REMOVE EMPTY STATE
-    // ==========================================
+    /* ==========================================
+       REMOVE EMPTY STATE
+    ========================================== */
 
     function removeEmptyState() {
 
@@ -633,9 +780,9 @@
     }
 
 
-    // ==========================================
-    // SEND MESSAGE
-    // ==========================================
+    /* ==========================================
+       SEND MESSAGE
+    ========================================== */
 
     async function handleSendMessage(event) {
 
@@ -643,19 +790,16 @@
 
         if (isLoading) return;
 
-
         const input =
             document.getElementById("user-input");
 
         const text =
             input.value.trim();
 
-
         if (!text) {
             input.focus();
             return;
         }
-
 
         if (!currentFeature) {
 
@@ -667,21 +811,51 @@
         }
 
 
+        /* ======================================
+           QUIZ MODE
+        ====================================== */
+
+        if (currentFeature === "quiz") {
+
+            /*
+             * If a quiz is already running, don't
+             * accidentally start another quiz.
+             */
+
+            if (
+                quizQuestionNumber > 0 &&
+                quizQuestionNumber < TOTAL_QUESTIONS &&
+                quizTopic
+            ) {
+
+                showErrorMessage(
+                    "A quiz is already in progress. Please answer the current question."
+                );
+
+                return;
+            }
+
+            quizTopic = text;
+
+            input.value = "";
+
+            startQuiz();
+
+            return;
+        }
+
+
+        /* ======================================
+           HOMEWORK MODE
+        ====================================== */
+
         removeEmptyState();
 
         appendUserMessage(text);
 
-
-        /*
-         * IMPORTANT:
-         * Do NOT clear the input yet.
-         *
-         * The original message stays in the input while
-         * the API request is being processed.
-         */
+        input.value = "";
 
         setLoading(true);
-
 
         try {
 
@@ -691,22 +865,12 @@
                     currentFeature
                 );
 
-
             appendAIMessage(result);
-
 
             addHistoryItem(
                 text,
                 currentFeature
             );
-
-
-            /*
-             * Only clear the input after the AI
-             * successfully returns an answer.
-             */
-
-            input.value = "";
 
         }
 
@@ -717,14 +881,7 @@
                 error
             );
 
-
-            /*
-             * The message remains in the input.
-             * This prevents the user from losing their
-             * homework question when the API fails.
-             */
-
-            showErrorMessage(
+            appendAIMessage(
                 getFriendlyErrorMessage(error)
             );
 
@@ -737,18 +894,1257 @@
             input.focus();
 
         }
-
     }
 
 
-    // ==========================================
-    // CALL VERCEL API
-    // ==========================================
+    /* ==========================================
+       START QUIZ
+    ========================================== */
+
+    async function startQuiz() {
+
+        if (isLoading) return;
+
+        quizQuestionNumber = 0;
+        quizCorrect = 0;
+        quizIncorrect = 0;
+        quizCurrentQuestion = null;
+        quizAnswered = false;
+        quizHistory = [];
+
+        currentFeature = "quiz";
+
+        const container =
+            document.getElementById("chat-messages");
+
+        container.innerHTML = "";
+
+        document.getElementById(
+            "chat-title"
+        ).innerText =
+            "Interactive Quiz";
+
+        document.getElementById(
+            "chat-subtitle"
+        ).innerText =
+            `Topic: ${quizTopic}`;
+
+        document.getElementById(
+            "current-mode-indicator"
+        ).className =
+            "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        await loadNextQuizQuestion();
+    }
+
+
+    /* ==========================================
+       LOAD NEXT QUIZ QUESTION
+    ========================================== */
+
+    async function loadNextQuizQuestion() {
+
+        if (isLoading) return;
+
+        if (quizQuestionNumber >= TOTAL_QUESTIONS) {
+
+            showQuizResults();
+
+            return;
+        }
+
+        quizAnswered = false;
+
+        quizQuestionNumber++;
+
+        renderQuizLoading();
+
+        setQuizLoading(true);
+
+        try {
+
+            const question =
+                await getQuizQuestion(
+                    quizTopic,
+                    quizQuestionNumber
+                );
+
+            quizCurrentQuestion =
+                question;
+
+            renderQuizQuestion(question);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Quiz error:",
+                error
+            );
+
+            quizQuestionNumber--;
+
+            renderQuizError(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setQuizLoading(false);
+
+        }
+    }
+
+
+    /* ==========================================
+       GET QUIZ QUESTION FROM AI
+    ========================================== */
+
+    async function getQuizQuestion(
+        topic,
+        number
+    ) {
+
+        const prompt = `
+Create ONE multiple-choice quiz question for a student about this topic:
+
+"${topic}"
+
+This is question ${number} of ${TOTAL_QUESTIONS}.
+
+Return ONLY valid JSON.
+Do not use markdown.
+Do not add explanations outside the JSON.
+
+Required exact structure:
+
+{
+  "question": "Question text",
+  "options": [
+    "Option A",
+    "Option B",
+    "Option C",
+    "Option D"
+  ],
+  "correct": 0,
+  "explanation": "Short explanation of why the correct answer is correct."
+}
+
+Rules:
+- "correct" must be a number from 0 to 3.
+- There must be exactly four options.
+- Only one option must be correct.
+- Make the question appropriate for a school student.
+- Make this question different from common basic questions when possible.
+- Keep the question clear and educational.
+`;
+
+        const answer =
+            await callTutorAPI(
+                prompt,
+                "quiz"
+            );
+
+        return parseQuizJSON(answer);
+    }
+
+
+    /* ==========================================
+       PARSE QUIZ JSON
+    ========================================== */
+
+    function parseQuizJSON(raw) {
+
+        let text =
+            String(raw)
+                .trim();
+
+        /*
+         * Remove markdown fences if the model
+         * accidentally returns them.
+         */
+
+        text =
+            text.replace(
+                /^```(?:json)?\s*/i,
+                ""
+            );
+
+        text =
+            text.replace(
+                /\s*```$/i,
+                ""
+            );
+
+        let data;
+
+        try {
+
+            data =
+                JSON.parse(text);
+
+        }
+
+        catch {
+
+            /*
+             * Try extracting the first JSON object.
+             */
+
+            const first =
+                text.indexOf("{");
+
+            const last =
+                text.lastIndexOf("}");
+
+            if (
+                first === -1 ||
+                last === -1 ||
+                last <= first
+            ) {
+
+                throw new Error(
+                    "QUIZ_INVALID_JSON"
+                );
+
+            }
+
+            try {
+
+                data =
+                    JSON.parse(
+                        text.slice(
+                            first,
+                            last + 1
+                        )
+                    );
+
+            }
+
+            catch {
+
+                throw new Error(
+                    "QUIZ_INVALID_JSON"
+                );
+
+            }
+        }
+
+
+        if (
+            !data ||
+            typeof data.question !== "string" ||
+            !Array.isArray(data.options) ||
+            data.options.length !== 4 ||
+            !Number.isInteger(data.correct) ||
+            data.correct < 0 ||
+            data.correct > 3
+        ) {
+
+            throw new Error(
+                "QUIZ_INVALID_STRUCTURE"
+            );
+
+        }
+
+
+        data.options =
+            data.options.map(
+                option => String(option)
+            );
+
+        data.correct =
+            Number(data.correct);
+
+        data.explanation =
+            typeof data.explanation === "string"
+                ? data.explanation
+                : "That is the correct answer.";
+
+        return data;
+    }
+
+
+    /* ==========================================
+       QUIZ LOADING
+    ========================================== */
+
+    function renderQuizLoading() {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        container.innerHTML = `
+
+            <div class="max-w-3xl mx-auto w-full">
+
+                <div class="flex items-center justify-between mb-4">
+
+                    <span class="text-xs text-slate-400">
+                        Preparing question...
+                    </span>
+
+                    <span class="text-xs text-slate-500">
+                        ${quizQuestionNumber} / ${TOTAL_QUESTIONS}
+                    </span>
+
+                </div>
+
+                <div class="quiz-progress-track mb-8">
+
+                    <div
+                        class="quiz-progress-fill"
+                        style="width:${(
+                            (quizQuestionNumber - 1) /
+                            TOTAL_QUESTIONS
+                        ) * 100}%">
+                    </div>
+
+                </div>
+
+                <div class="glass-card rounded-3xl p-7 shadow-xl">
+
+                    <div class="flex gap-3 items-center mb-7">
+
+                        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                            AI
+                        </div>
+
+                        <div>
+
+                            <p class="text-sm font-semibold text-white">
+                                AI is creating your question
+                            </p>
+
+                            <p class="text-xs text-slate-500">
+                                Topic: ${escapeHtml(quizTopic)}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex gap-1.5 items-center py-10 justify-center">
+
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        scrollToBottom();
+    }
+
+
+    /* ==========================================
+       RENDER QUIZ QUESTION
+    ========================================== */
+
+    function renderQuizQuestion(question) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        const progress =
+            (
+                (quizQuestionNumber - 1) /
+                TOTAL_QUESTIONS
+            ) * 100;
+
+        const letters =
+            ["A", "B", "C", "D"];
+
+        container.innerHTML = `
+
+            <div class="max-w-3xl mx-auto w-full quiz-feedback">
+
+                <!-- PROGRESS HEADER -->
+
+                <div class="flex items-center justify-between mb-3">
+
+                    <div>
+
+                        <p class="text-xs text-indigo-300 font-medium">
+                            ${escapeHtml(quizTopic)}
+                        </p>
+
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Interactive Quiz
+                        </p>
+
+                    </div>
+
+                    <div class="text-right">
+
+                        <p class="text-sm font-semibold text-white">
+                            ${quizQuestionNumber} / ${TOTAL_QUESTIONS}
+                        </p>
+
+                        <p class="text-[10px] text-slate-500">
+                            ${quizCorrect} correct
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="quiz-progress-track mb-7">
+
+                    <div
+                        class="quiz-progress-fill"
+                        style="width:${progress}%">
+                    </div>
+
+                </div>
+
+
+                <!-- QUESTION CARD -->
+
+                <div class="glass-card rounded-3xl p-7 shadow-xl">
+
+                    <div class="flex items-start gap-4 mb-7">
+
+                        <div class="h-11 w-11 min-w-[44px] rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold">
+                            ${quizQuestionNumber}
+                        </div>
+
+                        <div class="flex-1">
+
+                            <p class="text-[11px] text-slate-500 uppercase tracking-wider mb-2">
+                                Question
+                            </p>
+
+                            <h3 class="text-lg md:text-xl font-semibold text-white leading-relaxed">
+                                ${escapeHtml(question.question)}
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FOUR OPTIONS -->
+
+                    <div
+                        id="quiz-options"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                        ${question.options.map(
+                            (option, index) => `
+
+                                <button
+                                    type="button"
+                                    class="quiz-option glass-card"
+                                    onclick="answerQuiz(${index})">
+
+                                    <span class="quiz-letter">
+                                        ${letters[index]}
+                                    </span>
+
+                                    <span class="text-sm text-slate-200 leading-relaxed">
+                                        ${escapeHtml(option)}
+                                    </span>
+
+                                </button>
+
+                            `
+                        ).join("")}
+
+                    </div>
+
+
+                    <div
+                        id="quiz-feedback"
+                        class="hidden mt-5 p-4 rounded-2xl border">
+
+                    </div>
+
+                </div>
+
+
+                <!-- LIVE SCORE -->
+
+                <div class="grid grid-cols-2 gap-3 mt-4">
+
+                    <div class="quiz-stat">
+
+                        <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                            Correct
+                        </p>
+
+                        <p
+                            id="live-correct"
+                            class="text-lg font-bold text-emerald-400 mt-1">
+                            ${quizCorrect}
+                        </p>
+
+                    </div>
+
+                    <div class="quiz-stat">
+
+                        <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                            Incorrect
+                        </p>
+
+                        <p
+                            id="live-incorrect"
+                            class="text-lg font-bold text-rose-400 mt-1">
+                            ${quizIncorrect}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        scrollToBottom();
+    }
+
+
+    /* ==========================================
+       ANSWER QUIZ
+    ========================================== */
+
+    function answerQuiz(selectedIndex) {
+
+        if (
+            quizAnswered ||
+            !quizCurrentQuestion ||
+            isLoading
+        ) {
+            return;
+        }
+
+        quizAnswered = true;
+
+        const correctIndex =
+            quizCurrentQuestion.correct;
+
+        const buttons =
+            document.querySelectorAll(
+                "#quiz-options .quiz-option"
+            );
+
+        buttons.forEach(
+            button => {
+                button.disabled = true;
+            }
+        );
+
+
+        const selectedButton =
+            buttons[selectedIndex];
+
+        const correctButton =
+            buttons[correctIndex];
+
+
+        const feedback =
+            document.getElementById(
+                "quiz-feedback"
+            );
+
+
+        if (
+            selectedIndex === correctIndex
+        ) {
+
+            quizCorrect++;
+
+            selectedButton.classList.add(
+                "correct"
+            );
+
+            feedback.className =
+                "quiz-feedback mt-5 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-200";
+
+            feedback.innerHTML = `
+
+                <div class="flex items-start gap-3">
+
+                    <div class="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-emerald-300">
+                            Correct!
+                        </p>
+
+                        <p class="text-xs text-emerald-100/80 mt-1">
+                            ${escapeHtml(
+                                quizCurrentQuestion.explanation
+                            )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+        else {
+
+            quizIncorrect++;
+
+            selectedButton.classList.add(
+                "incorrect"
+            );
+
+            correctButton.classList.add(
+                "correct"
+            );
+
+            feedback.className =
+                "quiz-feedback mt-5 p-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-200";
+
+            feedback.innerHTML = `
+
+                <div class="flex items-start gap-3">
+
+                    <div class="h-8 w-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold">
+                        !
+                    </div>
+
+                    <div>
+
+                        <p class="font-semibold text-rose-300">
+                            Not quite
+                        </p>
+
+                        <p class="text-xs text-slate-300 mt-1">
+                            Correct answer:
+                            <strong class="text-emerald-300">
+                                ${escapeHtml(
+                                    quizCurrentQuestion.options[correctIndex]
+                                )}
+                            </strong>
+                        </p>
+
+                        <p class="text-xs text-slate-400 mt-1">
+                            ${escapeHtml(
+                                quizCurrentQuestion.explanation
+                            )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        document.getElementById(
+            "live-correct"
+        ).innerText =
+            quizCorrect;
+
+        document.getElementById(
+            "live-incorrect"
+        ).innerText =
+            quizIncorrect;
+
+
+        quizHistory.push({
+            question:
+                quizCurrentQuestion.question,
+            selected:
+                selectedIndex,
+            correct:
+                correctIndex,
+            isCorrect:
+                selectedIndex === correctIndex
+        });
+
+
+        /*
+         * Automatically continue after a short
+         * delay so the learner can see the result.
+         */
+
+        setTimeout(
+            function() {
+
+                if (
+                    quizQuestionNumber >=
+                    TOTAL_QUESTIONS
+                ) {
+
+                    showQuizResults();
+
+                }
+
+                else {
+
+                    loadNextQuizQuestion();
+
+                }
+
+            },
+            1400
+        );
+    }
+
+
+    /* ==========================================
+       QUIZ RESULTS
+    ========================================== */
+
+    function showQuizResults() {
+
+        quizAnswered = true;
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        const percentage =
+            Math.round(
+                (quizCorrect / TOTAL_QUESTIONS) *
+                100
+            );
+
+        let message = "";
+
+        if (percentage >= 90) {
+            message =
+                "Excellent work! You have a very strong understanding of this topic.";
+        }
+
+        else if (percentage >= 75) {
+            message =
+                "Great job! You have a good understanding of the topic.";
+        }
+
+        else if (percentage >= 50) {
+            message =
+                "Good effort! Review the questions you missed and try again.";
+        }
+
+        else {
+            message =
+                "Keep practicing! Reviewing the topic will help you improve.";
+        }
+
+
+        const degrees =
+            percentage * 3.6;
+
+
+        container.innerHTML = `
+
+            <div class="max-w-3xl mx-auto w-full h-full flex items-center justify-center">
+
+                <div class="glass-card rounded-3xl p-7 md:p-9 shadow-2xl w-full text-center">
+
+                    <div class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 mb-4">
+
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24">
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+
+                        </svg>
+
+                    </div>
+
+
+                    <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">
+                        Quiz Complete
+                    </p>
+
+
+                    <h3 class="text-2xl font-bold text-white mt-2">
+                        ${escapeHtml(quizTopic)}
+                    </h3>
+
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        You completed all 20 questions.
+                    </p>
+
+
+                    <div class="flex justify-center my-7">
+
+                        <div
+                            class="quiz-score-ring"
+                            style="
+                                background:
+                                radial-gradient(
+                                    circle at center,
+                                    rgba(15,23,42,.95) 58%,
+                                    transparent 59%
+                                ),
+                                conic-gradient(
+                                    #6366f1 ${degrees}deg,
+                                    rgba(255,255,255,.08) ${degrees}deg
+                                );
+                            ">
+
+                            <div class="quiz-score-inner">
+
+                                <p class="text-3xl font-bold text-white">
+                                    ${percentage}%
+                                </p>
+
+                                <p class="text-[10px] text-slate-500">
+                                    SCORE
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <p class="text-sm text-slate-300 max-w-lg mx-auto mb-6">
+                        ${message}
+                    </p>
+
+
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Correct
+                            </p>
+
+                            <p class="text-xl font-bold text-emerald-400 mt-1">
+                                ${quizCorrect}
+                            </p>
+
+                        </div>
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Incorrect
+                            </p>
+
+                            <p class="text-xl font-bold text-rose-400 mt-1">
+                                ${quizIncorrect}
+                            </p>
+
+                        </div>
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Questions
+                            </p>
+
+                            <p class="text-xl font-bold text-indigo-300 mt-1">
+                                ${TOTAL_QUESTIONS}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+
+                        <button
+                            type="button"
+                            onclick="previewQuizProgress()"
+                            class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
+
+                            Preview Progress
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            onclick="restartQuiz()"
+                            class="flex-1 sm:flex-none px-5 py-3 rounded-2xl glass-card hover:bg-white/10 text-white text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[.98]">
+
+                            Try Again
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        scrollToBottom();
+
+        addHistoryItem(
+            `Quiz: ${quizTopic}`,
+            "quiz"
+        );
+    }
+
+
+    /* ==========================================
+       PREVIEW PROGRESS
+    ========================================== */
+
+    function previewQuizProgress() {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        const percentage =
+            Math.round(
+                (quizCorrect / TOTAL_QUESTIONS) *
+                100
+            );
+
+
+        container.innerHTML = `
+
+            <div class="max-w-3xl mx-auto w-full">
+
+                <div class="glass-card rounded-3xl p-7 shadow-2xl">
+
+                    <div class="flex items-center justify-between mb-7">
+
+                        <div>
+
+                            <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">
+                                Progress Preview
+                            </p>
+
+                            <h3 class="text-xl font-bold text-white mt-1">
+                                ${escapeHtml(quizTopic)}
+                            </h3>
+
+                        </div>
+
+
+                        <div class="h-10 w-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-sm">
+                            ${percentage}%
+                        </div>
+
+                    </div>
+
+
+                    <!-- PROGRESS BAR -->
+
+                    <div class="mb-7">
+
+                        <div class="flex justify-between text-xs mb-2">
+
+                            <span class="text-slate-400">
+                                Overall progress
+                            </span>
+
+                            <span class="text-white font-medium">
+                                ${quizCorrect} / ${TOTAL_QUESTIONS} correct
+                            </span>
+
+                        </div>
+
+                        <div class="quiz-progress-track">
+
+                            <div
+                                class="quiz-progress-fill"
+                                style="width:${percentage}%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATS -->
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Correct
+                            </p>
+
+                            <p class="text-2xl font-bold text-emerald-400 mt-1">
+                                ${quizCorrect}
+                            </p>
+
+                        </div>
+
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Incorrect
+                            </p>
+
+                            <p class="text-2xl font-bold text-rose-400 mt-1">
+                                ${quizIncorrect}
+                            </p>
+
+                        </div>
+
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Accuracy
+                            </p>
+
+                            <p class="text-2xl font-bold text-indigo-300 mt-1">
+                                ${percentage}%
+                            </p>
+
+                        </div>
+
+
+                        <div class="quiz-stat">
+
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
+                                Total
+                            </p>
+
+                            <p class="text-2xl font-bold text-white mt-1">
+                                ${TOTAL_QUESTIONS}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUESTION REVIEW -->
+
+                    <div class="mt-7">
+
+                        <div class="flex items-center justify-between mb-3">
+
+                            <h4 class="text-sm font-semibold text-white">
+                                Question Review
+                            </h4>
+
+                            <span class="text-[10px] text-slate-500">
+                                20 questions
+                            </span>
+
+                        </div>
+
+
+                        <div class="space-y-2">
+
+                            ${
+                                quizHistory.map(
+                                    (item, index) => `
+
+                                    <div class="glass-card rounded-xl p-3 flex items-center gap-3">
+
+                                        <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold
+                                            ${
+                                                item.isCorrect
+                                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                                    : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                                            }">
+
+                                            ${
+                                                item.isCorrect
+                                                    ? "✓"
+                                                    : "✕"
+                                            }
+
+                                        </div>
+
+                                        <p class="text-xs text-slate-300 flex-1 truncate">
+                                            ${index + 1}. ${escapeHtml(item.question)}
+                                        </p>
+
+                                        <span class="text-[10px] ${
+                                            item.isCorrect
+                                                ? "text-emerald-400"
+                                                : "text-rose-400"
+                                        }">
+
+                                            ${
+                                                item.isCorrect
+                                                    ? "Correct"
+                                                    : "Incorrect"
+                                            }
+
+                                        </span>
+
+                                    </div>
+
+                                `
+                                ).join("")
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="flex gap-3 mt-7">
+
+                        <button
+                            type="button"
+                            onclick="restartQuiz()"
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.01]">
+
+                            Take Quiz Again
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            onclick="startNewChat()"
+                            class="flex-1 glass-card hover:bg-white/10 text-white py-3 rounded-2xl text-sm font-semibold transition-all">
+
+                            New Chat
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        scrollToBottom();
+    }
+
+
+    /* ==========================================
+       RESTART QUIZ
+    ========================================== */
+
+    function restartQuiz() {
+
+        if (!quizTopic) return;
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+        input.value = "";
+
+        startQuiz();
+    }
+
+
+    /* ==========================================
+       QUIZ LOADING CONTROL
+    ========================================== */
+
+    function setQuizLoading(loading) {
+
+        isLoading =
+            loading;
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+        input.disabled =
+            loading;
+
+        button.disabled =
+            loading;
+    }
+
+
+    /* ==========================================
+       QUIZ ERROR
+    ========================================== */
+
+    function renderQuizError(message) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        container.innerHTML = `
+
+            <div class="max-w-2xl mx-auto w-full flex items-center justify-center h-full">
+
+                <div class="glass-card rounded-3xl p-7 text-center shadow-xl border border-rose-500/20">
+
+                    <div class="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 flex items-center justify-center mx-auto mb-4">
+
+                        !
+
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-white mb-2">
+                        Quiz question could not be created
+                    </h3>
+
+                    <p class="text-xs text-slate-400 mb-5">
+                        ${escapeHtml(message)}
+                    </p>
+
+                    <button
+                        type="button"
+                        onclick="loadNextQuizQuestion()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all">
+
+                        Try Again
+
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+        scrollToBottom();
+    }
+
+
+    /* ==========================================
+       CALL VERCEL API
+    ========================================== */
 
     async function callTutorAPI(message, feature) {
 
         let response;
-
 
         try {
 
@@ -818,12 +2214,10 @@
             const rawText =
                 await response.text();
 
-
             console.error(
                 "Non-JSON server response:",
                 rawText
             );
-
 
             throw new Error(
                 rawText
@@ -834,10 +2228,6 @@
         }
 
 
-        /*
-         * Preserve the actual server error.
-         */
-
         if (!response.ok) {
 
             const serverMessage =
@@ -845,23 +2235,18 @@
                 data?.error ||
                 `HTTP_${response.status}`;
 
-
             const error =
                 new Error(
                     String(serverMessage)
                 );
 
-
             error.status =
                 response.status;
-
 
             error.serverData =
                 data;
 
-
             throw error;
-
         }
 
 
@@ -892,13 +2277,12 @@
 
 
         return data.answer;
-
     }
 
 
-    // ==========================================
-    // USER MESSAGE
-    // ==========================================
+    /* ==========================================
+       USER MESSAGE
+    ========================================== */
 
     function appendUserMessage(text) {
 
@@ -909,9 +2293,7 @@
 
 
         const userDiv =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         userDiv.className =
@@ -920,7 +2302,7 @@
 
         userDiv.innerHTML = `
 
-            <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
+            <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">
                 You
             </div>
 
@@ -931,19 +2313,15 @@
         `;
 
 
-        container.appendChild(
-            userDiv
-        );
-
+        container.appendChild(userDiv);
 
         scrollToBottom();
-
     }
 
 
-    // ==========================================
-    // AI MESSAGE
-    // ==========================================
+    /* ==========================================
+       AI MESSAGE
+    ========================================== */
 
     function appendAIMessage(markdownText) {
 
@@ -954,9 +2332,7 @@
 
 
         const aiDiv =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         aiDiv.className =
@@ -996,19 +2372,15 @@
         `;
 
 
-        container.appendChild(
-            aiDiv
-        );
-
+        container.appendChild(aiDiv);
 
         scrollToBottom();
-
     }
 
 
-    // ==========================================
-    // ERROR MESSAGE
-    // ==========================================
+    /* ==========================================
+       ERROR MESSAGE
+    ========================================== */
 
     function showErrorMessage(message) {
 
@@ -1019,9 +2391,9 @@
     }
 
 
-    // ==========================================
-    // FRIENDLY ERRORS
-    // ==========================================
+    /* ==========================================
+       FRIENDLY ERRORS
+    ========================================== */
 
     function getFriendlyErrorMessage(error) {
 
@@ -1043,12 +2415,25 @@
         );
 
 
-        // MISSING REPLICATE TOKEN
+        if (
+            lower.includes("quiz_invalid_json") ||
+            lower.includes("quiz_invalid_structure")
+        ) {
+
+            return `
+### Quiz generation problem
+
+The AI returned a quiz question in an unexpected format.
+
+Please try the quiz again.
+`;
+        }
+
 
         if (
-            lower.includes("replicate_api_token") ||
-            lower.includes("replicate token") ||
-            lower.includes("not configured")
+            lower.includes("missing_replicate_token") ||
+            lower.includes("replicate token is not configured") ||
+            lower.includes("replicate_api_token")
         ) {
 
             return `
@@ -1069,7 +2454,19 @@ Your secret token should NOT be placed in this HTML file.
         }
 
 
-        // AUTHENTICATION
+        if (
+            lower.includes("missing_replicate_model") ||
+            lower.includes("replicate model is not configured")
+        ) {
+
+            return `
+### Replicate model is not configured
+
+The Vercel API needs the Replicate model configuration.
+`;
+
+        }
+
 
         if (
             lower.includes("401") ||
@@ -1083,34 +2480,27 @@ Your secret token should NOT be placed in this HTML file.
 
 Replicate rejected the API token.
 
-Check that your Vercel \`REPLICATE_API_TOKEN\` contains the correct token.
-
-Do not put the token inside \`index.html\`.
+Check your Vercel environment variable and redeploy the project.
 `;
 
         }
 
 
-        // FORBIDDEN
-
         if (
             lower.includes("403") ||
-            lower.includes("forbidden") ||
-            lower.includes("access was denied")
+            lower.includes("forbidden")
         ) {
 
             return `
 ### Replicate access was denied
 
-The token was received, but Replicate did not allow access to the model.
+Replicate received the request but did not allow it.
 
-Check your Replicate account, token permissions, and model.
+Check the token permissions and model access.
 `;
 
         }
 
-
-        // MODEL NOT FOUND
 
         if (
             lower.includes("404") ||
@@ -1123,15 +2513,11 @@ Check your Replicate account, token permissions, and model.
 
 The configured Replicate model could not be found.
 
-The application is configured to use:
-
-\`openai/gpt-4.1-nano\`
+Check the model configuration in your Vercel project.
 `;
 
         }
 
-
-        // RATE LIMIT
 
         if (
             lower.includes("429") ||
@@ -1150,8 +2536,6 @@ Please wait a little and try again.
         }
 
 
-        // INVALID INPUT
-
         if (
             lower.includes("invalid input") ||
             lower.includes("input validation") ||
@@ -1162,15 +2546,13 @@ Please wait a little and try again.
             return `
 ### Replicate model input problem
 
-The Replicate model rejected the input sent by \`api/chat.js\`.
+The model rejected the input sent by the Vercel API.
 
-Check the model input format in the backend.
+Check the model input configuration in \`api/chat.js\`.
 `;
 
         }
 
-
-        // NETWORK
 
         if (
             lower.includes("network_error") ||
@@ -1189,8 +2571,6 @@ Check your internet connection and Vercel deployment.
         }
 
 
-        // INVALID JSON
-
         if (
             lower.includes("invalid_json_response") ||
             lower.includes("non_json_response")
@@ -1207,8 +2587,6 @@ Open the Vercel deployment logs and check \`api/chat.js\`.
         }
 
 
-        // SERVER ERROR
-
         if (
             lower.includes("500") ||
             lower.includes("502") ||
@@ -1221,17 +2599,13 @@ Open the Vercel deployment logs and check \`api/chat.js\`.
 
 The Vercel server or Replicate could not complete the request.
 
-The detailed error was:
+Detailed message:
 
 \`${escapeHtml(message)}\`
-
-Check the Vercel deployment logs for \`api/chat.js\`.
 `;
 
         }
 
-
-        // INVALID DATA
 
         if (
             lower.includes("invalid_api_data")
@@ -1245,8 +2619,6 @@ The server responded, but no usable AI answer was returned.
 
         }
 
-
-        // EMPTY SERVER
 
         if (
             lower.includes("empty_server_response")
@@ -1263,8 +2635,6 @@ Please try again.
         }
 
 
-        // DEFAULT
-
         return `
 ### Something went wrong
 
@@ -1280,9 +2650,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // LOADING
-    // ==========================================
+    /* ==========================================
+       NORMAL LOADING
+    ========================================== */
 
     function setLoading(loading) {
 
@@ -1301,11 +2671,6 @@ Check the Vercel deployment logs if the problem continues.
                 "send-btn"
             );
 
-
-        /*
-         * Input is disabled only while the AI
-         * is processing the submitted message.
-         */
 
         input.disabled =
             loading;
@@ -1329,9 +2694,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // LOADING MESSAGE
-    // ==========================================
+    /* ==========================================
+       LOADING MESSAGE
+    ========================================== */
 
     function appendLoadingMessage() {
 
@@ -1345,9 +2710,7 @@ Check the Vercel deployment logs if the problem continues.
 
 
         const loadingDiv =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         loadingDiv.id =
@@ -1400,9 +2763,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // NEW CHAT
-    // ==========================================
+    /* ==========================================
+       NEW CHAT
+    ========================================== */
 
     function startNewChat() {
 
@@ -1430,7 +2793,7 @@ Check the Vercel deployment logs if the problem continues.
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -1464,6 +2827,28 @@ Check the Vercel deployment logs if the problem continues.
 
         currentFeature =
             null;
+
+        quizTopic =
+            "";
+
+        quizQuestionNumber =
+            0;
+
+        quizCorrect =
+            0;
+
+        quizIncorrect =
+            0;
+
+        quizCurrentQuestion =
+            null;
+
+        quizAnswered =
+            false;
+
+        quizHistory =
+            [];
+
 
         isLoading =
             false;
@@ -1520,9 +2905,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // CLEAR CHAT
-    // ==========================================
+    /* ==========================================
+       CLEAR CHAT
+    ========================================== */
 
     function clearCurrentChat() {
 
@@ -1547,9 +2932,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // HISTORY
-    // ==========================================
+    /* ==========================================
+       HISTORY
+    ========================================== */
 
     function addHistoryItem(
         text,
@@ -1608,15 +2993,27 @@ Check the Vercel deployment logs if the problem continues.
                 if (isLoading) return;
 
 
+                if (feature === "quiz") {
+
+                    quizTopic =
+                        text.replace(
+                            /^Quiz:\s*/i,
+                            ""
+                        );
+
+                    currentFeature =
+                        "quiz";
+
+                    restartQuiz();
+
+                    return;
+                }
+
+
                 selectFeature(
                     feature
                 );
 
-
-                /*
-                 * Clicking history restores
-                 * the old question into the input.
-                 */
 
                 document.getElementById(
                     "user-input"
@@ -1638,9 +3035,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // SCROLL
-    // ==========================================
+    /* ==========================================
+       SCROLL
+    ========================================== */
 
     function scrollToBottom() {
 
@@ -1656,9 +3053,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // ESCAPE HTML
-    // ==========================================
+    /* ==========================================
+       ESCAPE HTML
+    ========================================== */
 
     function escapeHtml(text) {
 
@@ -1687,9 +3084,9 @@ Check the Vercel deployment logs if the problem continues.
     }
 
 
-    // ==========================================
-    // INITIALIZE
-    // ==========================================
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
 
     document.addEventListener(
         "DOMContentLoaded",
@@ -1711,17 +3108,12 @@ Check the Vercel deployment logs if the problem continues.
                 false;
 
 
-            /*
-             * Do not reset the input automatically.
-             */
-
             input.addEventListener(
                 "keydown",
                 function(event) {
 
                     if (
-                        event.key === "Enter" &&
-                        !event.shiftKey
+                        event.key === "Enter"
                     ) {
 
                         event.preventDefault();
