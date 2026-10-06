@@ -530,7 +530,7 @@
 
     <aside class="w-80 glass-panel rounded-3xl flex flex-col p-4 shadow-2xl justify-between">
 
-        <div>
+        <div class="overflow-y-auto min-h-0 pr-1">
 
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-4">
                 Tutor Features
@@ -676,6 +676,9 @@
 
                 </div>
 
+
+                <div id="extra-features" class="space-y-3"></div>
+
             </div>
 
         </div>
@@ -742,6 +745,88 @@
     let plannerType = "daily";
 
     const TOTAL_QUESTIONS = 20;
+
+
+    /* ==========================================
+       EXTRA TUTOR FEATURES (4-8)
+    ========================================== */
+
+    const EXTRA_FEATURES = {
+        flashcards: {
+            num: 4, color: "cyan", name: "Flashcard Maker",
+            short: "Create study flashcards",
+            desc: "Turn any topic into Q&A flashcards for quick revision.",
+            title: "Flashcard Maker Mode",
+            subtitle: "Enter a topic to get a set of study flashcards.",
+            placeholder: "Enter a topic for flashcards...",
+            icon: "M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3",
+            prompt: t => `Create 10 study flashcards for a school student on this topic: ${t}. Format each as "**Q:** question" followed by "**A:** answer". Keep answers short and accurate.`
+        },
+        explainer: {
+            num: 5, color: "amber", name: "Concept Explainer",
+            short: "Simple explanations",
+            desc: "Get any concept explained in simple words with easy examples.",
+            title: "Concept Explainer Mode",
+            subtitle: "Enter a concept and get a simple, easy-to-understand explanation.",
+            placeholder: "Enter a concept to explain simply...",
+            icon: "M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18",
+            prompt: t => `Explain this concept to a school student in simple words, using an everyday analogy and one clear example, then a 2-line summary: ${t}`
+        },
+        essay: {
+            num: 6, color: "rose", name: "Essay Helper",
+            short: "Outlines & writing feedback",
+            desc: "Get an essay outline, or paste your essay for feedback.",
+            title: "Essay Helper Mode",
+            subtitle: "Enter an essay topic for an outline, or paste your essay for feedback.",
+            placeholder: "Enter an essay topic or paste your essay...",
+            icon: "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10",
+            prompt: t => `You are an essay coach for school students. If the input below is a topic, give a clear outline (introduction, body points, conclusion) with a sample thesis statement. If it is a full essay, give constructive feedback on structure, clarity, and grammar with specific improvements. Do not write the whole essay for them.\n\nInput: ${t}`
+        },
+        math: {
+            num: 7, color: "sky", name: "Math Solver",
+            short: "Step-by-step solutions",
+            desc: "Solve math problems with each step clearly explained.",
+            title: "Math Solver Mode",
+            subtitle: "Enter a math problem for a step-by-step solution.",
+            placeholder: "Enter a math problem, e.g. 2x + 5 = 17",
+            icon: "M9 7.5h6m-6 4.5h6m-6 4.5h6M5.25 3h13.5A2.25 2.25 0 0121 5.25v13.5A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75V5.25A2.25 2.25 0 015.25 3z",
+            prompt: t => `Solve this math problem step by step for a school student. Explain the reasoning in each step, show the final answer clearly, and add a quick way to check it.\n\nProblem: ${t}`
+        },
+        grammar: {
+            num: 8, color: "orange", name: "Grammar Checker",
+            short: "Fix grammar & spelling",
+            desc: "Paste text to find mistakes and see a corrected version.",
+            title: "Grammar Checker Mode",
+            subtitle: "Paste your text to check grammar, spelling, and punctuation.",
+            placeholder: "Paste the text you want checked...",
+            icon: "M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z",
+            prompt: t => `Check the following text for grammar, spelling, and punctuation errors. First show the corrected text, then list each mistake with a short explanation of the rule.\n\nText: ${t}`
+        }
+    };
+
+    function renderExtraFeatures() {
+        const box = document.getElementById("extra-features");
+        if (!box) return;
+        box.innerHTML = Object.entries(EXTRA_FEATURES).map(([key, f]) => `
+            <div onclick="selectFeature('${key}')"
+                class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-${f.color}-500/30">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="h-10 w-10 rounded-xl bg-${f.color}-500/20 border border-${f.color}-500/30 flex items-center justify-center text-${f.color}-400 group-hover:bg-${f.color}-500 group-hover:text-white transition-all shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="${f.icon}"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm text-white group-hover:text-${f.color}-300 transition-colors">${f.num}. ${f.name}</h3>
+                        <p class="text-[11px] text-slate-400">${f.short}</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">${f.desc}</p>
+            </div>
+        `).join("");
+    }
+
+    renderExtraFeatures();
 
 
     /* ==========================================
@@ -823,6 +908,18 @@
             renderPlannerSetup();
         }
 
+        else if (EXTRA_FEATURES[feature]) {
+
+            const f = EXTRA_FEATURES[feature];
+
+            titleElem.innerText = f.title;
+            subtitleElem.innerText = f.subtitle;
+            userInput.placeholder = f.placeholder;
+
+            indicator.className =
+                `h-2.5 w-2.5 rounded-full bg-${f.color}-500 shadow-lg shadow-${f.color}-500/50`;
+        }
+
         userInput.focus();
     }
 
@@ -902,6 +999,57 @@
             input.value = "";
 
             await generateStudyPlanFromText(text);
+
+            return;
+        }
+
+        if (EXTRA_FEATURES[currentFeature]) {
+
+            removeEmptyState();
+
+            appendUserMessage(text);
+
+            input.value = "";
+
+            setLoading(true);
+
+            try {
+
+                const result =
+                    await callTutorAPI(
+                        EXTRA_FEATURES[currentFeature].prompt(text),
+                        "homework"
+                    );
+
+                appendAIMessage(result);
+
+                addHistoryItem(
+                    text,
+                    currentFeature
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Tutor API error:",
+                    error
+                );
+
+                appendAIMessage(
+                    getFriendlyErrorMessage(error)
+                );
+
+            }
+
+            finally {
+
+                setLoading(false);
+
+                input.focus();
+
+            }
 
             return;
         }
@@ -3482,555 +3630,7 @@ Check the Vercel deployment logs if the problem continues.
                 if (isLoading) return;
 
                 restoreSavedChat(chat);
-            };
+    </script>
 
-        history.prepend(
-            item
-        );
-    }
-
-
-    /* ==========================================
-       RESTORE SAVED CHAT
-    ========================================== */
-
-    function restoreSavedChat(chat) {
-
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
-
-        container.innerHTML =
-            chat.html;
-
-        currentFeature =
-            chat.feature;
-
-        if (
-            chat.feature === "quiz"
-        ) {
-
-            quizTopic =
-                chat.quizTopic || "";
-
-            quizHistory =
-                JSON.parse(
-                    JSON.stringify(
-                        chat.quizHistory || []
-                    )
-                );
-
-            quizAskedQuestions =
-                [...(
-                    chat.quizAskedQuestions || []
-                )];
-
-            quizQuestionNumber =
-                TOTAL_QUESTIONS;
-
-            quizCurrentQuestion =
-                null;
-
-            quizAnswered =
-                true;
-
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "Interactive Quiz";
-
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
-                `Topic: ${quizTopic}`;
-
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
-                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
-
-        }
-
-        else if (chat.feature === "planner") {
-
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "Study Planner Mode";
-
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
-                "Create a daily or weekly study plan based on your subjects and available time.";
-
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
-                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
-
-        }
-
-        else {
-
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "AI Homework Tutor Mode";
-
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
-                "Ask a homework question for a detailed, step-by-step explanation.";
-
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
-                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
-
-        }
-
-        const input =
-            document.getElementById(
-                "user-input"
-            );
-
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
-
-        input.disabled =
-            false;
-
-        button.disabled =
-            false;
-
-        input.value =
-            "";
-
-        scrollToBottom();
-
-        input.focus();
-    }
-
-
-    /* ==========================================
-       NEW CHAT
-    ========================================== */
-
-    function startNewChat() {
-
-        if (isLoading) return;
-
-        /*
-         * IMPORTANT:
-         * Save the current chat FIRST.
-         *
-         * Previously the function cleared the
-         * chat immediately, which meant the current
-         * conversation disappeared without being saved.
-         */
-        saveCurrentChat();
-
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
-
-
-        container.innerHTML = `
-
-            <div id="empty-state"
-                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
-
-                <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
-
-                    <svg class="w-8 h-8"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
-                        </path>
-
-                    </svg>
-
-                </div>
-
-
-                <h3 class="text-lg font-semibold text-white mb-2">
-                    New Chat Started
-                </h3>
-
-
-                <p class="text-xs text-slate-400 mb-6">
-
-                    Choose
-                    <span class="text-indigo-400 font-medium">
-                        Quiz Maker
-                    </span>
-                    or
-                    <span class="text-purple-400 font-medium">
-                        AI Homework Tutor
-                    </span>
-                    or
-                    <span class="text-emerald-400 font-medium">
-                        Study Planner
-                    </span>
-                    on the right panel.
-
-                </p>
-
-            </div>
-
-        `;
-
-
-        currentFeature =
-            null;
-
-        quizTopic =
-            "";
-
-        quizQuestionNumber =
-            0;
-
-        quizCorrect =
-            0;
-
-        quizIncorrect =
-            0;
-
-        quizCurrentQuestion =
-            null;
-
-        quizAnswered =
-            false;
-
-        quizHistory =
-            [];
-
-        quizAskedQuestions =
-            [];
-
-        plannerSubjects = "";
-        plannerTime = "";
-        plannerType = "daily";
-
-
-        isLoading =
-            false;
-
-
-        document.getElementById(
-            "chat-title"
-        ).innerText =
-            "Select a feature to begin";
-
-
-        document.getElementById(
-            "chat-subtitle"
-        ).innerText =
-            "Choose Quiz Maker, AI Homework Tutor, or Study Planner from the right panel.";
-
-
-        document.getElementById(
-            "current-mode-indicator"
-        ).className =
-            "h-2.5 w-2.5 rounded-full bg-indigo-500";
-
-
-        const input =
-            document.getElementById(
-                "user-input"
-            );
-
-
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
-
-
-        input.disabled =
-            false;
-
-
-        button.disabled =
-            false;
-
-
-        input.value =
-            "";
-
-
-        input.placeholder =
-            "Ask a question or select a feature first...";
-
-
-        input.focus();
-
-    }
-
-
-    /* ==========================================
-       CLEAR CHAT
-    ========================================== */
-
-    function clearCurrentChat() {
-
-        if (isLoading) return;
-
-        const oldFeature =
-            currentFeature;
-
-        startNewChat();
-
-        if (oldFeature) {
-
-            selectFeature(
-                oldFeature
-            );
-
-        }
-
-    }
-
-
-    /* ==========================================
-       HISTORY
-    ========================================== */
-
-    function addHistoryItem(
-        text,
-        feature
-    ) {
-
-        const history =
-            document.getElementById(
-                "history-list"
-            );
-
-
-        const empty =
-            document.getElementById(
-                "empty-history"
-            );
-
-
-        if (empty) {
-            empty.remove();
-        }
-
-
-        const item =
-            document.createElement(
-                "div"
-            );
-
-
-        item.className =
-            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
-
-
-        const title =
-            text.length > 32
-                ? text.slice(0, 32) + "..."
-                : text;
-
-
-        item.innerHTML = `
-
-            <span class="text-sm text-slate-300 group-hover:text-white truncate">
-                ${escapeHtml(title)}
-            </span>
-
-            <span class="text-[10px] text-slate-500">
-                ${feature === "quiz" ? "Quiz" : feature === "planner" ? "Planner" : "Tutor"}
-            </span>
-
-        `;
-
-
-        item.onclick =
-            function() {
-
-                if (isLoading) return;
-
-
-                if (feature === "quiz") {
-
-                    quizTopic =
-                        text.replace(
-                            /^Quiz:\s*/i,
-                            ""
-                        );
-
-                    currentFeature =
-                        "quiz";
-
-                    restartQuiz();
-
-                    return;
-                }
-
-
-                if (feature === "planner") {
-
-                    plannerSubjects =
-                        text.replace(
-                            /^Study Plan:\s*/i,
-                            ""
-                        );
-
-                    plannerTime = "";
-                    plannerType = "daily";
-
-                    selectFeature("planner");
-
-                    document.getElementById(
-                        "user-input"
-                    ).value = "";
-
-                    const plannerSubjectInput =
-                        document.getElementById("planner-subjects");
-
-                    if (plannerSubjectInput) {
-                        plannerSubjectInput.value = plannerSubjects;
-                    }
-
-                    return;
-                }
-
-
-                selectFeature(
-                    feature
-                );
-
-
-                document.getElementById(
-                    "user-input"
-                ).value =
-                    text;
-
-
-                document.getElementById(
-                    "user-input"
-                ).focus();
-
-            };
-
-
-        history.prepend(
-            item
-        );
-
-    }
-
-
-    /* ==========================================
-       SCROLL
-    ========================================== */
-
-    function scrollToBottom() {
-
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
-
-
-        container.scrollTop =
-            container.scrollHeight;
-
-    }
-
-
-    /* ==========================================
-       ESCAPE HTML
-    ========================================== */
-
-    function escapeHtml(text) {
-
-        return String(text)
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
-            );
-
-    }
-
-
-    /* ==========================================
-       INITIALIZE
-    ========================================== */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function() {
-
-            const input =
-                document.getElementById(
-                    "user-input"
-                );
-
-
-            input.disabled =
-                false;
-
-
-            document.getElementById(
-                "send-btn"
-            ).disabled =
-                false;
-
-
-            input.addEventListener(
-                "keydown",
-                function(event) {
-
-                    if (
-                        event.key === "Enter"
-                    ) {
-
-                        event.preventDefault();
-
-                        document
-                            .getElementById(
-                                "chat-form"
-                            )
-                            .requestSubmit();
-
-                    }
-
-                }
-
-            );
-
-        }
-    );
-
-</script>
-
-</body>
-</html>
+    </body>
+    </html>
