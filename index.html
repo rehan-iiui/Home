@@ -120,10 +120,6 @@
             margin: .7rem 0;
         }
 
-        /* ================================
-           QUIZ UI
-        ================================= */
-
         .quiz-option {
             position: relative;
             width: 100%;
@@ -453,7 +449,7 @@
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -543,8 +539,6 @@
 
             <div class="space-y-3">
 
-                <!-- QUIZ -->
-
                 <div
                     onclick="selectFeature('quiz')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-indigo-500/30">
@@ -591,8 +585,6 @@
                 </div>
 
 
-                <!-- HOMEWORK -->
-
                 <div
                     onclick="selectFeature('homework')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-purple-500/30">
@@ -609,7 +601,7 @@
 
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
+                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.477 4.5 1.253v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
                                 </path>
 
                             </svg>
@@ -634,6 +626,52 @@
 
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Ask questions about assignments, equations, or essays with full markdown explanations.
+                    </p>
+
+                </div>
+
+
+                <div
+                    onclick="selectFeature('planner')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-emerald-500/30">
+
+                    <div class="flex items-center gap-3 mb-2">
+
+                        <div class="h-10 w-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-md">
+
+                            <svg class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h3 class="font-semibold text-sm text-white group-hover:text-emerald-300 transition-colors">
+                                3. Study Planner
+                            </h3>
+
+                            <p class="text-[11px] text-slate-400">
+                                Build daily or weekly schedules
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Create a balanced study schedule from your subjects and available study time.
                     </p>
 
                 </div>
@@ -683,9 +721,10 @@
     let currentFeature = null;
     let isLoading = false;
 
-    /* ==========================================
-       QUIZ STATE
-    ========================================== */
+    /*
+     * Stores completed/saved chat snapshots.
+     */
+    let savedChats = [];
 
     let quizTopic = "";
     let quizQuestionNumber = 0;
@@ -693,7 +732,14 @@
     let quizIncorrect = 0;
     let quizCurrentQuestion = null;
     let quizAnswered = false;
+
     let quizHistory = [];
+    let quizAskedQuestions = [];
+
+    // Study Planner state
+    let plannerSubjects = "";
+    let plannerTime = "";
+    let plannerType = "daily";
 
     const TOTAL_QUESTIONS = 20;
 
@@ -760,6 +806,23 @@
 
         }
 
+        else if (feature === "planner") {
+
+            titleElem.innerText =
+                "Study Planner Mode";
+
+            subtitleElem.innerText =
+                "Create a daily or weekly study plan based on your subjects and available time.";
+
+            userInput.placeholder =
+                "Or type: Math, Science, English | 2 hours/day | weekly";
+
+            indicator.className =
+                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+
+            renderPlannerSetup();
+        }
+
         userInput.focus();
     }
 
@@ -803,23 +866,14 @@
         if (!currentFeature) {
 
             showErrorMessage(
-                "Please select Quiz Maker or AI Homework Tutor first."
+                "Please select Quiz Maker, AI Homework Tutor, or Study Planner first."
             );
 
             return;
         }
 
 
-        /* ======================================
-           QUIZ MODE
-        ====================================== */
-
         if (currentFeature === "quiz") {
-
-            /*
-             * If a quiz is already running, don't
-             * accidentally start another quiz.
-             */
 
             if (
                 quizQuestionNumber > 0 &&
@@ -843,10 +897,15 @@
             return;
         }
 
+        if (currentFeature === "planner") {
 
-        /* ======================================
-           HOMEWORK MODE
-        ====================================== */
+            input.value = "";
+
+            await generateStudyPlanFromText(text);
+
+            return;
+        }
+
 
         removeEmptyState();
 
@@ -897,6 +956,292 @@
 
 
     /* ==========================================
+       STUDY PLANNER
+    ========================================== */
+
+    function renderPlannerSetup() {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        if (!container) return;
+
+        const oldSetup =
+            document.getElementById("planner-setup");
+
+        if (oldSetup) {
+            oldSetup.remove();
+        }
+
+        const setup =
+            document.createElement("div");
+
+        setup.id = "planner-setup";
+        setup.className = "max-w-2xl mx-auto w-full";
+
+        setup.innerHTML = `
+            <div class="glass-card rounded-3xl p-6 border border-emerald-500/20 shadow-xl">
+
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white">Build Your Study Plan</h3>
+                        <p class="text-xs text-slate-400">Tell the tutor what you need to study and how much time you have.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Subjects</label>
+                        <input id="planner-subjects" type="text" value="${escapeHtml(plannerSubjects)}"
+                            placeholder="Math, Science, English, History"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Available study time</label>
+                        <input id="planner-time" type="text" value="${escapeHtml(plannerTime)}"
+                            placeholder="Example: 2 hours per day"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Plan type</label>
+                        <select id="planner-type"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white bg-slate-900/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                            <option value="daily" ${plannerType === "daily" ? "selected" : ""}>Daily Plan</option>
+                            <option value="weekly" ${plannerType === "weekly" ? "selected" : ""}>Weekly Plan</option>
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="generateStudyPlan()"
+                        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium py-3 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path>
+                        </svg>
+                        Generate Study Plan
+                    </button>
+
+                    <p class="text-[11px] text-slate-500 text-center">
+                        You can also use the message box below with: <span class="text-emerald-300">subjects | available time | daily/weekly</span>
+                    </p>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(setup);
+        scrollToBottom();
+    }
+
+
+    async function generateStudyPlan() {
+
+        if (isLoading) return;
+
+        const subjectsInput =
+            document.getElementById("planner-subjects");
+
+        const timeInput =
+            document.getElementById("planner-time");
+
+        const typeInput =
+            document.getElementById("planner-type");
+
+        const subjects =
+            subjectsInput ? subjectsInput.value.trim() : "";
+
+        const availableTime =
+            timeInput ? timeInput.value.trim() : "";
+
+        const type =
+            typeInput ? typeInput.value : "daily";
+
+        if (!subjects || !availableTime) {
+            showErrorMessage(
+                "Please enter your subjects and available study time first."
+            );
+            return;
+        }
+
+        plannerSubjects = subjects;
+        plannerTime = availableTime;
+        plannerType = type;
+
+        const planLabel =
+            type === "weekly" ? "weekly" : "daily";
+
+        const prompt = buildStudyPlanPrompt(
+            subjects,
+            availableTime,
+            planLabel
+        );
+
+        const setup =
+            document.getElementById("planner-setup");
+
+        if (setup) setup.remove();
+
+        removeEmptyState();
+
+        appendUserMessage(
+            `Study Planner: ${subjects} | ${availableTime} | ${planLabel}`
+        );
+
+        setLoading(true);
+
+        try {
+
+            const result =
+                await callTutorAPI(
+                    prompt,
+                    "planner"
+                );
+
+            appendAIMessage(result);
+
+            addHistoryItem(
+                `Study Plan: ${subjects}`,
+                "planner"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Study Planner API error:",
+                error
+            );
+
+            appendAIMessage(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            const input =
+                document.getElementById("user-input");
+
+            input.focus();
+        }
+    }
+
+
+    async function generateStudyPlanFromText(text) {
+
+        const parts =
+            text.split("|").map(part => part.trim()).filter(Boolean);
+
+        let subjects = parts[0] || text;
+        let availableTime = parts[1] || "the available time described by the student";
+        let type = (parts[2] || "daily").toLowerCase();
+
+        if (!type.includes("week")) {
+            type = "daily";
+        } else {
+            type = "weekly";
+        }
+
+        plannerSubjects = subjects;
+        plannerTime = availableTime;
+        plannerType = type;
+
+        const setup =
+            document.getElementById("planner-setup");
+
+        if (setup) setup.remove();
+
+        removeEmptyState();
+
+        appendUserMessage(
+            `Study Planner: ${subjects} | ${availableTime} | ${type}`
+        );
+
+        setLoading(true);
+
+        try {
+
+            const result =
+                await callTutorAPI(
+                    buildStudyPlanPrompt(
+                        subjects,
+                        availableTime,
+                        type
+                    ),
+                    "planner"
+                );
+
+            appendAIMessage(result);
+
+            addHistoryItem(
+                `Study Plan: ${subjects}`,
+                "planner"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Study Planner API error:",
+                error
+            );
+
+            appendAIMessage(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            document.getElementById(
+                "user-input"
+            ).focus();
+        }
+    }
+
+
+    function buildStudyPlanPrompt(subjects, availableTime, type) {
+
+        const scheduleInstruction =
+            type === "weekly"
+                ? "Create a realistic Monday-to-Sunday weekly study schedule. Distribute subjects across the week and avoid overloading any single day."
+                : "Create a realistic one-day study schedule using the available time. Include focused study blocks and sensible breaks.";
+
+        return `You are an expert student study planner. Create a clear, realistic, school-friendly ${type} study plan.
+
+Subjects: ${subjects}
+Available study time: ${availableTime}
+Plan type: ${type}
+
+${scheduleInstruction}
+
+Requirements:
+- Prioritize difficult or important subjects without ignoring the others.
+- Fit the plan within the student's stated available time.
+- Include short breaks when appropriate.
+- Make the schedule easy for a student to follow.
+- Use clear headings and a table when useful.
+- For a weekly plan, label days clearly and include study duration for each subject.
+- For a daily plan, use practical study blocks rather than inventing an exact clock time unless the student supplied one.
+- Add a short section called "Study Tips" with 3 practical tips.
+- Do not claim the plan is personalized to information the student did not provide.
+- Return a useful plan directly; do not ask follow-up questions.`;
+    }
+
+
+    /* ==========================================
        START QUIZ
     ========================================== */
 
@@ -909,7 +1254,9 @@
         quizIncorrect = 0;
         quizCurrentQuestion = null;
         quizAnswered = false;
+
         quizHistory = [];
+        quizAskedQuestions = [];
 
         currentFeature = "quiz";
 
@@ -934,6 +1281,33 @@
             "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
 
         await loadNextQuizQuestion();
+    }
+
+
+    /* ==========================================
+       NEXT QUESTION / NEW QUIZ
+    ========================================== */
+
+    function startNextQuiz() {
+
+        if (!quizTopic || isLoading) return;
+
+        /*
+         * Save the completed quiz before starting
+         * another quiz on the same topic.
+         */
+        saveCurrentChat("quiz");
+
+        quizQuestionNumber = 0;
+        quizCorrect = 0;
+        quizIncorrect = 0;
+        quizCurrentQuestion = null;
+        quizAnswered = false;
+
+        quizHistory = [];
+        quizAskedQuestions = [];
+
+        startQuiz();
     }
 
 
@@ -971,6 +1345,10 @@
             quizCurrentQuestion =
                 question;
 
+            quizAskedQuestions.push(
+                question.question
+            );
+
             renderQuizQuestion(question);
 
         }
@@ -999,6 +1377,107 @@
 
 
     /* ==========================================
+       NORMALIZE QUESTION
+    ========================================== */
+
+    function normalizeQuizQuestion(text) {
+
+        return String(text || "")
+            .toLowerCase()
+            .replace(/<[^>]*>/g, "")
+            .replace(/[^\p{L}\p{N}\s]/gu, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+
+    /* ==========================================
+       CHECK DUPLICATE QUESTION
+    ========================================== */
+
+    function isDuplicateQuizQuestion(
+        question,
+        previousQuestions
+    ) {
+
+        const newQuestion =
+            normalizeQuizQuestion(question);
+
+        if (!newQuestion) {
+            return true;
+        }
+
+        return previousQuestions.some(
+            previous => {
+
+                const oldQuestion =
+                    normalizeQuizQuestion(
+                        previous
+                    );
+
+                if (
+                    newQuestion === oldQuestion
+                ) {
+                    return true;
+                }
+
+                const newWords =
+                    new Set(
+                        newQuestion
+                            .split(" ")
+                            .filter(
+                                word =>
+                                    word.length > 3
+                            )
+                    );
+
+                const oldWords =
+                    new Set(
+                        oldQuestion
+                            .split(" ")
+                            .filter(
+                                word =>
+                                    word.length > 3
+                            )
+                    );
+
+                if (
+                    newWords.size < 5 ||
+                    oldWords.size < 5
+                ) {
+                    return false;
+                }
+
+                let common = 0;
+
+                newWords.forEach(
+                    word => {
+
+                        if (
+                            oldWords.has(word)
+                        ) {
+                            common++;
+                        }
+
+                    }
+                );
+
+                const smaller =
+                    Math.min(
+                        newWords.size,
+                        oldWords.size
+                    );
+
+                const similarity =
+                    common / smaller;
+
+                return similarity >= 0.78;
+            }
+        );
+    }
+
+
+    /* ==========================================
        GET QUIZ QUESTION FROM AI
     ========================================== */
 
@@ -1007,18 +1486,70 @@
         number
     ) {
 
-        const prompt = `
-Create ONE multiple-choice quiz question for a student about this topic:
+        const previousQuestions =
+            [...quizAskedQuestions];
 
+        const MAX_ATTEMPTS = 5;
+
+        for (
+            let attempt = 1;
+            attempt <= MAX_ATTEMPTS;
+            attempt++
+        ) {
+
+            const previousText =
+                previousQuestions.length
+                    ? previousQuestions
+                        .map(
+                            (question, index) =>
+                                `${index + 1}. ${question}`
+                        )
+                        .join("\n")
+                    : "NONE";
+
+            const prompt = `
+You are the interactive quiz engine for AI Tutor Studio.
+
+Create ONE completely NEW multiple-choice quiz question for a school student.
+
+TOPIC:
 "${topic}"
 
-This is question ${number} of ${TOTAL_QUESTIONS}.
+CURRENT QUESTION:
+${number} of ${TOTAL_QUESTIONS}
 
-Return ONLY valid JSON.
-Do not use markdown.
-Do not add explanations outside the JSON.
+PREVIOUS QUESTIONS:
+${previousText}
 
-Required exact structure:
+IMPORTANT ANTI-REPETITION RULES:
+
+1. NEVER repeat any previous question.
+2. NEVER ask the same fact again with different wording.
+3. NEVER closely rephrase a previous question.
+4. The new question must test a different fact, idea, concept, calculation, example, or piece of knowledge.
+5. Read ALL previous questions before creating the new one.
+6. Do not copy the wording or structure of previous questions when they test the same information.
+7. If a topic has many facts, move to a different fact instead of repeating an earlier one.
+8. Every question must be unique within this 20-question quiz.
+
+QUESTION RULES:
+
+- Exactly one question.
+- Exactly four options.
+- Only one option is correct.
+- "correct" must be 0, 1, 2, or 3.
+- The question must be educational.
+- The question must be suitable for a school student.
+- No trick questions.
+- No ambiguous questions.
+- Keep the wording clear.
+- Give a short explanation.
+- Return ONLY JSON.
+- Do NOT use markdown.
+- Do NOT use code fences.
+- Do NOT write anything before or after the JSON.
+
+Return exactly:
 
 {
   "question": "Question text",
@@ -1029,25 +1560,40 @@ Required exact structure:
     "Option D"
   ],
   "correct": 0,
-  "explanation": "Short explanation of why the correct answer is correct."
+  "explanation": "Short explanation."
 }
 
-Rules:
-- "correct" must be a number from 0 to 3.
-- There must be exactly four options.
-- Only one option must be correct.
-- Make the question appropriate for a school student.
-- Make this question different from common basic questions when possible.
-- Keep the question clear and educational.
+This is attempt ${attempt} to create a UNIQUE question.
 `;
 
-        const answer =
-            await callTutorAPI(
-                prompt,
-                "quiz"
-            );
+            const answer =
+                await callTutorAPI(
+                    prompt,
+                    "quiz"
+                );
 
-        return parseQuizJSON(answer);
+            const question =
+                parseQuizJSON(answer);
+
+            const duplicate =
+                isDuplicateQuizQuestion(
+                    question.question,
+                    previousQuestions
+                );
+
+            if (!duplicate) {
+                return question;
+            }
+
+            console.warn(
+                `Duplicate quiz question rejected on attempt ${attempt}:`,
+                question.question
+            );
+        }
+
+        throw new Error(
+            "QUIZ_DUPLICATE_QUESTION"
+        );
     }
 
 
@@ -1060,11 +1606,6 @@ Rules:
         let text =
             String(raw)
                 .trim();
-
-        /*
-         * Remove markdown fences if the model
-         * accidentally returns them.
-         */
 
         text =
             text.replace(
@@ -1088,10 +1629,6 @@ Rules:
         }
 
         catch {
-
-            /*
-             * Try extracting the first JSON object.
-             */
 
             const first =
                 text.indexOf("{");
@@ -1150,18 +1687,45 @@ Rules:
         }
 
 
+        data.question =
+            data.question.trim();
+
+
         data.options =
             data.options.map(
-                option => String(option)
+                option =>
+                    String(option).trim()
             );
+
+
+        const uniqueOptions =
+            new Set(
+                data.options.map(
+                    option =>
+                        option.toLowerCase().trim()
+                )
+            );
+
+        if (
+            uniqueOptions.size !== 4
+        ) {
+
+            throw new Error(
+                "QUIZ_INVALID_STRUCTURE"
+            );
+
+        }
+
 
         data.correct =
             Number(data.correct);
+
 
         data.explanation =
             typeof data.explanation === "string"
                 ? data.explanation
                 : "That is the correct answer.";
+
 
         return data;
     }
@@ -1185,7 +1749,7 @@ Rules:
                 <div class="flex items-center justify-between mb-4">
 
                     <span class="text-xs text-slate-400">
-                        Preparing question...
+                        Preparing a new question...
                     </span>
 
                     <span class="text-xs text-slate-500">
@@ -1217,7 +1781,7 @@ Rules:
                         <div>
 
                             <p class="text-sm font-semibold text-white">
-                                AI is creating your question
+                                AI is creating a unique question
                             </p>
 
                             <p class="text-xs text-slate-500">
@@ -1269,8 +1833,6 @@ Rules:
 
             <div class="max-w-3xl mx-auto w-full quiz-feedback">
 
-                <!-- PROGRESS HEADER -->
-
                 <div class="flex items-center justify-between mb-3">
 
                     <div>
@@ -1310,8 +1872,6 @@ Rules:
                 </div>
 
 
-                <!-- QUESTION CARD -->
-
                 <div class="glass-card rounded-3xl p-7 shadow-xl">
 
                     <div class="flex items-start gap-4 mb-7">
@@ -1334,8 +1894,6 @@ Rules:
 
                     </div>
 
-
-                    <!-- FOUR OPTIONS -->
 
                     <div
                         id="quiz-options"
@@ -1373,8 +1931,6 @@ Rules:
 
                 </div>
 
-
-                <!-- LIVE SCORE -->
 
                 <div class="grid grid-cols-2 gap-3 mt-4">
 
@@ -1445,13 +2001,11 @@ Rules:
             }
         );
 
-
         const selectedButton =
             buttons[selectedIndex];
 
         const correctButton =
             buttons[correctIndex];
-
 
         const feedback =
             document.getElementById(
@@ -1575,11 +2129,6 @@ Rules:
                 selectedIndex === correctIndex
         });
 
-
-        /*
-         * Automatically continue after a short
-         * delay so the learner can see the result.
-         */
 
         setTimeout(
             function() {
@@ -1786,6 +2335,16 @@ Rules:
 
                         <button
                             type="button"
+                            onclick="startNextQuiz()"
+                            class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
+
+                            Next Question
+
+                        </button>
+
+
+                        <button
+                            type="button"
                             onclick="restartQuiz()"
                             class="flex-1 sm:flex-none px-5 py-3 rounded-2xl glass-card hover:bg-white/10 text-white text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[.98]">
 
@@ -1855,8 +2414,6 @@ Rules:
                     </div>
 
 
-                    <!-- PROGRESS BAR -->
-
                     <div class="mb-7">
 
                         <div class="flex justify-between text-xs mb-2">
@@ -1882,8 +2439,6 @@ Rules:
 
                     </div>
 
-
-                    <!-- STATS -->
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
@@ -1940,8 +2495,6 @@ Rules:
 
                     </div>
 
-
-                    <!-- QUESTION REVIEW -->
 
                     <div class="mt-7">
 
@@ -2024,10 +2577,10 @@ Rules:
 
                         <button
                             type="button"
-                            onclick="startNewChat()"
-                            class="flex-1 glass-card hover:bg-white/10 text-white py-3 rounded-2xl text-sm font-semibold transition-all">
+                            onclick="startNextQuiz()"
+                            class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.01]">
 
-                            New Chat
+                            Next Question
 
                         </button>
 
@@ -2415,6 +2968,22 @@ Rules:
 
 
         if (
+            lower.includes("quiz_duplicate_question")
+        ) {
+
+            return `
+### New question could not be generated
+
+The AI repeatedly returned a question too similar to one already used.
+
+Nothing was counted as a new question.
+
+Press **Try Again** to generate another unique question.
+`;
+        }
+
+
+        if (
             lower.includes("quiz_invalid_json") ||
             lower.includes("quiz_invalid_structure")
         ) {
@@ -2763,6 +3332,290 @@ Check the Vercel deployment logs if the problem continues.
 
 
     /* ==========================================
+       SAVE CURRENT CHAT
+    ========================================== */
+
+    function saveCurrentChat(featureOverride = null) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        if (!container) return;
+
+        const visibleMessages =
+            Array.from(
+                container.children
+            ).filter(
+                element =>
+                    !element.id ||
+                    element.id !== "empty-state"
+            );
+
+        if (!visibleMessages.length) {
+            return;
+        }
+
+        const feature =
+            featureOverride ||
+            currentFeature;
+
+        let title = "";
+
+        if (feature === "quiz") {
+            title =
+                `Quiz: ${quizTopic || "Quiz"}`;
+        }
+
+        else if (feature === "planner") {
+            title =
+                `Study Plan: ${plannerSubjects || "Study Planner"}`;
+        }
+
+        else {
+
+            const userMessages =
+                Array.from(
+                    container.querySelectorAll(
+                        ".ml-auto"
+                    )
+                );
+
+            const lastUser =
+                userMessages.length
+                    ? userMessages[
+                        userMessages.length - 1
+                    ]
+                    : null;
+
+            title =
+                lastUser
+                    ? lastUser.innerText.trim()
+                    : "Homework Chat";
+        }
+
+        const snapshot =
+            container.innerHTML;
+
+        savedChats.push({
+            id:
+                Date.now(),
+            title:
+                title,
+            feature:
+                feature,
+            html:
+                snapshot,
+            quizTopic:
+                quizTopic,
+            quizHistory:
+                feature === "quiz"
+                    ? JSON.parse(
+                        JSON.stringify(
+                            quizHistory
+                        )
+                    )
+                    : [],
+            quizAskedQuestions:
+                feature === "quiz"
+                    ? [...quizAskedQuestions]
+                    : []
+        });
+
+        addSavedChatToHistory(
+            savedChats[
+                savedChats.length - 1
+            ]
+        );
+    }
+
+
+    /* ==========================================
+       ADD SAVED CHAT TO HISTORY
+    ========================================== */
+
+    function addSavedChatToHistory(chat) {
+
+        const history =
+            document.getElementById(
+                "history-list"
+            );
+
+        const empty =
+            document.getElementById(
+                "empty-history"
+            );
+
+        if (empty) {
+            empty.remove();
+        }
+
+        const item =
+            document.createElement(
+                "div"
+            );
+
+        item.className =
+            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+
+        const title =
+            chat.title.length > 32
+                ? chat.title.slice(0, 32) + "..."
+                : chat.title;
+
+        item.innerHTML = `
+
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">
+                ${escapeHtml(title)}
+            </span>
+
+            <span class="text-[10px] text-slate-500">
+                ${chat.feature === "quiz" ? "Quiz" : chat.feature === "planner" ? "Planner" : "Tutor"}
+            </span>
+
+        `;
+
+        item.onclick =
+            function() {
+
+                if (isLoading) return;
+
+                restoreSavedChat(chat);
+            };
+
+        history.prepend(
+            item
+        );
+    }
+
+
+    /* ==========================================
+       RESTORE SAVED CHAT
+    ========================================== */
+
+    function restoreSavedChat(chat) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        container.innerHTML =
+            chat.html;
+
+        currentFeature =
+            chat.feature;
+
+        if (
+            chat.feature === "quiz"
+        ) {
+
+            quizTopic =
+                chat.quizTopic || "";
+
+            quizHistory =
+                JSON.parse(
+                    JSON.stringify(
+                        chat.quizHistory || []
+                    )
+                );
+
+            quizAskedQuestions =
+                [...(
+                    chat.quizAskedQuestions || []
+                )];
+
+            quizQuestionNumber =
+                TOTAL_QUESTIONS;
+
+            quizCurrentQuestion =
+                null;
+
+            quizAnswered =
+                true;
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Interactive Quiz";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                `Topic: ${quizTopic}`;
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        }
+
+        else if (chat.feature === "planner") {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Study Planner Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Create a daily or weekly study plan based on your subjects and available time.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "AI Homework Tutor Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Ask a homework question for a detailed, step-by-step explanation.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+
+        }
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+        input.disabled =
+            false;
+
+        button.disabled =
+            false;
+
+        input.value =
+            "";
+
+        scrollToBottom();
+
+        input.focus();
+    }
+
+
+    /* ==========================================
        NEW CHAT
     ========================================== */
 
@@ -2770,6 +3623,15 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
+        /*
+         * IMPORTANT:
+         * Save the current chat FIRST.
+         *
+         * Previously the function cleared the
+         * chat immediately, which meant the current
+         * conversation disappeared without being saved.
+         */
+        saveCurrentChat();
 
         const container =
             document.getElementById(
@@ -2792,7 +3654,7 @@ Check the Vercel deployment logs if the problem continues.
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -2814,6 +3676,10 @@ Check the Vercel deployment logs if the problem continues.
                     or
                     <span class="text-purple-400 font-medium">
                         AI Homework Tutor
+                    </span>
+                    or
+                    <span class="text-emerald-400 font-medium">
+                        Study Planner
                     </span>
                     on the right panel.
 
@@ -2848,6 +3714,13 @@ Check the Vercel deployment logs if the problem continues.
         quizHistory =
             [];
 
+        quizAskedQuestions =
+            [];
+
+        plannerSubjects = "";
+        plannerTime = "";
+        plannerType = "daily";
+
 
         isLoading =
             false;
@@ -2862,7 +3735,7 @@ Check the Vercel deployment logs if the problem continues.
         document.getElementById(
             "chat-subtitle"
         ).innerText =
-            "Choose Quiz Maker or AI Homework Tutor from the right panel.";
+            "Choose Quiz Maker, AI Homework Tutor, or Study Planner from the right panel.";
 
 
         document.getElementById(
@@ -2912,13 +3785,10 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
-
         const oldFeature =
             currentFeature;
 
-
         startNewChat();
-
 
         if (oldFeature) {
 
@@ -2980,7 +3850,7 @@ Check the Vercel deployment logs if the problem continues.
             </span>
 
             <span class="text-[10px] text-slate-500">
-                ${feature === "quiz" ? "Quiz" : "Tutor"}
+                ${feature === "quiz" ? "Quiz" : feature === "planner" ? "Planner" : "Tutor"}
             </span>
 
         `;
@@ -3004,6 +3874,34 @@ Check the Vercel deployment logs if the problem continues.
                         "quiz";
 
                     restartQuiz();
+
+                    return;
+                }
+
+
+                if (feature === "planner") {
+
+                    plannerSubjects =
+                        text.replace(
+                            /^Study Plan:\s*/i,
+                            ""
+                        );
+
+                    plannerTime = "";
+                    plannerType = "daily";
+
+                    selectFeature("planner");
+
+                    document.getElementById(
+                        "user-input"
+                    ).value = "";
+
+                    const plannerSubjectInput =
+                        document.getElementById("planner-subjects");
+
+                    if (plannerSubjectInput) {
+                        plannerSubjectInput.value = plannerSubjects;
+                    }
 
                     return;
                 }
@@ -3126,6 +4024,7 @@ Check the Vercel deployment logs if the problem continues.
                     }
 
                 }
+
             );
 
         }
