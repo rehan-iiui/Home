@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor Studio</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.65);
+            animation: typing 1.2s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: .3s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: .35;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+
+        .message-content p {
+            margin-bottom: .6rem;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            padding-left: 1.3rem;
+            margin: .5rem 0;
+        }
+
+        .message-content ul {
+            list-style: disc;
+        }
+
+        .message-content ol {
+            list-style: decimal;
+        }
+
+        .message-content strong {
+            color: white;
+        }
+
+        .message-content code {
+            background: rgba(0,0,0,.3);
+            padding: .15rem .35rem;
+            border-radius: .35rem;
+        }
+
+        .message-content pre {
+            background: rgba(0,0,0,.35);
+            padding: .8rem;
+            border-radius: .75rem;
+            overflow-x: auto;
+            margin: .7rem 0;
+        }
+
+        .message-content blockquote {
+            border-left: 3px solid rgba(129,140,248,.7);
+            padding-left: .8rem;
+            color: #cbd5e1;
+            margin: .7rem 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 text-slate-100 h-screen overflow-hidden font-sans">
+
+<div class="flex h-screen w-screen p-4 gap-4">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+
+    <aside class="w-72 glass-panel rounded-3xl flex flex-col justify-between p-4 shadow-2xl transition-all duration-300">
+
+        <div>
+
+            <div class="flex items-center gap-3 px-3 py-2 mb-6">
+                <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                </div>
+
+                <div>
+                    <h1 class="font-bold text-base tracking-wide">AI Tutor</h1>
+                    <p class="text-xs text-indigo-300">Your Personal Study Guide</p>
+                </div>
+            </div>
+
+            <button
+                onclick="startNewChat()"
+                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium py-3 px-4 rounded-2xl shadow-lg shadow-indigo-600/20 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+
+                New Chat
+            </button>
+
+            <div class="mt-6">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                    Chat History
+                </h2>
+
+                <div id="history-list"
+                    class="space-y-1 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
+
+                    <!-- Real history items can be added here later -->
+
+                    <div id="empty-history"
+                        class="px-3 py-4 text-xs text-slate-500 text-center">
+                        No previous chats yet.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pt-4 border-t border-white/10 flex items-center gap-3 px-2">
+
+            <div class="h-8 w-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs">
+                AI
+            </div>
+
+            <div class="flex-1 overflow-hidden">
+                <p class="text-xs font-medium text-white truncate">
+                    Ready to learn
+                </p>
+
+                <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Online
+                </p>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= CENTER ================= -->
+
+    <main class="flex-1 glass-panel rounded-3xl flex flex-col overflow-hidden shadow-2xl relative">
+
+        <header class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.01]">
+
+            <div class="flex items-center gap-3">
+
+                <div id="current-mode-indicator"
+                    class="h-2.5 w-2.5 rounded-full bg-indigo-500">
+                </div>
+
+                <div>
+                    <h2 id="chat-title"
+                        class="font-semibold text-sm text-white">
+                        Select a feature to begin
+                    </h2>
+
+                    <p id="chat-subtitle"
+                        class="text-xs text-slate-400">
+                        Choose Quiz Maker or AI Homework Tutor from the right panel.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flex items-center gap-2">
+
+                <button
+                    onclick="clearCurrentChat()"
+                    class="p-2 rounded-xl glass-card hover:bg-white/10 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer">
+
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+
+                    Clear Chat
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- CHAT MESSAGES -->
+
+        <div id="chat-messages"
+            class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <div id="empty-state"
+                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+
+                <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
+
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-2">
+                    Welcome to your AI Tutor
+                </h3>
+
+                <p class="text-xs text-slate-400 mb-6">
+                    Select
+                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
+                    or
+                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
+                    from the right control panel to start learning.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="p-4 border-t border-white/10 bg-white/[0.01]">
+
+            <form id="chat-form"
+                onsubmit="handleSendMessage(event)"
+                class="flex items-center gap-2">
+
+                <input
+                    type="text"
+                    id="user-input"
+                    placeholder="Ask a question or select a feature first..."
+                    class="flex-1 glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    autocomplete="off"
+                    disabled
+                />
+
+                <button
+                    type="submit"
+                    id="send-btn"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    disabled>
+
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5">
+                        </path>
+                    </svg>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= RIGHT SIDEBAR ================= -->
+
+    <aside class="w-80 glass-panel rounded-3xl flex flex-col p-4 shadow-2xl justify-between">
+
+        <div>
+
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-4">
+                Tutor Features
+            </h2>
+
+            <div class="space-y-3">
+
+                <!-- QUIZ -->
+
+                <div
+                    onclick="selectFeature('quiz')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-indigo-500/30">
+
+                    <div class="flex items-center gap-3 mb-2">
+
+                        <div class="h-10 w-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-md">
+
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+                        <div>
+
+                            <h3 class="font-semibold text-sm text-white group-hover:text-indigo-300 transition-colors">
+                                1. Quiz Maker
+                            </h3>
+
+                            <p class="text-[11px] text-slate-400">
+                                Generate custom practice tests
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Test your understanding with instant multiple-choice or open-ended quizzes.
+                    </p>
+
+                </div>
+
+
+                <!-- HOMEWORK -->
+
+                <div
+                    onclick="selectFeature('homework')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-purple-500/30">
+
+                    <div class="flex items-center gap-3 mb-2">
+
+                        <div class="h-10 w-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-md">
+
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+                        <div>
+
+                            <h3 class="font-semibold text-sm text-white group-hover:text-purple-300 transition-colors">
+                                2. AI Homework Tutor
+                            </h3>
+
+                            <p class="text-[11px] text-slate-400">
+                                Step-by-step problem solver
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Ask questions about assignments, equations, or essays with full markdown explanations.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="glass-card p-3.5 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.02] to-white/[0.05]">
+
+            <div class="flex items-center gap-2 mb-1">
+
+                <svg class="w-4 h-4 text-amber-400"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z">
+                    </path>
+
+                </svg>
+
+                <span class="text-xs font-semibold text-white">
+                    Pro Tip
+                </span>
+
+            </div>
+
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+                Markdown syntax is fully supported in answers for code snippets, formulas, and bullet points.
+            </p>
+
+        </div>
+
+    </aside>
+
+</div>
+
+
+<script>
+
+    let currentFeature = null;
+    let isLoading = false;
+
+
+    // =========================
+    // SELECT FEATURE
+    // =========================
+
+    function selectFeature(feature) {
+
+        currentFeature = feature;
+
+        const titleElem = document.getElementById("chat-title");
+        const subtitleElem = document.getElementById("chat-subtitle");
+        const indicator = document.getElementById("current-mode-indicator");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+
+        removeEmptyState();
+
+        if (feature === "quiz") {
+
+            titleElem.innerText = "Quiz Maker Mode";
+
+            subtitleElem.innerText =
+                "Type a topic to generate a custom practice quiz.";
+
+            userInput.placeholder =
+                "Enter a topic to generate a quiz...";
+
+            indicator.className =
+                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        }
+
+        else if (feature === "homework") {
+
+            titleElem.innerText = "AI Homework Tutor Mode";
+
+            subtitleElem.innerText =
+                "Ask a homework question for a detailed, step-by-step explanation.";
+
+            userInput.placeholder =
+                "Paste your homework question or problem here...";
+
+            indicator.className =
+                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+
+        }
+
+        userInput.focus();
+    }
+
+
+    // =========================
+    // REMOVE EMPTY STATE
+    // =========================
+
+    function removeEmptyState() {
+
+        const emptyState =
+            document.getElementById("empty-state");
+
+        if (emptyState) {
+            emptyState.remove();
+        }
+    }
+
+
+    // =========================
+    // SEND MESSAGE
+    // =========================
+
+    async function handleSendMessage(event) {
+
+        event.preventDefault();
+
+        if (isLoading) return;
+
+        const input =
+            document.getElementById("user-input");
+
+        const text =
+            input.value.trim();
+
+        if (!text) return;
+
+        if (!currentFeature) {
+
+            showErrorMessage(
+                "Please select Quiz Maker or AI Homework Tutor first."
+            );
+
+            return;
+        }
+
+        removeEmptyState();
+
+        appendUserMessage(text);
+
+        input.value = "";
+
+        setLoading(true);
+
+        try {
+
+            const result =
+                await callTutorAPI(text, currentFeature);
+
+            appendAIMessage(result);
+
+            addHistoryItem(text, currentFeature);
+
+        }
+
+        catch (error) {
+
+            console.error("Tutor API error:", error);
+
+            appendAIMessage(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            input.focus();
+        }
+    }
+
+
+    // =========================
+    // CALL VERCEL API
+    // =========================
+
+    async function callTutorAPI(message, feature) {
+
+        const response = await fetch("/api/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message,
+                feature: feature
+            })
+
+        });
+
+
+        /*
+         * Do NOT blindly call response.json().
+         *
+         * This prevents the classic:
+         *
+         * Unexpected token '<'
+         *
+         * or
+         *
+         * Unexpected token 'T'
+         *
+         * error when Vercel returns HTML/plain text.
+         */
+
+        const contentType =
+            response.headers.get("content-type") || "";
+
+        let data = null;
+        let rawText = "";
+
+        if (contentType.includes("application/json")) {
+
+            try {
+
+                data = await response.json();
+
+            }
+
+            catch (jsonError) {
+
+                throw new Error(
+                    "INVALID_JSON_RESPONSE"
+                );
+            }
+
+        }
+
+        else {
+
+            rawText = await response.text();
+
+            if (rawText) {
+
+                throw new Error(
+                    "NON_JSON_RESPONSE:" +
+                    rawText.slice(0, 300)
+                );
+
+            }
+
+            throw new Error(
+                "EMPTY_SERVER_RESPONSE"
+            );
+        }
+
+
+        if (!response.ok) {
+
+            const serverError =
+                data?.error ||
+                data?.message ||
+                `HTTP_${response.status}`;
+
+            throw new Error(serverError);
+        }
+
+
+        if (!data || typeof data.answer !== "string") {
+
+            throw new Error(
+                "INVALID_API_DATA"
+            );
+        }
+
+
+        return data.answer;
+    }
+
+
+    // =========================
+    // USER MESSAGE
+    // =========================
+
+    function appendUserMessage(text) {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        const userDiv =
+            document.createElement("div");
+
+        userDiv.className =
+            "flex gap-3 max-w-2xl ml-auto flex-row-reverse";
+
+        userDiv.innerHTML = `
+            <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                You
+            </div>
+
+            <div class="bg-indigo-600/30 border border-indigo-500/30 p-4 rounded-2xl text-sm text-white leading-relaxed shadow-lg">
+                ${escapeHtml(text)}
+            </div>
+        `;
+
+        container.appendChild(userDiv);
+
+        scrollToBottom();
+    }
+
+
+    // =========================
+    // AI MESSAGE
+    // =========================
+
+    function appendAIMessage(markdownText) {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        const aiDiv =
+            document.createElement("div");
+
+        aiDiv.className =
+            "flex gap-3 max-w-2xl";
+
+        let rendered;
+
+        try {
+
+            rendered =
+                marked.parse(markdownText);
+
+        }
+
+        catch {
+
+            rendered =
+                `<p>${escapeHtml(markdownText)}</p>`;
+        }
+
+        aiDiv.innerHTML = `
+
+            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                AI
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl text-sm text-slate-200 leading-relaxed shadow-lg w-full space-y-2 message-content">
+                ${rendered}
+            </div>
+
+        `;
+
+        container.appendChild(aiDiv);
+
+        scrollToBottom();
+    }
+
+
+    // =========================
+    // ERROR MESSAGE
+    // =========================
+
+    function showErrorMessage(message) {
+
+        appendAIMessage(
+            `### Tutor Error\n\n${message}`
+        );
+    }
+
+
+    // =========================
+    // FRIENDLY ERROR HANDLING
+    // =========================
+
+    function getFriendlyErrorMessage(error) {
+
+        const message =
+            String(error?.message || error || "");
+
+        const lower =
+            message.toLowerCase();
+
+
+        if (
+            lower.includes("invalid_json_response") ||
+            lower.includes("unexpected token") ||
+            lower.includes("non_json_response")
+        ) {
+
+            return `
+### The AI service returned an invalid response
+
+The server did not return the expected JSON response.
+
+This can happen if the Vercel API function has an error or the API endpoint is not configured correctly.
+
+Please check your Vercel deployment and environment variables.
+`;
+        }
+
+
+        if (
+            lower.includes("401") ||
+            lower.includes("unauthorized") ||
+            lower.includes("invalid api key") ||
+            lower.includes("authentication")
+        ) {
+
+            return `
+### API authentication problem
+
+The AI API key appears to be missing, invalid, or not available to the Vercel server.
+
+Check that your Vercel environment variable is named:
+
+\`OPENAI_API_KEY\`
+
+Then redeploy the project.
+`;
+        }
+
+
+        if (
+            lower.includes("403") ||
+            lower.includes("forbidden")
+        ) {
+
+            return `
+### API access was denied
+
+The API request reached the server, but the API provider did not allow the request.
+
+Check your API project, key permissions, billing, and selected model.
+`;
+        }
+
+
+        if (
+            lower.includes("429") ||
+            lower.includes("rate limit") ||
+            lower.includes("quota")
+        ) {
+
+            return `
+### API limit reached
+
+The AI service is currently refusing the request because a rate limit or usage limit was reached.
+
+Please wait a little and try again.
+`;
+        }
+
+
+        if (
+            lower.includes("500") ||
+            lower.includes("502") ||
+            lower.includes("503") ||
+            lower.includes("504") ||
+            lower.includes("server")
+        ) {
+
+            return `
+### AI server problem
+
+The AI service or Vercel server could not complete the request.
+
+Please try again in a moment.
+`;
+        }
+
+
+        if (
+            lower.includes("failed to fetch") ||
+            lower.includes("networkerror")
+        ) {
+
+            return `
+### Connection problem
+
+The browser could not reach the AI server.
+
+Check your internet connection and make sure the Vercel deployment is online.
+`;
+        }
+
+
+        if (
+            lower.includes("missing_api_key")
+        ) {
+
+            return `
+### API key is not configured
+
+Vercel cannot find the required API key.
+
+Add \`OPENAI_API_KEY\` to your Vercel Environment Variables and redeploy.
+`;
+        }
+
+
+        return `
+### Something went wrong
+
+The AI tutor could not complete this request.
+
+Please try again. If the problem continues, check the Vercel deployment logs.
+`;
+    }
+
+
+    // =========================
+    // LOADING
+    // =========================
+
+    function setLoading(loading) {
+
+        isLoading = loading;
+
+        const input =
+            document.getElementById("user-input");
+
+        const button =
+            document.getElementById("send-btn");
+
+
+        input.disabled =
+            loading || !currentFeature;
+
+        button.disabled =
+            loading || !currentFeature;
+
+
+        if (loading) {
+
+            appendLoadingMessage();
+
+        }
+
+        else {
+
+            removeLoadingMessage();
+
+        }
+    }
+
+
+    function appendLoadingMessage() {
+
+        removeLoadingMessage();
+
+        const container =
+            document.getElementById("chat-messages");
+
+        const loadingDiv =
+            document.createElement("div");
+
+        loadingDiv.id =
+            "loading-message";
+
+        loadingDiv.className =
+            "flex gap-3 max-w-2xl";
+
+        loadingDiv.innerHTML = `
+
+            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                AI
+            </div>
+
+            <div class="glass-card px-4 py-3 rounded-2xl shadow-lg flex items-center gap-1.5">
+
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+
+            </div>
+        `;
+
+        container.appendChild(loadingDiv);
+
+        scrollToBottom();
+    }
+
+
+    function removeLoadingMessage() {
+
+        const loading =
+            document.getElementById("loading-message");
+
+        if (loading) {
+            loading.remove();
+        }
+    }
+
+
+    // =========================
+    // NEW CHAT
+    // =========================
+
+    function startNewChat() {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        container.innerHTML = `
+
+            <div id="empty-state"
+                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+
+                <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
+
+                    <svg class="w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-2">
+                    New Chat Started
+                </h3>
+
+                <p class="text-xs text-slate-400 mb-6">
+                    Choose
+                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
+                    or
+                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
+                    on the right panel.
+                </p>
+
+            </div>
+        `;
+
+
+        currentFeature = null;
+        isLoading = false;
+
+
+        document.getElementById("chat-title").innerText =
+            "Select a feature to begin";
+
+        document.getElementById("chat-subtitle").innerText =
+            "Choose Quiz Maker or AI Homework Tutor from the right panel.";
+
+        document.getElementById("current-mode-indicator").className =
+            "h-2.5 w-2.5 rounded-full bg-indigo-500";
+
+        document.getElementById("user-input").disabled =
+            true;
+
+        document.getElementById("user-input").value =
+            "";
+
+        document.getElementById("send-btn").disabled =
+            true;
+    }
+
+
+    // =========================
+    // CLEAR CHAT
+    // =========================
+
+    function clearCurrentChat() {
+
+        const oldFeature =
+            currentFeature;
+
+        startNewChat();
+
+        if (oldFeature) {
+            selectFeature(oldFeature);
+        }
+    }
+
+
+    // =========================
+    // HISTORY
+    // =========================
+
+    function addHistoryItem(text, feature) {
+
+        const history =
+            document.getElementById("history-list");
+
+        const empty =
+            document.getElementById("empty-history");
+
+        if (empty) {
+            empty.remove();
+        }
+
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+
+
+        const title =
+            text.length > 32
+                ? text.slice(0, 32) + "..."
+                : text;
+
+
+        item.innerHTML = `
+
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">
+                ${escapeHtml(title)}
+            </span>
+
+            <span class="text-[10px] text-slate-500">
+                ${feature === "quiz" ? "Quiz" : "Tutor"}
+            </span>
+        `;
+
+
+        item.onclick = function () {
+
+            selectFeature(feature);
+
+            document.getElementById("user-input").value =
+                text;
+
+            document.getElementById("user-input").focus();
+        };
+
+
+        history.prepend(item);
+    }
+
+
+    // =========================
+    // SCROLL
+    // =========================
+
+    function scrollToBottom() {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        container.scrollTop =
+            container.scrollHeight;
+    }
+
+
+    // =========================
+    // ESCAPE HTML
+    // =========================
+
+    function escapeHtml(text) {
+
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    // =========================
+    // ENTER KEY
+    // =========================
+
+    document
+        .getElementById("user-input")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter" && !event.shiftKey) {
+
+                event.preventDefault();
+
+                document
+                    .getElementById("chat-form")
+                    .requestSubmit();
+            }
+
+        });
+
+</script>
+
+</body>
+</html>
