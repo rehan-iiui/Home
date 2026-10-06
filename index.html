@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,7 +136,7 @@
                 <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.867 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.867-4.5 1.253">
                         </path>
                     </svg>
                 </div>
@@ -164,8 +165,6 @@
 
                 <div id="history-list"
                     class="space-y-1 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
-
-                    <!-- Real history items can be added here later -->
 
                     <div id="empty-history"
                         class="px-3 py-4 text-xs text-slate-500 text-center">
@@ -297,14 +296,12 @@
                     placeholder="Ask a question or select a feature first..."
                     class="flex-1 glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                     autocomplete="off"
-                    disabled
                 />
 
                 <button
                     type="submit"
                     id="send-btn"
-                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    disabled>
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
 
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -455,7 +452,6 @@
 </div>
 
 
-```html
 <script>
 
     let currentFeature = null;
@@ -476,6 +472,9 @@
         const userInput = document.getElementById("user-input");
         const sendBtn = document.getElementById("send-btn");
 
+        /*
+         * INPUT IS ALWAYS ENABLED
+         */
         userInput.disabled = false;
         sendBtn.disabled = false;
 
@@ -638,14 +637,7 @@
 
 
         /*
-         * Never blindly use response.json().
-         *
-         * This protects against errors such as:
-         *
-         * Unexpected token <
-         * Unexpected token T
-         *
-         * when Vercel returns HTML or plain text.
+         * Protect against HTML/plain-text Vercel errors.
          */
 
         if (
@@ -844,9 +836,7 @@
             message.toLowerCase();
 
 
-        // =========================
         // INVALID JSON
-        // =========================
 
         if (
             lower.includes("invalid_json_response") ||
@@ -866,9 +856,7 @@ Please check your Vercel deployment and \`api/chat.js\`.
         }
 
 
-        // =========================
         // REPLICATE AUTHENTICATION
-        // =========================
 
         if (
             lower.includes("401") ||
@@ -891,9 +879,7 @@ Your secret Replicate token should stay on the server and should NOT be placed i
         }
 
 
-        // =========================
         // FORBIDDEN
-        // =========================
 
         if (
             lower.includes("403") ||
@@ -910,9 +896,7 @@ Please check your Replicate account, token permissions, and selected model.
         }
 
 
-        // =========================
         // RATE LIMIT
-        // =========================
 
         if (
             lower.includes("429") ||
@@ -931,9 +915,7 @@ Please wait a little and try again.
         }
 
 
-        // =========================
         // MODEL NOT FOUND
-        // =========================
 
         if (
             lower.includes("404") ||
@@ -951,9 +933,7 @@ Please check the Replicate model name in \`api/chat.js\`.
         }
 
 
-        // =========================
         // SERVER ERRORS
-        // =========================
 
         if (
             lower.includes("500") ||
@@ -972,9 +952,7 @@ Please try again in a moment.
         }
 
 
-        // =========================
         // NETWORK
-        // =========================
 
         if (
             lower.includes("network_error") ||
@@ -992,9 +970,7 @@ Check your internet connection and make sure your Vercel deployment is online.
         }
 
 
-        // =========================
         // MISSING TOKEN
-        // =========================
 
         if (
             lower.includes("missing_api_key") ||
@@ -1014,9 +990,7 @@ Keep the secret token out of this HTML file.
         }
 
 
-        // =========================
         // INVALID API DATA
-        // =========================
 
         if (
             lower.includes("invalid_api_data")
@@ -1032,9 +1006,7 @@ Please check the Replicate model configuration in \`api/chat.js\`.
         }
 
 
-        // =========================
         // EMPTY RESPONSE
-        // =========================
 
         if (
             lower.includes("empty_server_response")
@@ -1050,9 +1022,7 @@ Please try again.
         }
 
 
-        // =========================
         // GENERIC AI ERROR
-        // =========================
 
         if (
             lower.includes("ai_request_failed")
@@ -1068,9 +1038,7 @@ Please try again in a moment.
         }
 
 
-        // =========================
         // DEFAULT
-        // =========================
 
         return `
 ### Something went wrong
@@ -1099,11 +1067,16 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
             document.getElementById("send-btn");
 
 
+        /*
+         * Only disable while AI is responding.
+         * Otherwise the input stays usable.
+         */
+
         input.disabled =
-            loading || !currentFeature;
+            loading;
 
         button.disabled =
-            loading || !currentFeature;
+            loading;
 
 
         if (loading) {
@@ -1193,7 +1166,7 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -1229,14 +1202,25 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
         document.getElementById("current-mode-indicator").className =
             "h-2.5 w-2.5 rounded-full bg-indigo-500";
 
+
+        /*
+         * IMPORTANT:
+         * Keep the input and send button enabled.
+         */
+
         document.getElementById("user-input").disabled =
-            true;
+            false;
 
         document.getElementById("user-input").value =
             "";
 
+        document.getElementById("user-input").placeholder =
+            "Ask a question or select a feature first...";
+
         document.getElementById("send-btn").disabled =
-            true;
+            false;
+
+        document.getElementById("user-input").focus();
     }
 
 
@@ -1364,6 +1348,6 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
         });
 
 </script>
-</body>
-</html>    
 
+</body>
+</html>
