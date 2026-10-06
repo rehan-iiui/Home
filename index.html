@@ -455,6 +455,7 @@
 </div>
 
 
+```html
 <script>
 
     let currentFeature = null;
@@ -595,48 +596,61 @@
 
 
     // =========================
-    // CALL VERCEL API
+    // CALL VERCEL + REPLICATE API
     // =========================
 
     async function callTutorAPI(message, feature) {
 
-        const response = await fetch("/api/chat", {
+        let response;
 
-            method: "POST",
+        try {
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+            response = await fetch("/api/chat", {
 
-            body: JSON.stringify({
-                message: message,
-                feature: feature
-            })
+                method: "POST",
 
-        });
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
 
+                body: JSON.stringify({
+                    message: message,
+                    feature: feature
+                })
 
-        /*
-         * Do NOT blindly call response.json().
-         *
-         * This prevents the classic:
-         *
-         * Unexpected token '<'
-         *
-         * or
-         *
-         * Unexpected token 'T'
-         *
-         * error when Vercel returns HTML/plain text.
-         */
+            });
+
+        }
+
+        catch (networkError) {
+
+            throw new Error(
+                "NETWORK_ERROR"
+            );
+        }
+
 
         const contentType =
             response.headers.get("content-type") || "";
 
         let data = null;
-        let rawText = "";
 
-        if (contentType.includes("application/json")) {
+
+        /*
+         * Never blindly use response.json().
+         *
+         * This protects against errors such as:
+         *
+         * Unexpected token <
+         * Unexpected token T
+         *
+         * when Vercel returns HTML or plain text.
+         */
+
+        if (
+            contentType.toLowerCase().includes("application/json")
+        ) {
 
             try {
 
@@ -655,15 +669,19 @@
 
         else {
 
-            rawText = await response.text();
+            const rawText =
+                await response.text();
 
             if (rawText) {
 
-                throw new Error(
-                    "NON_JSON_RESPONSE:" +
-                    rawText.slice(0, 300)
+                console.error(
+                    "Non-JSON server response:",
+                    rawText
                 );
 
+                throw new Error(
+                    "NON_JSON_RESPONSE"
+                );
             }
 
             throw new Error(
@@ -672,6 +690,10 @@
         }
 
 
+        // =========================
+        // SERVER ERROR
+        // =========================
+
         if (!response.ok) {
 
             const serverError =
@@ -679,11 +701,32 @@
                 data?.message ||
                 `HTTP_${response.status}`;
 
-            throw new Error(serverError);
+            throw new Error(
+                String(serverError)
+            );
         }
 
 
-        if (!data || typeof data.answer !== "string") {
+        // =========================
+        // API RESPONSE CHECK
+        // =========================
+
+        if (
+            !data ||
+            data.success === false
+        ) {
+
+            throw new Error(
+                data?.error ||
+                "AI_REQUEST_FAILED"
+            );
+        }
+
+
+        if (
+            typeof data.answer !== "string" ||
+            !data.answer.trim()
+        ) {
 
             throw new Error(
                 "INVALID_API_DATA"
@@ -711,6 +754,7 @@
             "flex gap-3 max-w-2xl ml-auto flex-row-reverse";
 
         userDiv.innerHTML = `
+
             <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
                 You
             </div>
@@ -718,6 +762,7 @@
             <div class="bg-indigo-600/30 border border-indigo-500/30 p-4 rounded-2xl text-sm text-white leading-relaxed shadow-lg">
                 ${escapeHtml(text)}
             </div>
+
         `;
 
         container.appendChild(userDiv);
@@ -746,7 +791,7 @@
         try {
 
             rendered =
-                marked.parse(markdownText);
+                marked.parse(String(markdownText));
 
         }
 
@@ -799,6 +844,10 @@
             message.toLowerCase();
 
 
+        // =========================
+        // INVALID JSON
+        // =========================
+
         if (
             lower.includes("invalid_json_response") ||
             lower.includes("unexpected token") ||
@@ -810,33 +859,41 @@
 
 The server did not return the expected JSON response.
 
-This can happen if the Vercel API function has an error or the API endpoint is not configured correctly.
+This usually means the Vercel API function has an error or the Replicate connection is not configured correctly.
 
-Please check your Vercel deployment and environment variables.
+Please check your Vercel deployment and \`api/chat.js\`.
 `;
         }
 
+
+        // =========================
+        // REPLICATE AUTHENTICATION
+        // =========================
 
         if (
             lower.includes("401") ||
             lower.includes("unauthorized") ||
             lower.includes("invalid api key") ||
-            lower.includes("authentication")
+            lower.includes("authentication") ||
+            lower.includes("invalid token") ||
+            lower.includes("replicate_api_token")
         ) {
 
             return `
-### API authentication problem
+### Replicate authentication problem
 
-The AI API key appears to be missing, invalid, or not available to the Vercel server.
+The Replicate API token appears to be missing, invalid, or unavailable to the Vercel server.
 
-Check that your Vercel environment variable is named:
+Check your Vercel Environment Variables.
 
-\`OPENAI_API_KEY\`
-
-Then redeploy the project.
+Your secret Replicate token should stay on the server and should NOT be placed inside this HTML file.
 `;
         }
 
+
+        // =========================
+        // FORBIDDEN
+        // =========================
 
         if (
             lower.includes("403") ||
@@ -844,50 +901,83 @@ Then redeploy the project.
         ) {
 
             return `
-### API access was denied
+### Replicate access was denied
 
-The API request reached the server, but the API provider did not allow the request.
+Replicate received the request but did not allow access.
 
-Check your API project, key permissions, billing, and selected model.
+Please check your Replicate account, token permissions, and selected model.
 `;
         }
 
 
+        // =========================
+        // RATE LIMIT
+        // =========================
+
         if (
             lower.includes("429") ||
             lower.includes("rate limit") ||
-            lower.includes("quota")
+            lower.includes("quota") ||
+            lower.includes("too many requests")
         ) {
 
             return `
-### API limit reached
+### AI usage limit reached
 
-The AI service is currently refusing the request because a rate limit or usage limit was reached.
+Replicate is currently limiting requests.
 
 Please wait a little and try again.
 `;
         }
 
 
+        // =========================
+        // MODEL NOT FOUND
+        // =========================
+
+        if (
+            lower.includes("404") ||
+            lower.includes("not found") ||
+            lower.includes("model does not exist")
+        ) {
+
+            return `
+### Replicate model not found
+
+The model configured in your Vercel API could not be found.
+
+Please check the Replicate model name in \`api/chat.js\`.
+`;
+        }
+
+
+        // =========================
+        // SERVER ERRORS
+        // =========================
+
         if (
             lower.includes("500") ||
             lower.includes("502") ||
             lower.includes("503") ||
-            lower.includes("504") ||
-            lower.includes("server")
+            lower.includes("504")
         ) {
 
             return `
 ### AI server problem
 
-The AI service or Vercel server could not complete the request.
+The Vercel server or Replicate could not complete the request.
 
 Please try again in a moment.
 `;
         }
 
 
+        // =========================
+        // NETWORK
+        // =========================
+
         if (
+            lower.includes("network_error") ||
             lower.includes("failed to fetch") ||
             lower.includes("networkerror")
         ) {
@@ -897,31 +987,99 @@ Please try again in a moment.
 
 The browser could not reach the AI server.
 
-Check your internet connection and make sure the Vercel deployment is online.
+Check your internet connection and make sure your Vercel deployment is online.
 `;
         }
 
 
+        // =========================
+        // MISSING TOKEN
+        // =========================
+
         if (
-            lower.includes("missing_api_key")
+            lower.includes("missing_api_key") ||
+            lower.includes("missing_api_token") ||
+            lower.includes("token is missing")
         ) {
 
             return `
-### API key is not configured
+### Replicate token is not configured
 
-Vercel cannot find the required API key.
+The Vercel server cannot find your Replicate API token.
 
-Add \`OPENAI_API_KEY\` to your Vercel Environment Variables and redeploy.
+Add your Replicate token to your Vercel Environment Variables and redeploy the project.
+
+Keep the secret token out of this HTML file.
 `;
         }
 
+
+        // =========================
+        // INVALID API DATA
+        // =========================
+
+        if (
+            lower.includes("invalid_api_data")
+        ) {
+
+            return `
+### AI response problem
+
+The AI server responded, but it did not return a usable answer.
+
+Please check the Replicate model configuration in \`api/chat.js\`.
+`;
+        }
+
+
+        // =========================
+        // EMPTY RESPONSE
+        // =========================
+
+        if (
+            lower.includes("empty_server_response")
+        ) {
+
+            return `
+### Empty server response
+
+The AI server did not send a response.
+
+Please try again.
+`;
+        }
+
+
+        // =========================
+        // GENERIC AI ERROR
+        // =========================
+
+        if (
+            lower.includes("ai_request_failed")
+        ) {
+
+            return `
+### AI request failed
+
+The AI could not complete your request.
+
+Please try again in a moment.
+`;
+        }
+
+
+        // =========================
+        // DEFAULT
+        // =========================
 
         return `
 ### Something went wrong
 
 The AI tutor could not complete this request.
 
-Please try again. If the problem continues, check the Vercel deployment logs.
+Please try again.
+
+If the problem continues, check your Vercel deployment logs and the \`api/chat.js\` function.
 `;
     }
 
@@ -991,6 +1149,7 @@ Please try again. If the problem continues, check the Vercel deployment logs.
                 <span class="typing-dot"></span>
 
             </div>
+
         `;
 
         container.appendChild(loadingDiv);
@@ -1137,6 +1296,7 @@ Please try again. If the problem continues, check the Vercel deployment logs.
             <span class="text-[10px] text-slate-500">
                 ${feature === "quiz" ? "Quiz" : "Tutor"}
             </span>
+
         `;
 
 
@@ -1204,6 +1364,6 @@ Please try again. If the problem continues, check the Vercel deployment logs.
         });
 
 </script>
-
 </body>
-</html>
+</html>    
+
