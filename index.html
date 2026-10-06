@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -454,7 +453,7 @@
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -694,7 +693,24 @@
     let quizIncorrect = 0;
     let quizCurrentQuestion = null;
     let quizAnswered = false;
+
+    /*
+     * This stores the user's answer history.
+     */
     let quizHistory = [];
+
+    /*
+     * IMPORTANT:
+     * This is separate from quizHistory.
+     *
+     * quizHistory only contains questions AFTER
+     * the user answers them.
+     *
+     * quizAskedQuestions contains EVERY question
+     * that has been generated, including the
+     * current unanswered question.
+     */
+    let quizAskedQuestions = [];
 
     const TOTAL_QUESTIONS = 20;
 
@@ -910,7 +926,14 @@
         quizIncorrect = 0;
         quizCurrentQuestion = null;
         quizAnswered = false;
+
+        /*
+         * VERY IMPORTANT:
+         * Completely clear the question memory
+         * whenever a NEW quiz starts.
+         */
         quizHistory = [];
+        quizAskedQuestions = [];
 
         currentFeature = "quiz";
 
@@ -963,6 +986,12 @@
 
         try {
 
+            /*
+             * Ask the AI for a question.
+             *
+             * The function now performs its own
+             * duplicate checking.
+             */
             const question =
                 await getQuizQuestion(
                     quizTopic,
@@ -971,6 +1000,17 @@
 
             quizCurrentQuestion =
                 question;
+
+            /*
+             * Store the question BEFORE showing it.
+             *
+             * This means the next request will
+             * know about this question even if the
+             * student has not answered yet.
+             */
+            quizAskedQuestions.push(
+                question.question
+            );
 
             renderQuizQuestion(question);
 
@@ -1000,6 +1040,121 @@
 
 
     /* ==========================================
+       NORMALIZE QUESTION
+       ========================================== */
+
+    function normalizeQuizQuestion(text) {
+
+        return String(text || "")
+            .toLowerCase()
+            .replace(/<[^>]*>/g, "")
+            .replace(/[^\p{L}\p{N}\s]/gu, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+
+    /* ==========================================
+       CHECK DUPLICATE QUESTION
+    ========================================== */
+
+    function isDuplicateQuizQuestion(
+        question,
+        previousQuestions
+    ) {
+
+        const newQuestion =
+            normalizeQuizQuestion(question);
+
+        if (!newQuestion) {
+            return true;
+        }
+
+        return previousQuestions.some(
+            previous => {
+
+                const oldQuestion =
+                    normalizeQuizQuestion(
+                        previous
+                    );
+
+                /*
+                 * Exact duplicate.
+                 */
+                if (
+                    newQuestion === oldQuestion
+                ) {
+                    return true;
+                }
+
+                /*
+                 * Extra protection for very similar
+                 * questions.
+                 *
+                 * We compare word overlap.
+                 */
+                const newWords =
+                    new Set(
+                        newQuestion
+                            .split(" ")
+                            .filter(
+                                word =>
+                                    word.length > 3
+                            )
+                    );
+
+                const oldWords =
+                    new Set(
+                        oldQuestion
+                            .split(" ")
+                            .filter(
+                                word =>
+                                    word.length > 3
+                            )
+                    );
+
+                if (
+                    newWords.size < 5 ||
+                    oldWords.size < 5
+                ) {
+                    return false;
+                }
+
+                let common = 0;
+
+                newWords.forEach(
+                    word => {
+
+                        if (
+                            oldWords.has(word)
+                        ) {
+                            common++;
+                        }
+
+                    }
+                );
+
+                const smaller =
+                    Math.min(
+                        newWords.size,
+                        oldWords.size
+                    );
+
+                const similarity =
+                    common / smaller;
+
+                /*
+                 * If more than 78% of the important
+                 * words are shared, treat it as a
+                 * repeated/rephrased question.
+                 */
+                return similarity >= 0.78;
+            }
+        );
+    }
+
+
+    /* ==========================================
        GET QUIZ QUESTION FROM AI
     ========================================== */
 
@@ -1008,18 +1163,83 @@
         number
     ) {
 
-        const prompt = `
-Create ONE multiple-choice quiz question for a student about this topic:
+        /*
+         * Copy the question list so it cannot be
+         * accidentally changed while a request is
+         * running.
+         */
+        const previousQuestions =
+            [...quizAskedQuestions];
 
+        /*
+         * We allow several attempts.
+         *
+         * If the AI repeats a question, the repeated
+         * question is NEVER displayed.
+         */
+        const MAX_ATTEMPTS = 5;
+
+        let lastQuestion = null;
+
+        for (
+            let attempt = 1;
+            attempt <= MAX_ATTEMPTS;
+            attempt++
+        ) {
+
+            const previousText =
+                previousQuestions.length
+                    ? previousQuestions
+                        .map(
+                            (question, index) =>
+                                `${index + 1}. ${question}`
+                        )
+                        .join("\n")
+                    : "NONE";
+
+            const prompt = `
+You are the interactive quiz engine for AI Tutor Studio.
+
+Create ONE completely NEW multiple-choice quiz question for a school student.
+
+TOPIC:
 "${topic}"
 
-This is question ${number} of ${TOTAL_QUESTIONS}.
+CURRENT QUESTION:
+${number} of ${TOTAL_QUESTIONS}
 
-Return ONLY valid JSON.
-Do not use markdown.
-Do not add explanations outside the JSON.
+PREVIOUS QUESTIONS:
+${previousText}
 
-Required exact structure:
+IMPORTANT ANTI-REPETITION RULES:
+
+1. NEVER repeat any previous question.
+2. NEVER ask the same fact again with different wording.
+3. NEVER closely rephrase a previous question.
+4. The new question must test a different fact, idea, concept, calculation, example, or piece of knowledge.
+5. Read ALL previous questions before creating the new one.
+6. Do not copy the wording or structure of previous questions when they test the same information.
+7. If a topic has many facts, move to a different fact instead of repeating an earlier one.
+8. Every question must be unique within this 20-question quiz.
+
+QUESTION RULES:
+
+- Exactly one question.
+- Exactly four options.
+- Only one option is correct.
+- "correct" must be 0, 1, 2, or 3.
+- The question must be educational.
+- The question must be suitable for a school student.
+- No trick questions.
+- No ambiguous questions.
+- Keep the wording clear.
+- Give a short explanation.
+- Return ONLY JSON.
+- Do NOT use markdown.
+- Do NOT use code fences.
+- Do NOT write anything before or after the JSON.
+
+Return exactly:
 
 {
   "question": "Question text",
@@ -1030,25 +1250,55 @@ Required exact structure:
     "Option D"
   ],
   "correct": 0,
-  "explanation": "Short explanation of why the correct answer is correct."
+  "explanation": "Short explanation."
 }
 
-Rules:
-- "correct" must be a number from 0 to 3.
-- There must be exactly four options.
-- Only one option must be correct.
-- Make the question appropriate for a school student.
-- Make this question different from common basic questions when possible.
-- Keep the question clear and educational.
+This is attempt ${attempt} to create a UNIQUE question.
 `;
 
-        const answer =
-            await callTutorAPI(
-                prompt,
-                "quiz"
-            );
+            const answer =
+                await callTutorAPI(
+                    prompt,
+                    "quiz"
+                );
 
-        return parseQuizJSON(answer);
+            const question =
+                parseQuizJSON(answer);
+
+            lastQuestion =
+                question;
+
+            /*
+             * LOCAL duplicate protection.
+             *
+             * Even if the AI ignored the prompt,
+             * the repeated question will be rejected.
+             */
+            const duplicate =
+                isDuplicateQuizQuestion(
+                    question.question,
+                    previousQuestions
+                );
+
+            if (!duplicate) {
+
+                return question;
+
+            }
+
+            console.warn(
+                `Duplicate quiz question rejected on attempt ${attempt}:`,
+                question.question
+            );
+        }
+
+        /*
+         * If every attempt somehow produced a
+         * duplicate, do NOT display it.
+         */
+        throw new Error(
+            "QUIZ_DUPLICATE_QUESTION"
+        );
     }
 
 
@@ -1151,18 +1401,48 @@ Rules:
         }
 
 
+        data.question =
+            data.question.trim();
+
+
         data.options =
             data.options.map(
-                option => String(option)
+                option =>
+                    String(option).trim()
             );
+
+
+        /*
+         * Make sure no two options are identical.
+         */
+        const uniqueOptions =
+            new Set(
+                data.options.map(
+                    option =>
+                        option.toLowerCase().trim()
+                )
+            );
+
+        if (
+            uniqueOptions.size !== 4
+        ) {
+
+            throw new Error(
+                "QUIZ_INVALID_STRUCTURE"
+            );
+
+        }
+
 
         data.correct =
             Number(data.correct);
+
 
         data.explanation =
             typeof data.explanation === "string"
                 ? data.explanation
                 : "That is the correct answer.";
+
 
         return data;
     }
@@ -1186,7 +1466,7 @@ Rules:
                 <div class="flex items-center justify-between mb-4">
 
                     <span class="text-xs text-slate-400">
-                        Preparing question...
+                        Preparing a new question...
                     </span>
 
                     <span class="text-xs text-slate-500">
@@ -1218,7 +1498,7 @@ Rules:
                         <div>
 
                             <p class="text-sm font-semibold text-white">
-                                AI is creating your question
+                                AI is creating a unique question
                             </p>
 
                             <p class="text-xs text-slate-500">
@@ -1578,10 +1858,8 @@ Rules:
 
 
         /*
-         * Automatically continue after a short
-         * delay so the learner can see the result.
+         * Continue after a short delay.
          */
-
         setTimeout(
             function() {
 
@@ -2058,6 +2336,12 @@ Rules:
 
         input.value = "";
 
+        /*
+         * startQuiz() clears all question memory.
+         *
+         * Therefore a new attempt gets a fresh
+         * set of 20 unique questions.
+         */
         startQuiz();
     }
 
@@ -2413,6 +2697,22 @@ Rules:
             "Detailed API error:",
             message
         );
+
+
+        if (
+            lower.includes("quiz_duplicate_question")
+        ) {
+
+            return `
+### New question could not be generated
+
+The AI repeatedly returned a question too similar to one already used.
+
+Nothing was counted as a new question.
+
+Press **Try Again** to generate another unique question.
+`;
+        }
 
 
         if (
@@ -2793,7 +3093,7 @@ Check the Vercel deployment logs if the problem continues.
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -2847,6 +3147,13 @@ Check the Vercel deployment logs if the problem continues.
             false;
 
         quizHistory =
+            [];
+
+        /*
+         * IMPORTANT:
+         * Reset duplicate-question memory too.
+         */
+        quizAskedQuestions =
             [];
 
 
