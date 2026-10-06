@@ -120,10 +120,6 @@
             margin: .7rem 0;
         }
 
-        /* ================================
-           QUIZ UI
-        ================================= */
-
         .quiz-option {
             position: relative;
             width: 100%;
@@ -543,8 +539,6 @@
 
             <div class="space-y-3">
 
-                <!-- QUIZ -->
-
                 <div
                     onclick="selectFeature('quiz')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-indigo-500/30">
@@ -591,8 +585,6 @@
                 </div>
 
 
-                <!-- HOMEWORK -->
-
                 <div
                     onclick="selectFeature('homework')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-purple-500/30">
@@ -609,7 +601,7 @@
 
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
+                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.477 4.5 1.253v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
                                 </path>
 
                             </svg>
@@ -683,9 +675,10 @@
     let currentFeature = null;
     let isLoading = false;
 
-    /* ==========================================
-       QUIZ STATE
-    ========================================== */
+    /*
+     * Stores completed/saved chat snapshots.
+     */
+    let savedChats = [];
 
     let quizTopic = "";
     let quizQuestionNumber = 0;
@@ -694,22 +687,7 @@
     let quizCurrentQuestion = null;
     let quizAnswered = false;
 
-    /*
-     * This stores the user's answer history.
-     */
     let quizHistory = [];
-
-    /*
-     * IMPORTANT:
-     * This is separate from quizHistory.
-     *
-     * quizHistory only contains questions AFTER
-     * the user answers them.
-     *
-     * quizAskedQuestions contains EVERY question
-     * that has been generated, including the
-     * current unanswered question.
-     */
     let quizAskedQuestions = [];
 
     const TOTAL_QUESTIONS = 20;
@@ -827,16 +805,7 @@
         }
 
 
-        /* ======================================
-           QUIZ MODE
-        ====================================== */
-
         if (currentFeature === "quiz") {
-
-            /*
-             * If a quiz is already running, don't
-             * accidentally start another quiz.
-             */
 
             if (
                 quizQuestionNumber > 0 &&
@@ -860,10 +829,6 @@
             return;
         }
 
-
-        /* ======================================
-           HOMEWORK MODE
-        ====================================== */
 
         removeEmptyState();
 
@@ -927,11 +892,6 @@
         quizCurrentQuestion = null;
         quizAnswered = false;
 
-        /*
-         * VERY IMPORTANT:
-         * Completely clear the question memory
-         * whenever a NEW quiz starts.
-         */
         quizHistory = [];
         quizAskedQuestions = [];
 
@@ -962,6 +922,33 @@
 
 
     /* ==========================================
+       NEXT QUESTION / NEW QUIZ
+    ========================================== */
+
+    function startNextQuiz() {
+
+        if (!quizTopic || isLoading) return;
+
+        /*
+         * Save the completed quiz before starting
+         * another quiz on the same topic.
+         */
+        saveCurrentChat("quiz");
+
+        quizQuestionNumber = 0;
+        quizCorrect = 0;
+        quizIncorrect = 0;
+        quizCurrentQuestion = null;
+        quizAnswered = false;
+
+        quizHistory = [];
+        quizAskedQuestions = [];
+
+        startQuiz();
+    }
+
+
+    /* ==========================================
        LOAD NEXT QUIZ QUESTION
     ========================================== */
 
@@ -986,12 +973,6 @@
 
         try {
 
-            /*
-             * Ask the AI for a question.
-             *
-             * The function now performs its own
-             * duplicate checking.
-             */
             const question =
                 await getQuizQuestion(
                     quizTopic,
@@ -1001,13 +982,6 @@
             quizCurrentQuestion =
                 question;
 
-            /*
-             * Store the question BEFORE showing it.
-             *
-             * This means the next request will
-             * know about this question even if the
-             * student has not answered yet.
-             */
             quizAskedQuestions.push(
                 question.question
             );
@@ -1041,7 +1015,7 @@
 
     /* ==========================================
        NORMALIZE QUESTION
-       ========================================== */
+    ========================================== */
 
     function normalizeQuizQuestion(text) {
 
@@ -1078,21 +1052,12 @@
                         previous
                     );
 
-                /*
-                 * Exact duplicate.
-                 */
                 if (
                     newQuestion === oldQuestion
                 ) {
                     return true;
                 }
 
-                /*
-                 * Extra protection for very similar
-                 * questions.
-                 *
-                 * We compare word overlap.
-                 */
                 const newWords =
                     new Set(
                         newQuestion
@@ -1143,11 +1108,6 @@
                 const similarity =
                     common / smaller;
 
-                /*
-                 * If more than 78% of the important
-                 * words are shared, treat it as a
-                 * repeated/rephrased question.
-                 */
                 return similarity >= 0.78;
             }
         );
@@ -1163,23 +1123,10 @@
         number
     ) {
 
-        /*
-         * Copy the question list so it cannot be
-         * accidentally changed while a request is
-         * running.
-         */
         const previousQuestions =
             [...quizAskedQuestions];
 
-        /*
-         * We allow several attempts.
-         *
-         * If the AI repeats a question, the repeated
-         * question is NEVER displayed.
-         */
         const MAX_ATTEMPTS = 5;
-
-        let lastQuestion = null;
 
         for (
             let attempt = 1;
@@ -1265,15 +1212,6 @@ This is attempt ${attempt} to create a UNIQUE question.
             const question =
                 parseQuizJSON(answer);
 
-            lastQuestion =
-                question;
-
-            /*
-             * LOCAL duplicate protection.
-             *
-             * Even if the AI ignored the prompt,
-             * the repeated question will be rejected.
-             */
             const duplicate =
                 isDuplicateQuizQuestion(
                     question.question,
@@ -1281,9 +1219,7 @@ This is attempt ${attempt} to create a UNIQUE question.
                 );
 
             if (!duplicate) {
-
                 return question;
-
             }
 
             console.warn(
@@ -1292,10 +1228,6 @@ This is attempt ${attempt} to create a UNIQUE question.
             );
         }
 
-        /*
-         * If every attempt somehow produced a
-         * duplicate, do NOT display it.
-         */
         throw new Error(
             "QUIZ_DUPLICATE_QUESTION"
         );
@@ -1311,11 +1243,6 @@ This is attempt ${attempt} to create a UNIQUE question.
         let text =
             String(raw)
                 .trim();
-
-        /*
-         * Remove markdown fences if the model
-         * accidentally returns them.
-         */
 
         text =
             text.replace(
@@ -1339,10 +1266,6 @@ This is attempt ${attempt} to create a UNIQUE question.
         }
 
         catch {
-
-            /*
-             * Try extracting the first JSON object.
-             */
 
             const first =
                 text.indexOf("{");
@@ -1412,9 +1335,6 @@ This is attempt ${attempt} to create a UNIQUE question.
             );
 
 
-        /*
-         * Make sure no two options are identical.
-         */
         const uniqueOptions =
             new Set(
                 data.options.map(
@@ -1550,8 +1470,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
             <div class="max-w-3xl mx-auto w-full quiz-feedback">
 
-                <!-- PROGRESS HEADER -->
-
                 <div class="flex items-center justify-between mb-3">
 
                     <div>
@@ -1591,8 +1509,6 @@ This is attempt ${attempt} to create a UNIQUE question.
                 </div>
 
 
-                <!-- QUESTION CARD -->
-
                 <div class="glass-card rounded-3xl p-7 shadow-xl">
 
                     <div class="flex items-start gap-4 mb-7">
@@ -1615,8 +1531,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                     </div>
 
-
-                    <!-- FOUR OPTIONS -->
 
                     <div
                         id="quiz-options"
@@ -1654,8 +1568,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                 </div>
 
-
-                <!-- LIVE SCORE -->
 
                 <div class="grid grid-cols-2 gap-3 mt-4">
 
@@ -1726,13 +1638,11 @@ This is attempt ${attempt} to create a UNIQUE question.
             }
         );
 
-
         const selectedButton =
             buttons[selectedIndex];
 
         const correctButton =
             buttons[correctIndex];
-
 
         const feedback =
             document.getElementById(
@@ -1857,9 +1767,6 @@ This is attempt ${attempt} to create a UNIQUE question.
         });
 
 
-        /*
-         * Continue after a short delay.
-         */
         setTimeout(
             function() {
 
@@ -2065,6 +1972,16 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                         <button
                             type="button"
+                            onclick="startNextQuiz()"
+                            class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
+
+                            Next Question
+
+                        </button>
+
+
+                        <button
+                            type="button"
                             onclick="restartQuiz()"
                             class="flex-1 sm:flex-none px-5 py-3 rounded-2xl glass-card hover:bg-white/10 text-white text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[.98]">
 
@@ -2134,8 +2051,6 @@ This is attempt ${attempt} to create a UNIQUE question.
                     </div>
 
 
-                    <!-- PROGRESS BAR -->
-
                     <div class="mb-7">
 
                         <div class="flex justify-between text-xs mb-2">
@@ -2161,8 +2076,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                     </div>
 
-
-                    <!-- STATS -->
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
@@ -2219,8 +2132,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                     </div>
 
-
-                    <!-- QUESTION REVIEW -->
 
                     <div class="mt-7">
 
@@ -2303,10 +2214,10 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                         <button
                             type="button"
-                            onclick="startNewChat()"
-                            class="flex-1 glass-card hover:bg-white/10 text-white py-3 rounded-2xl text-sm font-semibold transition-all">
+                            onclick="startNextQuiz()"
+                            class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.01]">
 
-                            New Chat
+                            Next Question
 
                         </button>
 
@@ -2336,12 +2247,6 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         input.value = "";
 
-        /*
-         * startQuiz() clears all question memory.
-         *
-         * Therefore a new attempt gets a fresh
-         * set of 20 unique questions.
-         */
         startQuiz();
     }
 
@@ -3064,6 +2969,266 @@ Check the Vercel deployment logs if the problem continues.
 
 
     /* ==========================================
+       SAVE CURRENT CHAT
+    ========================================== */
+
+    function saveCurrentChat(featureOverride = null) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        if (!container) return;
+
+        const visibleMessages =
+            Array.from(
+                container.children
+            ).filter(
+                element =>
+                    !element.id ||
+                    element.id !== "empty-state"
+            );
+
+        if (!visibleMessages.length) {
+            return;
+        }
+
+        const feature =
+            featureOverride ||
+            currentFeature;
+
+        let title = "";
+
+        if (feature === "quiz") {
+            title =
+                `Quiz: ${quizTopic || "Quiz"}`;
+        }
+
+        else {
+
+            const userMessages =
+                Array.from(
+                    container.querySelectorAll(
+                        ".ml-auto"
+                    )
+                );
+
+            const lastUser =
+                userMessages.length
+                    ? userMessages[
+                        userMessages.length - 1
+                    ]
+                    : null;
+
+            title =
+                lastUser
+                    ? lastUser.innerText.trim()
+                    : "Homework Chat";
+        }
+
+        const snapshot =
+            container.innerHTML;
+
+        savedChats.push({
+            id:
+                Date.now(),
+            title:
+                title,
+            feature:
+                feature,
+            html:
+                snapshot,
+            quizTopic:
+                quizTopic,
+            quizHistory:
+                feature === "quiz"
+                    ? JSON.parse(
+                        JSON.stringify(
+                            quizHistory
+                        )
+                    )
+                    : [],
+            quizAskedQuestions:
+                feature === "quiz"
+                    ? [...quizAskedQuestions]
+                    : []
+        });
+
+        addSavedChatToHistory(
+            savedChats[
+                savedChats.length - 1
+            ]
+        );
+    }
+
+
+    /* ==========================================
+       ADD SAVED CHAT TO HISTORY
+    ========================================== */
+
+    function addSavedChatToHistory(chat) {
+
+        const history =
+            document.getElementById(
+                "history-list"
+            );
+
+        const empty =
+            document.getElementById(
+                "empty-history"
+            );
+
+        if (empty) {
+            empty.remove();
+        }
+
+        const item =
+            document.createElement(
+                "div"
+            );
+
+        item.className =
+            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+
+        const title =
+            chat.title.length > 32
+                ? chat.title.slice(0, 32) + "..."
+                : chat.title;
+
+        item.innerHTML = `
+
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">
+                ${escapeHtml(title)}
+            </span>
+
+            <span class="text-[10px] text-slate-500">
+                ${chat.feature === "quiz" ? "Quiz" : "Tutor"}
+            </span>
+
+        `;
+
+        item.onclick =
+            function() {
+
+                if (isLoading) return;
+
+                restoreSavedChat(chat);
+            };
+
+        history.prepend(
+            item
+        );
+    }
+
+
+    /* ==========================================
+       RESTORE SAVED CHAT
+    ========================================== */
+
+    function restoreSavedChat(chat) {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        container.innerHTML =
+            chat.html;
+
+        currentFeature =
+            chat.feature;
+
+        if (
+            chat.feature === "quiz"
+        ) {
+
+            quizTopic =
+                chat.quizTopic || "";
+
+            quizHistory =
+                JSON.parse(
+                    JSON.stringify(
+                        chat.quizHistory || []
+                    )
+                );
+
+            quizAskedQuestions =
+                [...(
+                    chat.quizAskedQuestions || []
+                )];
+
+            quizQuestionNumber =
+                TOTAL_QUESTIONS;
+
+            quizCurrentQuestion =
+                null;
+
+            quizAnswered =
+                true;
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Interactive Quiz";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                `Topic: ${quizTopic}`;
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "AI Homework Tutor Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Ask a homework question for a detailed, step-by-step explanation.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+
+        }
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+        input.disabled =
+            false;
+
+        button.disabled =
+            false;
+
+        input.value =
+            "";
+
+        scrollToBottom();
+
+        input.focus();
+    }
+
+
+    /* ==========================================
        NEW CHAT
     ========================================== */
 
@@ -3071,6 +3236,15 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
+        /*
+         * IMPORTANT:
+         * Save the current chat FIRST.
+         *
+         * Previously the function cleared the
+         * chat immediately, which meant the current
+         * conversation disappeared without being saved.
+         */
+        saveCurrentChat();
 
         const container =
             document.getElementById(
@@ -3149,10 +3323,6 @@ Check the Vercel deployment logs if the problem continues.
         quizHistory =
             [];
 
-        /*
-         * IMPORTANT:
-         * Reset duplicate-question memory too.
-         */
         quizAskedQuestions =
             [];
 
@@ -3220,13 +3390,10 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
-
         const oldFeature =
             currentFeature;
 
-
         startNewChat();
-
 
         if (oldFeature) {
 
