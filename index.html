@@ -673,12 +673,12 @@
 
 
         /*
-         * Clear the input ONLY after the message
-         * has actually been submitted.
+         * IMPORTANT:
+         * Do NOT clear the input yet.
+         *
+         * The original message stays in the input while
+         * the API request is being processed.
          */
-
-        input.value = "";
-
 
         setLoading(true);
 
@@ -691,12 +691,22 @@
                     currentFeature
                 );
 
+
             appendAIMessage(result);
+
 
             addHistoryItem(
                 text,
                 currentFeature
             );
+
+
+            /*
+             * Only clear the input after the AI
+             * successfully returns an answer.
+             */
+
+            input.value = "";
 
         }
 
@@ -707,7 +717,14 @@
                 error
             );
 
-            appendAIMessage(
+
+            /*
+             * The message remains in the input.
+             * This prevents the user from losing their
+             * homework question when the API fails.
+             */
+
+            showErrorMessage(
                 getFriendlyErrorMessage(error)
             );
 
@@ -720,6 +737,7 @@
             input.focus();
 
         }
+
     }
 
 
@@ -800,10 +818,12 @@
             const rawText =
                 await response.text();
 
+
             console.error(
                 "Non-JSON server response:",
                 rawText
             );
+
 
             throw new Error(
                 rawText
@@ -815,9 +835,7 @@
 
 
         /*
-         * IMPORTANT:
-         * Preserve the actual server error instead of
-         * replacing it with only HTTP_500.
+         * Preserve the actual server error.
          */
 
         if (!response.ok) {
@@ -827,18 +845,23 @@
                 data?.error ||
                 `HTTP_${response.status}`;
 
+
             const error =
                 new Error(
                     String(serverMessage)
                 );
 
+
             error.status =
                 response.status;
+
 
             error.serverData =
                 data;
 
+
             throw error;
+
         }
 
 
@@ -869,6 +892,7 @@
 
 
         return data.answer;
+
     }
 
 
@@ -885,7 +909,9 @@
 
 
         const userDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         userDiv.className =
@@ -905,9 +931,13 @@
         `;
 
 
-        container.appendChild(userDiv);
+        container.appendChild(
+            userDiv
+        );
+
 
         scrollToBottom();
+
     }
 
 
@@ -924,7 +954,9 @@
 
 
         const aiDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         aiDiv.className =
@@ -964,9 +996,13 @@
         `;
 
 
-        container.appendChild(aiDiv);
+        container.appendChild(
+            aiDiv
+        );
+
 
         scrollToBottom();
+
     }
 
 
@@ -1010,9 +1046,9 @@
         // MISSING REPLICATE TOKEN
 
         if (
-            lower.includes("missing_replicate_token") ||
-            lower.includes("replicate token is not configured") ||
-            lower.includes("replicate_api_token")
+            lower.includes("replicate_api_token") ||
+            lower.includes("replicate token") ||
+            lower.includes("not configured")
         ) {
 
             return `
@@ -1028,47 +1064,6 @@ Check:
 4. Redeploy the project after saving the variable.
 
 Your secret token should NOT be placed in this HTML file.
-`;
-
-        }
-
-
-        // MISSING MODEL
-
-        if (
-            lower.includes("missing_replicate_model") ||
-            lower.includes("replicate model is not configured")
-        ) {
-
-            return `
-### Replicate model is not configured
-
-Add this Vercel environment variable:
-
-\`REPLICATE_MODEL\`
-
-The value must be your actual Replicate model in the format:
-
-\`owner/model-name\`
-`;
-
-        }
-
-
-        // INVALID MODEL
-
-        if (
-            lower.includes("invalid_replicate_model")
-        ) {
-
-            return `
-### Invalid Replicate model
-
-Your \`REPLICATE_MODEL\` must look like:
-
-\`owner/model-name\`
-
-Check the model name in your Vercel Environment Variables.
 `;
 
         }
@@ -1107,7 +1102,7 @@ Do not put the token inside \`index.html\`.
             return `
 ### Replicate access was denied
 
-The token was received, but Replicate did not allow access to the selected model.
+The token was received, but Replicate did not allow access to the model.
 
 Check your Replicate account, token permissions, and model.
 `;
@@ -1126,17 +1121,11 @@ Check your Replicate account, token permissions, and model.
             return `
 ### Replicate model not found
 
-The model configured in Vercel could not be found.
+The configured Replicate model could not be found.
 
-Check:
+The application is configured to use:
 
-\`REPLICATE_MODEL\`
-
-It should be your actual Replicate model in:
-
-\`owner/model-name\`
-
-format.
+\`openai/gpt-4.1-nano\`
 `;
 
         }
@@ -1161,7 +1150,7 @@ Please wait a little and try again.
         }
 
 
-        // INVALID INPUT / MODEL SCHEMA
+        // INVALID INPUT
 
         if (
             lower.includes("invalid input") ||
@@ -1175,9 +1164,7 @@ Please wait a little and try again.
 
 The Replicate model rejected the input sent by \`api/chat.js\`.
 
-This usually means the model uses a different input field.
-
-Send me your Replicate model name and I can adjust the backend to its exact input format.
+Check the model input format in the backend.
 `;
 
         }
@@ -1254,8 +1241,6 @@ Check the Vercel deployment logs for \`api/chat.js\`.
 ### AI response problem
 
 The server responded, but no usable AI answer was returned.
-
-This usually means the selected Replicate model returns its text in a different format.
 `;
 
         }
@@ -1318,8 +1303,8 @@ Check the Vercel deployment logs if the problem continues.
 
 
         /*
-         * Input is disabled ONLY while the AI
-         * is actually processing the submitted message.
+         * Input is disabled only while the AI
+         * is processing the submitted message.
          */
 
         input.disabled =
@@ -1360,7 +1345,9 @@ Check the Vercel deployment logs if the problem continues.
 
 
         const loadingDiv =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         loadingDiv.id =
@@ -1443,7 +1430,7 @@ Check the Vercel deployment logs if the problem continues.
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
                         </path>
 
                     </svg>
@@ -1627,8 +1614,8 @@ Check the Vercel deployment logs if the problem continues.
 
 
                 /*
-                 * Clicking history intentionally restores
-                 * that old question into the input.
+                 * Clicking history restores
+                 * the old question into the input.
                  */
 
                 document.getElementById(
@@ -1714,11 +1701,6 @@ Check the Vercel deployment logs if the problem continues.
                 );
 
 
-            /*
-             * Make absolutely sure the input starts
-             * enabled and empty.
-             */
-
             input.disabled =
                 false;
 
@@ -1730,8 +1712,7 @@ Check the Vercel deployment logs if the problem continues.
 
 
             /*
-             * Do NOT automatically call startNewChat()
-             * here. That could reset the input.
+             * Do not reset the input automatically.
              */
 
             input.addEventListener(
