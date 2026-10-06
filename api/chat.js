@@ -1,24 +1,49 @@
 export default async function handler(req, res) {
-    // Only allow POST requests
+    // ==========================================
+    // ONLY ALLOW POST REQUESTS
+    // ==========================================
+
     if (req.method !== "POST") {
         return res.status(405).json({
             error: "METHOD_NOT_ALLOWED",
             message: "Only POST requests are allowed."
         });
-}
+    }
 
     try {
-        // Check API key
-        const apiKey = process.env.OPENAI_API_KEY;
+        // ==========================================
+        // REPLICATE TOKEN
+        // ==========================================
 
-        if (!apiKey) {
+        const apiToken = process.env.REPLICATE_API_TOKEN;
+
+        if (!apiToken) {
             return res.status(500).json({
-                error: "MISSING_API_KEY",
-                message: "OPENAI_API_KEY is not configured in Vercel."
+                error: "MISSING_REPLICATE_TOKEN",
+                message:
+                    "Replicate token is not configured. Add REPLICATE_API_TOKEN to Vercel Environment Variables and redeploy."
             });
         }
 
-        // Read request body safely
+        // ==========================================
+        // REPLICATE MODEL
+        // ==========================================
+
+        const model =
+            process.env.REPLICATE_MODEL;
+
+        if (!model) {
+            return res.status(500).json({
+                error: "MISSING_REPLICATE_MODEL",
+                message:
+                    "Replicate model is not configured. Add REPLICATE_MODEL to Vercel Environment Variables."
+            });
+        }
+
+        // ==========================================
+        // READ REQUEST BODY
+        // ==========================================
+
         const body = req.body || {};
 
         const message =
@@ -33,8 +58,10 @@ export default async function handler(req, res) {
                     ? "homework"
                     : null;
 
+        // ==========================================
+        // VALIDATE MESSAGE
+        // ==========================================
 
-        // Validate message
         if (!message) {
             return res.status(400).json({
                 error: "EMPTY_MESSAGE",
@@ -42,24 +69,29 @@ export default async function handler(req, res) {
             });
         }
 
+        // ==========================================
+        // VALIDATE FEATURE
+        // ==========================================
 
         if (!feature) {
             return res.status(400).json({
                 error: "INVALID_FEATURE",
-                message: "Please select a valid tutor feature."
+                message:
+                    "Please select a valid tutor feature."
             });
         }
 
-
-        // =========================
+        // ==========================================
         // SYSTEM INSTRUCTIONS
-        // =========================
+        // ==========================================
 
         let instructions = "";
 
+        // ==========================================
+        // HOMEWORK TUTOR
+        // ==========================================
 
         if (feature === "homework") {
-
             instructions = `
 You are an AI Homework Tutor.
 
@@ -72,6 +104,7 @@ For mathematics:
 - Explain the important steps.
 - Check the final result.
 - Keep calculations clear.
+- For word problems, identify the important numbers and what the question is asking.
 
 For science:
 - Explain concepts in simple language.
@@ -91,12 +124,19 @@ If the student's question is unclear, politely ask for the missing information.
 Use Markdown when useful.
 
 Do not pretend that you performed an action you did not perform.
+
+Keep explanations suitable for school students.
+
+Student question:
+${message}
 `;
         }
 
+        // ==========================================
+        // QUIZ MAKER
+        // ==========================================
 
         if (feature === "quiz") {
-
             instructions = `
 You are an AI Quiz Maker for a school learning application.
 
@@ -122,186 +162,251 @@ Then provide the questions.
 At the end provide an Answer Key with explanations.
 
 If the student specifies a number of questions, follow that number when reasonable.
+
 If the student specifies a difficulty level, follow it.
 
 If the student only provides a topic, create a suitable school-level quiz.
+
+Student request:
+${message}
 `;
         }
 
+        // ==========================================
+        // CREATE REPLICATE PREDICTION
+        // ==========================================
 
-        // =========================
-        // MODEL
-        // =========================
+        /*
+         * Replicate's official HTTP API supports creating
+         * predictions through:
+         *
+         * POST /v1/models/{owner}/{model}/predictions
+         *
+         * We use Prefer: wait so short AI responses can
+         * be returned directly without manual polling.
+         */
 
-        const model =
-            process.env.OPENAI_MODEL ||
-            "gpt-6-luna";
+        const modelParts = model.split("/");
 
+        if (modelParts.length !== 2) {
+            return res.status(500).json({
+                error: "INVALID_REPLICATE_MODEL",
+                message:
+                    "REPLICATE_MODEL must use the format owner/model-name."
+            });
+        }
 
-        // =========================
-        // OPENAI RESPONSES API
-        // =========================
+        const owner = modelParts[0];
+        const modelName = modelParts[1];
 
-        const openaiResponse =
+        const replicateUrl =
+            `https://api.replicate.com/v1/models/${encodeURIComponent(owner)}/${encodeURIComponent(modelName)}/predictions`;
+
+        // ==========================================
+        // SEND REQUEST TO REPLICATE
+        // ==========================================
+
+        const replicateResponse =
             await fetch(
-                "https://api.openai.com/v1/responses",
+                replicateUrl,
                 {
                     method: "POST",
 
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
+                        "Authorization": `Bearer ${apiToken}`,
+                        "Prefer": "wait=60"
                     },
 
+                    /*
+                     * IMPORTANT:
+                     *
+                     * This assumes your selected Replicate
+                     * text model accepts an input field named
+                     * "prompt".
+                     *
+                     * If your model uses another input field,
+                     * such as "prompt", "input", "text", or
+                     * another schema, this part must match
+                     * that model's API page.
+                     */
+
                     body: JSON.stringify({
-                        model: model,
-
-                        instructions: instructions,
-
-                        input: message,
-
-                        max_output_tokens: 2500
+                        input: {
+                            prompt: instructions
+                        }
                     })
                 }
             );
 
-
-        // =========================
-        // READ OPENAI RESPONSE
-        // =========================
+        // ==========================================
+        // READ REPLICATE RESPONSE
+        // ==========================================
 
         const contentType =
-            openaiResponse.headers.get("content-type") || "";
+            replicateResponse.headers.get("content-type") || "";
 
         let data = null;
-        let rawText = "";
-
 
         if (contentType.includes("application/json")) {
-
-            data = await openaiResponse.json();
-
+            data = await replicateResponse.json();
         } else {
+            const rawText =
+                await replicateResponse.text();
 
-            rawText = await openaiResponse.text();
+            console.error(
+                "Replicate returned non-JSON:",
+                rawText
+            );
 
             return res.status(502).json({
                 error: "INVALID_UPSTREAM_RESPONSE",
-                message: "The AI provider returned a non-JSON response."
+                message:
+                    "Replicate returned a non-JSON response."
             });
         }
 
+        // ==========================================
+        // HANDLE REPLICATE ERRORS
+        // ==========================================
 
-        // =========================
-        // HANDLE API ERRORS
-        // =========================
-
-        if (!openaiResponse.ok) {
-
+        if (!replicateResponse.ok) {
             const providerError =
-                data?.error?.message ||
+                data?.detail ||
                 data?.error ||
-                "The AI provider rejected the request.";
+                data?.message ||
+                "Replicate rejected the request.";
 
             const status =
-                openaiResponse.status || 500;
-
+                replicateResponse.status || 500;
 
             if (status === 401) {
-
                 return res.status(401).json({
                     error: "UNAUTHORIZED",
                     message:
-                        "The API key is invalid or unauthorized."
+                        "The Replicate API token is invalid or unauthorized."
                 });
             }
 
-
             if (status === 403) {
-
                 return res.status(403).json({
                     error: "FORBIDDEN",
                     message:
-                        "The API request was forbidden."
+                        "Replicate rejected access to this model."
                 });
             }
 
+            if (status === 404) {
+                return res.status(404).json({
+                    error: "MODEL_NOT_FOUND",
+                    message:
+                        "The Replicate model was not found. Check REPLICATE_MODEL in Vercel."
+                });
+            }
 
             if (status === 429) {
-
                 return res.status(429).json({
                     error: "RATE_LIMIT",
                     message:
-                        "The AI API rate limit or usage limit was reached."
+                        "The Replicate API rate limit or usage limit was reached."
                 });
             }
 
-
             return res.status(502).json({
-                error: "OPENAI_API_ERROR",
-                message: providerError
+                error: "REPLICATE_API_ERROR",
+                message: String(providerError)
             });
         }
 
+        // ==========================================
+        // GET OUTPUT
+        // ==========================================
 
-        // =========================
-        // EXTRACT OUTPUT TEXT
-        // =========================
-
-        let answer =
-            typeof data?.output_text === "string"
-                ? data.output_text.trim()
-                : "";
-
+        let answer = "";
 
         /*
-         * Fallback parser in case output_text
-         * is not present in the response.
+         * Many text models return a string.
+         */
+
+        if (typeof data?.output === "string") {
+            answer = data.output.trim();
+        }
+
+        /*
+         * Some Replicate models return an array
+         * of text chunks.
          */
 
         if (!answer && Array.isArray(data?.output)) {
-
-            const parts = [];
-
-            for (const item of data.output) {
-
-                if (!Array.isArray(item?.content)) {
-                    continue;
-                }
-
-                for (const content of item.content) {
-
-                    if (
-                        content?.type === "output_text" &&
-                        typeof content.text === "string"
-                    ) {
-                        parts.push(content.text);
-                    }
-                }
-            }
-
             answer =
-                parts.join("\n").trim();
+                data.output
+                    .filter(
+                        item =>
+                            typeof item === "string"
+                    )
+                    .join("")
+                    .trim();
         }
 
+        /*
+         * Some models may return an object.
+         * Try common text fields.
+         */
 
-        // =========================
+        if (!answer && data?.output) {
+            if (
+                typeof data.output.text === "string"
+            ) {
+                answer =
+                    data.output.text.trim();
+            }
+
+            if (
+                !answer &&
+                typeof data.output.content === "string"
+            ) {
+                answer =
+                    data.output.content.trim();
+            }
+        }
+
+        // ==========================================
+        // IF PREDICTION IS STILL PROCESSING
+        // ==========================================
+
+        if (
+            !answer &&
+            data?.status &&
+            data.status !== "succeeded" &&
+            data.status !== "successful"
+        ) {
+            return res.status(504).json({
+                error: "PREDICTION_NOT_COMPLETE",
+                message:
+                    `Replicate prediction is still ${data.status}. Please try again.`
+            });
+        }
+
+        // ==========================================
         // EMPTY RESPONSE
-        // =========================
+        // ==========================================
 
         if (!answer) {
+            console.error(
+                "Replicate returned no usable text:",
+                JSON.stringify(data)
+            );
 
             return res.status(502).json({
                 error: "EMPTY_AI_RESPONSE",
                 message:
-                    "The AI returned an empty response."
+                    "Replicate returned an empty AI response."
             });
         }
 
-
-        // =========================
+        // ==========================================
         // SUCCESS
-        // =========================
+        // ==========================================
 
         return res.status(200).json({
             success: true,
@@ -309,11 +414,15 @@ If the student only provides a topic, create a suitable school-level quiz.
             answer: answer
         });
 
-
     } catch (error) {
+        // ==========================================
+        // SERVER ERROR
+        // ==========================================
 
-        console.error("Vercel API error:", error);
-
+        console.error(
+            "Vercel Replicate API error:",
+            error
+        );
 
         return res.status(500).json({
             error: "SERVER_ERROR",
