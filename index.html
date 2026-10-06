@@ -630,6 +630,52 @@
 
                 </div>
 
+
+                <div
+                    onclick="selectFeature('planner')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-emerald-500/30">
+
+                    <div class="flex items-center gap-3 mb-2">
+
+                        <div class="h-10 w-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-md">
+
+                            <svg class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h3 class="font-semibold text-sm text-white group-hover:text-emerald-300 transition-colors">
+                                3. Study Planner
+                            </h3>
+
+                            <p class="text-[11px] text-slate-400">
+                                Build daily or weekly schedules
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Create a balanced study schedule from your subjects and available study time.
+                    </p>
+
+                </div>
+
             </div>
 
         </div>
@@ -689,6 +735,11 @@
 
     let quizHistory = [];
     let quizAskedQuestions = [];
+
+    // Study Planner state
+    let plannerSubjects = "";
+    let plannerTime = "";
+    let plannerType = "daily";
 
     const TOTAL_QUESTIONS = 20;
 
@@ -755,6 +806,23 @@
 
         }
 
+        else if (feature === "planner") {
+
+            titleElem.innerText =
+                "Study Planner Mode";
+
+            subtitleElem.innerText =
+                "Create a daily or weekly study plan based on your subjects and available time.";
+
+            userInput.placeholder =
+                "Or type: Math, Science, English | 2 hours/day | weekly";
+
+            indicator.className =
+                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+
+            renderPlannerSetup();
+        }
+
         userInput.focus();
     }
 
@@ -798,7 +866,7 @@
         if (!currentFeature) {
 
             showErrorMessage(
-                "Please select Quiz Maker or AI Homework Tutor first."
+                "Please select Quiz Maker, AI Homework Tutor, or Study Planner first."
             );
 
             return;
@@ -825,6 +893,15 @@
             input.value = "";
 
             startQuiz();
+
+            return;
+        }
+
+        if (currentFeature === "planner") {
+
+            input.value = "";
+
+            await generateStudyPlanFromText(text);
 
             return;
         }
@@ -875,6 +952,292 @@
             input.focus();
 
         }
+    }
+
+
+    /* ==========================================
+       STUDY PLANNER
+    ========================================== */
+
+    function renderPlannerSetup() {
+
+        const container =
+            document.getElementById("chat-messages");
+
+        if (!container) return;
+
+        const oldSetup =
+            document.getElementById("planner-setup");
+
+        if (oldSetup) {
+            oldSetup.remove();
+        }
+
+        const setup =
+            document.createElement("div");
+
+        setup.id = "planner-setup";
+        setup.className = "max-w-2xl mx-auto w-full";
+
+        setup.innerHTML = `
+            <div class="glass-card rounded-3xl p-6 border border-emerald-500/20 shadow-xl">
+
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-11 w-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white">Build Your Study Plan</h3>
+                        <p class="text-xs text-slate-400">Tell the tutor what you need to study and how much time you have.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Subjects</label>
+                        <input id="planner-subjects" type="text" value="${escapeHtml(plannerSubjects)}"
+                            placeholder="Math, Science, English, History"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Available study time</label>
+                        <input id="planner-time" type="text" value="${escapeHtml(plannerTime)}"
+                            placeholder="Example: 2 hours per day"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Plan type</label>
+                        <select id="planner-type"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white bg-slate-900/70 focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                            <option value="daily" ${plannerType === "daily" ? "selected" : ""}>Daily Plan</option>
+                            <option value="weekly" ${plannerType === "weekly" ? "selected" : ""}>Weekly Plan</option>
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="generateStudyPlan()"
+                        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium py-3 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path>
+                        </svg>
+                        Generate Study Plan
+                    </button>
+
+                    <p class="text-[11px] text-slate-500 text-center">
+                        You can also use the message box below with: <span class="text-emerald-300">subjects | available time | daily/weekly</span>
+                    </p>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(setup);
+        scrollToBottom();
+    }
+
+
+    async function generateStudyPlan() {
+
+        if (isLoading) return;
+
+        const subjectsInput =
+            document.getElementById("planner-subjects");
+
+        const timeInput =
+            document.getElementById("planner-time");
+
+        const typeInput =
+            document.getElementById("planner-type");
+
+        const subjects =
+            subjectsInput ? subjectsInput.value.trim() : "";
+
+        const availableTime =
+            timeInput ? timeInput.value.trim() : "";
+
+        const type =
+            typeInput ? typeInput.value : "daily";
+
+        if (!subjects || !availableTime) {
+            showErrorMessage(
+                "Please enter your subjects and available study time first."
+            );
+            return;
+        }
+
+        plannerSubjects = subjects;
+        plannerTime = availableTime;
+        plannerType = type;
+
+        const planLabel =
+            type === "weekly" ? "weekly" : "daily";
+
+        const prompt = buildStudyPlanPrompt(
+            subjects,
+            availableTime,
+            planLabel
+        );
+
+        const setup =
+            document.getElementById("planner-setup");
+
+        if (setup) setup.remove();
+
+        removeEmptyState();
+
+        appendUserMessage(
+            `Study Planner: ${subjects} | ${availableTime} | ${planLabel}`
+        );
+
+        setLoading(true);
+
+        try {
+
+            const result =
+                await callTutorAPI(
+                    prompt,
+                    "planner"
+                );
+
+            appendAIMessage(result);
+
+            addHistoryItem(
+                `Study Plan: ${subjects}`,
+                "planner"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Study Planner API error:",
+                error
+            );
+
+            appendAIMessage(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            const input =
+                document.getElementById("user-input");
+
+            input.focus();
+        }
+    }
+
+
+    async function generateStudyPlanFromText(text) {
+
+        const parts =
+            text.split("|").map(part => part.trim()).filter(Boolean);
+
+        let subjects = parts[0] || text;
+        let availableTime = parts[1] || "the available time described by the student";
+        let type = (parts[2] || "daily").toLowerCase();
+
+        if (!type.includes("week")) {
+            type = "daily";
+        } else {
+            type = "weekly";
+        }
+
+        plannerSubjects = subjects;
+        plannerTime = availableTime;
+        plannerType = type;
+
+        const setup =
+            document.getElementById("planner-setup");
+
+        if (setup) setup.remove();
+
+        removeEmptyState();
+
+        appendUserMessage(
+            `Study Planner: ${subjects} | ${availableTime} | ${type}`
+        );
+
+        setLoading(true);
+
+        try {
+
+            const result =
+                await callTutorAPI(
+                    buildStudyPlanPrompt(
+                        subjects,
+                        availableTime,
+                        type
+                    ),
+                    "planner"
+                );
+
+            appendAIMessage(result);
+
+            addHistoryItem(
+                `Study Plan: ${subjects}`,
+                "planner"
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Study Planner API error:",
+                error
+            );
+
+            appendAIMessage(
+                getFriendlyErrorMessage(error)
+            );
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            document.getElementById(
+                "user-input"
+            ).focus();
+        }
+    }
+
+
+    function buildStudyPlanPrompt(subjects, availableTime, type) {
+
+        const scheduleInstruction =
+            type === "weekly"
+                ? "Create a realistic Monday-to-Sunday weekly study schedule. Distribute subjects across the week and avoid overloading any single day."
+                : "Create a realistic one-day study schedule using the available time. Include focused study blocks and sensible breaks.";
+
+        return `You are an expert student study planner. Create a clear, realistic, school-friendly ${type} study plan.
+
+Subjects: ${subjects}
+Available study time: ${availableTime}
+Plan type: ${type}
+
+${scheduleInstruction}
+
+Requirements:
+- Prioritize difficult or important subjects without ignoring the others.
+- Fit the plan within the student's stated available time.
+- Include short breaks when appropriate.
+- Make the schedule easy for a student to follow.
+- Use clear headings and a table when useful.
+- For a weekly plan, label days clearly and include study duration for each subject.
+- For a daily plan, use practical study blocks rather than inventing an exact clock time unless the student supplied one.
+- Add a short section called "Study Tips" with 3 practical tips.
+- Do not claim the plan is personalized to information the student did not provide.
+- Return a useful plan directly; do not ask follow-up questions.`;
     }
 
 
@@ -3005,6 +3368,11 @@ Check the Vercel deployment logs if the problem continues.
                 `Quiz: ${quizTopic || "Quiz"}`;
         }
 
+        else if (feature === "planner") {
+            title =
+                `Study Plan: ${plannerSubjects || "Study Planner"}`;
+        }
+
         else {
 
             const userMessages =
@@ -3103,7 +3471,7 @@ Check the Vercel deployment logs if the problem continues.
             </span>
 
             <span class="text-[10px] text-slate-500">
-                ${chat.feature === "quiz" ? "Quiz" : "Tutor"}
+                ${chat.feature === "quiz" ? "Quiz" : chat.feature === "planner" ? "Planner" : "Tutor"}
             </span>
 
         `;
@@ -3181,6 +3549,25 @@ Check the Vercel deployment logs if the problem continues.
                 "current-mode-indicator"
             ).className =
                 "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        }
+
+        else if (chat.feature === "planner") {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Study Planner Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Create a daily or weekly study plan based on your subjects and available time.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
 
         }
 
@@ -3290,6 +3677,10 @@ Check the Vercel deployment logs if the problem continues.
                     <span class="text-purple-400 font-medium">
                         AI Homework Tutor
                     </span>
+                    or
+                    <span class="text-emerald-400 font-medium">
+                        Study Planner
+                    </span>
                     on the right panel.
 
                 </p>
@@ -3326,6 +3717,10 @@ Check the Vercel deployment logs if the problem continues.
         quizAskedQuestions =
             [];
 
+        plannerSubjects = "";
+        plannerTime = "";
+        plannerType = "daily";
+
 
         isLoading =
             false;
@@ -3340,7 +3735,7 @@ Check the Vercel deployment logs if the problem continues.
         document.getElementById(
             "chat-subtitle"
         ).innerText =
-            "Choose Quiz Maker or AI Homework Tutor from the right panel.";
+            "Choose Quiz Maker, AI Homework Tutor, or Study Planner from the right panel.";
 
 
         document.getElementById(
@@ -3455,7 +3850,7 @@ Check the Vercel deployment logs if the problem continues.
             </span>
 
             <span class="text-[10px] text-slate-500">
-                ${feature === "quiz" ? "Quiz" : "Tutor"}
+                ${feature === "quiz" ? "Quiz" : feature === "planner" ? "Planner" : "Tutor"}
             </span>
 
         `;
@@ -3479,6 +3874,34 @@ Check the Vercel deployment logs if the problem continues.
                         "quiz";
 
                     restartQuiz();
+
+                    return;
+                }
+
+
+                if (feature === "planner") {
+
+                    plannerSubjects =
+                        text.replace(
+                            /^Study Plan:\s*/i,
+                            ""
+                        );
+
+                    plannerTime = "";
+                    plannerType = "daily";
+
+                    selectFeature("planner");
+
+                    document.getElementById(
+                        "user-input"
+                    ).value = "";
+
+                    const plannerSubjectInput =
+                        document.getElementById("planner-subjects");
+
+                    if (plannerSubjectInput) {
+                        plannerSubjectInput.value = plannerSubjects;
+                    }
 
                     return;
                 }
@@ -3601,6 +4024,7 @@ Check the Vercel deployment logs if the problem continues.
                     }
 
                 }
+
             );
 
         }
