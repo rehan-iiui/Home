@@ -5,7 +5,7 @@ export default async function handler(req, res) {
             error: "METHOD_NOT_ALLOWED",
             message: "Only POST requests are allowed."
         });
-    }
+}
 
     try {
         // Check API key
