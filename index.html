@@ -3630,4 +3630,554 @@ Check the Vercel deployment logs if the problem continues.
                 if (isLoading) return;
 
                 restoreSavedChat(chat);
-  
+  const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+        container.innerHTML =
+            chat.html;
+
+        currentFeature =
+            chat.feature;
+
+        if (
+            chat.feature === "quiz"
+        ) {
+
+            quizTopic =
+                chat.quizTopic || "";
+
+            quizHistory =
+                JSON.parse(
+                    JSON.stringify(
+                        chat.quizHistory || []
+                    )
+                );
+
+            quizAskedQuestions =
+                [...(
+                    chat.quizAskedQuestions || []
+                )];
+
+            quizQuestionNumber =
+                TOTAL_QUESTIONS;
+
+            quizCurrentQuestion =
+                null;
+
+            quizAnswered =
+                true;
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Interactive Quiz";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                `Topic: ${quizTopic}`;
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+
+        }
+
+        else if (chat.feature === "planner") {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "Study Planner Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Create a daily or weekly study plan based on your subjects and available time.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+
+        }
+
+        else if (EXTRA_FEATURES[chat.feature]) {
+
+            document.getElementById("chat-title").innerText =
+                EXTRA_FEATURES[chat.feature].title;
+
+            document.getElementById("chat-subtitle").innerText =
+                EXTRA_FEATURES[chat.feature].subtitle;
+
+            document.getElementById("current-mode-indicator").className =
+                `h-2.5 w-2.5 rounded-full bg-${EXTRA_FEATURES[chat.feature].color}-500 shadow-lg shadow-${EXTRA_FEATURES[chat.feature].color}-500/50`;
+
+        }
+
+        else {
+
+            document.getElementById(
+                "chat-title"
+            ).innerText =
+                "AI Homework Tutor Mode";
+
+            document.getElementById(
+                "chat-subtitle"
+            ).innerText =
+                "Ask a homework question for a detailed, step-by-step explanation.";
+
+            document.getElementById(
+                "current-mode-indicator"
+            ).className =
+                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+
+        }
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+        input.disabled =
+            false;
+
+        button.disabled =
+            false;
+
+        input.value =
+            "";
+
+        scrollToBottom();
+
+        input.focus();
+    }
+
+
+    /* ==========================================
+       NEW CHAT
+    ========================================== */
+
+    function startNewChat() {
+
+        if (isLoading) return;
+
+        /*
+         * IMPORTANT:
+         * Save the current chat FIRST.
+         *
+         * Previously the function cleared the
+         * chat immediately, which meant the current
+         * conversation disappeared without being saved.
+         */
+        saveCurrentChat();
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+
+        container.innerHTML = `
+
+            <div id="empty-state"
+                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+
+                <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
+
+                    <svg class="w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+
+                <h3 class="text-lg font-semibold text-white mb-2">
+                    New Chat Started
+                </h3>
+
+
+                <p class="text-xs text-slate-400 mb-6">
+
+                    Choose
+                    <span class="text-indigo-400 font-medium">
+                        Quiz Maker
+                    </span>
+                    or
+                    <span class="text-purple-400 font-medium">
+                        AI Homework Tutor
+                    </span>
+                    or
+                    <span class="text-emerald-400 font-medium">
+                        Study Planner
+                    </span>
+                    on the right panel.
+
+                </p>
+
+            </div>
+
+        `;
+
+
+        currentFeature =
+            null;
+
+        quizTopic =
+            "";
+
+        quizQuestionNumber =
+            0;
+
+        quizCorrect =
+            0;
+
+        quizIncorrect =
+            0;
+
+        quizCurrentQuestion =
+            null;
+
+        quizAnswered =
+            false;
+
+        quizHistory =
+            [];
+
+        quizAskedQuestions =
+            [];
+
+        plannerSubjects = "";
+        plannerTime = "";
+        plannerType = "daily";
+
+
+        isLoading =
+            false;
+
+
+        document.getElementById(
+            "chat-title"
+        ).innerText =
+            "Select a feature to begin";
+
+
+        document.getElementById(
+            "chat-subtitle"
+        ).innerText =
+            "Choose Quiz Maker, AI Homework Tutor, or Study Planner from the right panel.";
+
+
+        document.getElementById(
+            "current-mode-indicator"
+        ).className =
+            "h-2.5 w-2.5 rounded-full bg-indigo-500";
+
+
+        const input =
+            document.getElementById(
+                "user-input"
+            );
+
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+
+        input.disabled =
+            false;
+
+
+        button.disabled =
+            false;
+
+
+        input.value =
+            "";
+
+
+        input.placeholder =
+            "Ask a question or select a feature first...";
+
+
+        input.focus();
+
+    }
+
+
+    /* ==========================================
+       CLEAR CHAT
+    ========================================== */
+
+    function clearCurrentChat() {
+
+        if (isLoading) return;
+
+        const oldFeature =
+            currentFeature;
+
+        startNewChat();
+
+        if (oldFeature) {
+
+            selectFeature(
+                oldFeature
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================
+       HISTORY
+    ========================================== */
+
+    function addHistoryItem(
+        text,
+        feature
+    ) {
+
+        const history =
+            document.getElementById(
+                "history-list"
+            );
+
+
+        const empty =
+            document.getElementById(
+                "empty-history"
+            );
+
+
+        if (empty) {
+            empty.remove();
+        }
+
+
+        const item =
+            document.createElement(
+                "div"
+            );
+
+
+        item.className =
+            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+
+
+        const title =
+            text.length > 32
+                ? text.slice(0, 32) + "..."
+                : text;
+
+
+        item.innerHTML = `
+
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">
+                ${escapeHtml(title)}
+            </span>
+
+            <span class="text-[10px] text-slate-500">
+                ${feature === "quiz" ? "Quiz" : feature === "planner" ? "Planner" : "Tutor"}
+            </span>
+
+        `;
+
+
+        item.onclick =
+            function() {
+
+                if (isLoading) return;
+
+
+                if (feature === "quiz") {
+
+                    quizTopic =
+                        text.replace(
+                            /^Quiz:\s*/i,
+                            ""
+                        );
+
+                    currentFeature =
+                        "quiz";
+
+                    restartQuiz();
+
+                    return;
+                }
+
+
+                if (feature === "planner") {
+
+                    plannerSubjects =
+                        text.replace(
+                            /^Study Plan:\s*/i,
+                            ""
+                        );
+
+                    plannerTime = "";
+                    plannerType = "daily";
+
+                    selectFeature("planner");
+
+                    document.getElementById(
+                        "user-input"
+                    ).value = "";
+
+                    const plannerSubjectInput =
+                        document.getElementById("planner-subjects");
+
+                    if (plannerSubjectInput) {
+                        plannerSubjectInput.value = plannerSubjects;
+                    }
+
+                    return;
+                }
+
+
+                selectFeature(
+                    feature
+                );
+
+
+                document.getElementById(
+                    "user-input"
+                ).value =
+                    text;
+
+
+                document.getElementById(
+                    "user-input"
+                ).focus();
+
+            };
+
+
+        history.prepend(
+            item
+        );
+
+    }
+
+
+    /* ==========================================
+       SCROLL
+    ========================================== */
+
+    function scrollToBottom() {
+
+        const container =
+            document.getElementById(
+                "chat-messages"
+            );
+
+
+        container.scrollTop =
+            container.scrollHeight;
+
+    }
+
+
+    /* ==========================================
+       ESCAPE HTML
+    ========================================== */
+
+    function escapeHtml(text) {
+
+        return String(text)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            const input =
+                document.getElementById(
+                    "user-input"
+                );
+
+
+            input.disabled =
+                false;
+
+
+            document.getElementById(
+                "send-btn"
+            ).disabled =
+                false;
+
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (
+                        event.key === "Enter"
+                    ) {
+
+                        event.preventDefault();
+
+                        document
+                            .getElementById(
+                                "chat-form"
+                            )
+                            .requestSubmit();
+
+                    }
+
+                }
+
+            );
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
