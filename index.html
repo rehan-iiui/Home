@@ -66,6 +66,7 @@
                 transform: translateY(0);
                 opacity: .35;
             }
+
             30% {
                 transform: translateY(-4px);
                 opacity: 1;
@@ -125,39 +126,71 @@
 
 <div class="flex h-screen w-screen p-4 gap-4">
 
-    <!-- ================= LEFT SIDEBAR ================= -->
+    <!-- LEFT SIDEBAR -->
 
     <aside class="w-72 glass-panel rounded-3xl flex flex-col justify-between p-4 shadow-2xl transition-all duration-300">
 
         <div>
 
             <div class="flex items-center gap-3 px-3 py-2 mb-6">
+
                 <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
+
+                    <svg class="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.867 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.867-4.5 1.253">
                         </path>
+
                     </svg>
+
                 </div>
 
                 <div>
-                    <h1 class="font-bold text-base tracking-wide">AI Tutor</h1>
-                    <p class="text-xs text-indigo-300">Your Personal Study Guide</p>
+
+                    <h1 class="font-bold text-base tracking-wide">
+                        AI Tutor
+                    </h1>
+
+                    <p class="text-xs text-indigo-300">
+                        Your Personal Study Guide
+                    </p>
+
                 </div>
+
             </div>
 
+
             <button
+                type="button"
                 onclick="startNewChat()"
                 class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium py-3 px-4 rounded-2xl shadow-lg shadow-indigo-600/20 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
 
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                <svg class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 4.5v15m7.5-7.5h-15">
+                    </path>
+
                 </svg>
 
                 New Chat
+
             </button>
 
+
             <div class="mt-6">
+
                 <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
                     Chat History
                 </h2>
@@ -167,13 +200,17 @@
 
                     <div id="empty-history"
                         class="px-3 py-4 text-xs text-slate-500 text-center">
+
                         No previous chats yet.
+
                     </div>
 
                 </div>
+
             </div>
 
         </div>
+
 
         <div class="pt-4 border-t border-white/10 flex items-center gap-3 px-2">
 
@@ -182,14 +219,19 @@
             </div>
 
             <div class="flex-1 overflow-hidden">
+
                 <p class="text-xs font-medium text-white truncate">
                     Ready to learn
                 </p>
 
                 <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+
                     Online
+
                 </p>
+
             </div>
 
         </div>
@@ -197,7 +239,7 @@
     </aside>
 
 
-    <!-- ================= CENTER ================= -->
+    <!-- CENTER -->
 
     <main class="flex-1 glass-panel rounded-3xl flex flex-col overflow-hidden shadow-2xl relative">
 
@@ -210,40 +252,52 @@
                 </div>
 
                 <div>
+
                     <h2 id="chat-title"
                         class="font-semibold text-sm text-white">
+
                         Select a feature to begin
+
                     </h2>
 
                     <p id="chat-subtitle"
                         class="text-xs text-slate-400">
+
                         Choose Quiz Maker or AI Homework Tutor from the right panel.
+
                     </p>
+
                 </div>
 
             </div>
 
-            <div class="flex items-center gap-2">
 
-                <button
-                    onclick="clearCurrentChat()"
-                    class="p-2 rounded-xl glass-card hover:bg-white/10 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer">
+            <button
+                type="button"
+                onclick="clearCurrentChat()"
+                class="p-2 rounded-xl glass-card hover:bg-white/10 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer">
 
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                        </path>
-                    </svg>
+                <svg class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24">
 
-                    Clear Chat
-                </button>
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
 
-            </div>
+                </svg>
+
+                Clear Chat
+
+            </button>
 
         </header>
 
 
-        <!-- CHAT MESSAGES -->
+        <!-- CHAT -->
 
         <div id="chat-messages"
             class="flex-1 overflow-y-auto p-6 space-y-6">
@@ -253,7 +307,11 @@
 
                 <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
 
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        viewBox="0 0 24 24">
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
@@ -264,16 +322,24 @@
 
                 </div>
 
+
                 <h3 class="text-lg font-semibold text-white mb-2">
                     Welcome to your AI Tutor
                 </h3>
 
+
                 <p class="text-xs text-slate-400 mb-6">
+
                     Select
-                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
+                    <span class="text-indigo-400 font-medium">
+                        Quiz Maker
+                    </span>
                     or
-                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
+                    <span class="text-purple-400 font-medium">
+                        AI Homework Tutor
+                    </span>
                     from the right control panel to start learning.
+
                 </p>
 
             </div>
@@ -295,17 +361,26 @@
                     placeholder="Ask a question or select a feature first..."
                     class="flex-1 glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                     autocomplete="off"
+                    spellcheck="true"
                 />
+
 
                 <button
                     type="submit"
                     id="send-btn"
                     class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
 
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
+                    <svg class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5">
                         </path>
+
                     </svg>
 
                 </button>
@@ -317,7 +392,7 @@
     </main>
 
 
-    <!-- ================= RIGHT SIDEBAR ================= -->
+    <!-- RIGHT SIDEBAR -->
 
     <aside class="w-80 glass-panel rounded-3xl flex flex-col p-4 shadow-2xl justify-between">
 
@@ -326,6 +401,7 @@
             <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-4">
                 Tutor Features
             </h2>
+
 
             <div class="space-y-3">
 
@@ -339,7 +415,11 @@
 
                         <div class="h-10 w-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-md">
 
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -349,6 +429,7 @@
                             </svg>
 
                         </div>
+
 
                         <div>
 
@@ -363,6 +444,7 @@
                         </div>
 
                     </div>
+
 
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Test your understanding with instant multiple-choice or open-ended quizzes.
@@ -381,7 +463,11 @@
 
                         <div class="h-10 w-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-md">
 
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24">
 
                                 <path stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -391,6 +477,7 @@
                             </svg>
 
                         </div>
+
 
                         <div>
 
@@ -405,6 +492,7 @@
                         </div>
 
                     </div>
+
 
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Ask questions about assignments, equations, or essays with full markdown explanations.
@@ -440,6 +528,7 @@
 
             </div>
 
+
             <p class="text-[11px] text-slate-300 leading-relaxed">
                 Markdown syntax is fully supported in answers for code snippets, formulas, and bullet points.
             </p>
@@ -457,31 +546,44 @@
     let isLoading = false;
 
 
-    // =========================
+    // ==========================================
     // SELECT FEATURE
-    // =========================
+    // ==========================================
 
     function selectFeature(feature) {
 
+        if (isLoading) return;
+
         currentFeature = feature;
 
-        const titleElem = document.getElementById("chat-title");
-        const subtitleElem = document.getElementById("chat-subtitle");
-        const indicator = document.getElementById("current-mode-indicator");
-        const userInput = document.getElementById("user-input");
-        const sendBtn = document.getElementById("send-btn");
+        const titleElem =
+            document.getElementById("chat-title");
 
-        /*
-         * INPUT IS ALWAYS ENABLED
-         */
+        const subtitleElem =
+            document.getElementById("chat-subtitle");
+
+        const indicator =
+            document.getElementById("current-mode-indicator");
+
+        const userInput =
+            document.getElementById("user-input");
+
+        const sendBtn =
+            document.getElementById("send-btn");
+
+
+        // Never clear the user's current text here.
         userInput.disabled = false;
         sendBtn.disabled = false;
 
+
         removeEmptyState();
+
 
         if (feature === "quiz") {
 
-            titleElem.innerText = "Quiz Maker Mode";
+            titleElem.innerText =
+                "Quiz Maker Mode";
 
             subtitleElem.innerText =
                 "Type a topic to generate a custom practice quiz.";
@@ -494,9 +596,11 @@
 
         }
 
+
         else if (feature === "homework") {
 
-            titleElem.innerText = "AI Homework Tutor Mode";
+            titleElem.innerText =
+                "AI Homework Tutor Mode";
 
             subtitleElem.innerText =
                 "Ask a homework question for a detailed, step-by-step explanation.";
@@ -509,13 +613,14 @@
 
         }
 
+
         userInput.focus();
     }
 
 
-    // =========================
+    // ==========================================
     // REMOVE EMPTY STATE
-    // =========================
+    // ==========================================
 
     function removeEmptyState() {
 
@@ -528,9 +633,9 @@
     }
 
 
-    // =========================
+    // ==========================================
     // SEND MESSAGE
-    // =========================
+    // ==========================================
 
     async function handleSendMessage(event) {
 
@@ -538,13 +643,19 @@
 
         if (isLoading) return;
 
+
         const input =
             document.getElementById("user-input");
 
         const text =
             input.value.trim();
 
-        if (!text) return;
+
+        if (!text) {
+            input.focus();
+            return;
+        }
+
 
         if (!currentFeature) {
 
@@ -555,28 +666,46 @@
             return;
         }
 
+
         removeEmptyState();
 
         appendUserMessage(text);
 
+
+        /*
+         * Clear the input ONLY after the message
+         * has actually been submitted.
+         */
+
         input.value = "";
 
+
         setLoading(true);
+
 
         try {
 
             const result =
-                await callTutorAPI(text, currentFeature);
+                await callTutorAPI(
+                    text,
+                    currentFeature
+                );
 
             appendAIMessage(result);
 
-            addHistoryItem(text, currentFeature);
+            addHistoryItem(
+                text,
+                currentFeature
+            );
 
         }
 
         catch (error) {
 
-            console.error("Tutor API error:", error);
+            console.error(
+                "Tutor API error:",
+                error
+            );
 
             appendAIMessage(
                 getFriendlyErrorMessage(error)
@@ -589,35 +718,39 @@
             setLoading(false);
 
             input.focus();
+
         }
     }
 
 
-    // =========================
-    // CALL VERCEL + REPLICATE API
-    // =========================
+    // ==========================================
+    // CALL VERCEL API
+    // ==========================================
 
     async function callTutorAPI(message, feature) {
 
         let response;
 
+
         try {
 
-            response = await fetch("/api/chat", {
+            response =
+                await fetch(
+                    "/api/chat",
+                    {
+                        method: "POST",
 
-                method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-
-                body: JSON.stringify({
-                    message: message,
-                    feature: feature
-                })
-
-            });
+                        body: JSON.stringify({
+                            message: message,
+                            feature: feature
+                        })
+                    }
+                );
 
         }
 
@@ -626,26 +759,29 @@
             throw new Error(
                 "NETWORK_ERROR"
             );
+
         }
 
 
         const contentType =
-            response.headers.get("content-type") || "";
+            response.headers.get(
+                "content-type"
+            ) || "";
+
 
         let data = null;
 
 
-        /*
-         * Protect against HTML/plain-text Vercel errors.
-         */
-
         if (
-            contentType.toLowerCase().includes("application/json")
+            contentType
+                .toLowerCase()
+                .includes("application/json")
         ) {
 
             try {
 
-                data = await response.json();
+                data =
+                    await response.json();
 
             }
 
@@ -654,6 +790,7 @@
                 throw new Error(
                     "INVALID_JSON_RESPONSE"
                 );
+
             }
 
         }
@@ -663,44 +800,47 @@
             const rawText =
                 await response.text();
 
-            if (rawText) {
-
-                console.error(
-                    "Non-JSON server response:",
-                    rawText
-                );
-
-                throw new Error(
-                    "NON_JSON_RESPONSE"
-                );
-            }
+            console.error(
+                "Non-JSON server response:",
+                rawText
+            );
 
             throw new Error(
-                "EMPTY_SERVER_RESPONSE"
+                rawText
+                    ? `SERVER_NON_JSON: ${rawText.slice(0, 300)}`
+                    : "EMPTY_SERVER_RESPONSE"
             );
+
         }
 
 
-        // =========================
-        // SERVER ERROR
-        // =========================
+        /*
+         * IMPORTANT:
+         * Preserve the actual server error instead of
+         * replacing it with only HTTP_500.
+         */
 
         if (!response.ok) {
 
-            const serverError =
-                data?.error ||
+            const serverMessage =
                 data?.message ||
+                data?.error ||
                 `HTTP_${response.status}`;
 
-            throw new Error(
-                String(serverError)
-            );
+            const error =
+                new Error(
+                    String(serverMessage)
+                );
+
+            error.status =
+                response.status;
+
+            error.serverData =
+                data;
+
+            throw error;
         }
 
-
-        // =========================
-        // API RESPONSE CHECK
-        // =========================
 
         if (
             !data ||
@@ -708,9 +848,11 @@
         ) {
 
             throw new Error(
+                data?.message ||
                 data?.error ||
                 "AI_REQUEST_FAILED"
             );
+
         }
 
 
@@ -722,6 +864,7 @@
             throw new Error(
                 "INVALID_API_DATA"
             );
+
         }
 
 
@@ -729,20 +872,25 @@
     }
 
 
-    // =========================
+    // ==========================================
     // USER MESSAGE
-    // =========================
+    // ==========================================
 
     function appendUserMessage(text) {
 
         const container =
-            document.getElementById("chat-messages");
+            document.getElementById(
+                "chat-messages"
+            );
+
 
         const userDiv =
             document.createElement("div");
 
+
         userDiv.className =
             "flex gap-3 max-w-2xl ml-auto flex-row-reverse";
+
 
         userDiv.innerHTML = `
 
@@ -756,33 +904,42 @@
 
         `;
 
+
         container.appendChild(userDiv);
 
         scrollToBottom();
     }
 
 
-    // =========================
+    // ==========================================
     // AI MESSAGE
-    // =========================
+    // ==========================================
 
     function appendAIMessage(markdownText) {
 
         const container =
-            document.getElementById("chat-messages");
+            document.getElementById(
+                "chat-messages"
+            );
+
 
         const aiDiv =
             document.createElement("div");
 
+
         aiDiv.className =
             "flex gap-3 max-w-2xl";
 
+
         let rendered;
+
 
         try {
 
             rendered =
-                marked.parse(String(markdownText));
+                marked.parse(
+                    String(markdownText)
+                );
 
         }
 
@@ -790,7 +947,9 @@
 
             rendered =
                 `<p>${escapeHtml(markdownText)}</p>`;
+
         }
+
 
         aiDiv.innerHTML = `
 
@@ -804,77 +963,136 @@
 
         `;
 
+
         container.appendChild(aiDiv);
 
         scrollToBottom();
     }
 
 
-    // =========================
+    // ==========================================
     // ERROR MESSAGE
-    // =========================
+    // ==========================================
 
     function showErrorMessage(message) {
 
         appendAIMessage(
             `### Tutor Error\n\n${message}`
         );
+
     }
 
 
-    // =========================
-    // FRIENDLY ERROR HANDLING
-    // =========================
+    // ==========================================
+    // FRIENDLY ERRORS
+    // ==========================================
 
     function getFriendlyErrorMessage(error) {
 
         const message =
-            String(error?.message || error || "");
+            String(
+                error?.message ||
+                error ||
+                ""
+            );
+
 
         const lower =
             message.toLowerCase();
 
 
-        // INVALID JSON
+        console.error(
+            "Detailed API error:",
+            message
+        );
+
+
+        // MISSING REPLICATE TOKEN
 
         if (
-            lower.includes("invalid_json_response") ||
-            lower.includes("unexpected token") ||
-            lower.includes("non_json_response")
+            lower.includes("missing_replicate_token") ||
+            lower.includes("replicate token is not configured") ||
+            lower.includes("replicate_api_token")
         ) {
 
             return `
-### The AI service returned an invalid response
+### Replicate token is not configured
 
-The server did not return the expected JSON response.
+Vercel cannot find **REPLICATE_API_TOKEN**.
 
-This usually means the Vercel API function has an error or the Replicate connection is not configured correctly.
+Check:
 
-Please check your Vercel deployment and \`api/chat.js\`.
+1. Vercel → Project → Settings → Environment Variables
+2. Variable name must be exactly \`REPLICATE_API_TOKEN\`
+3. Make sure the correct environment is selected.
+4. Redeploy the project after saving the variable.
+
+Your secret token should NOT be placed in this HTML file.
 `;
+
         }
 
 
-        // REPLICATE AUTHENTICATION
+        // MISSING MODEL
+
+        if (
+            lower.includes("missing_replicate_model") ||
+            lower.includes("replicate model is not configured")
+        ) {
+
+            return `
+### Replicate model is not configured
+
+Add this Vercel environment variable:
+
+\`REPLICATE_MODEL\`
+
+The value must be your actual Replicate model in the format:
+
+\`owner/model-name\`
+`;
+
+        }
+
+
+        // INVALID MODEL
+
+        if (
+            lower.includes("invalid_replicate_model")
+        ) {
+
+            return `
+### Invalid Replicate model
+
+Your \`REPLICATE_MODEL\` must look like:
+
+\`owner/model-name\`
+
+Check the model name in your Vercel Environment Variables.
+`;
+
+        }
+
+
+        // AUTHENTICATION
 
         if (
             lower.includes("401") ||
             lower.includes("unauthorized") ||
-            lower.includes("invalid api key") ||
-            lower.includes("authentication") ||
             lower.includes("invalid token") ||
-            lower.includes("replicate_api_token")
+            lower.includes("authentication")
         ) {
 
             return `
 ### Replicate authentication problem
 
-The Replicate API token appears to be missing, invalid, or unavailable to the Vercel server.
+Replicate rejected the API token.
 
-Check your Vercel Environment Variables.
+Check that your Vercel \`REPLICATE_API_TOKEN\` contains the correct token.
 
-Your secret Replicate token should stay on the server and should NOT be placed inside this HTML file.
+Do not put the token inside \`index.html\`.
 `;
+
         }
 
 
@@ -882,16 +1100,45 @@ Your secret Replicate token should stay on the server and should NOT be placed i
 
         if (
             lower.includes("403") ||
-            lower.includes("forbidden")
+            lower.includes("forbidden") ||
+            lower.includes("access was denied")
         ) {
 
             return `
 ### Replicate access was denied
 
-Replicate received the request but did not allow access.
+The token was received, but Replicate did not allow access to the selected model.
 
-Please check your Replicate account, token permissions, and selected model.
+Check your Replicate account, token permissions, and model.
 `;
+
+        }
+
+
+        // MODEL NOT FOUND
+
+        if (
+            lower.includes("404") ||
+            lower.includes("model_not_found") ||
+            lower.includes("model not found")
+        ) {
+
+            return `
+### Replicate model not found
+
+The model configured in Vercel could not be found.
+
+Check:
+
+\`REPLICATE_MODEL\`
+
+It should be your actual Replicate model in:
+
+\`owner/model-name\`
+
+format.
+`;
+
         }
 
 
@@ -900,54 +1147,39 @@ Please check your Replicate account, token permissions, and selected model.
         if (
             lower.includes("429") ||
             lower.includes("rate limit") ||
-            lower.includes("quota") ||
-            lower.includes("too many requests")
+            lower.includes("quota")
         ) {
 
             return `
 ### AI usage limit reached
 
-Replicate is currently limiting requests.
+Replicate is currently limiting the request.
 
 Please wait a little and try again.
 `;
+
         }
 
 
-        // MODEL NOT FOUND
+        // INVALID INPUT / MODEL SCHEMA
 
         if (
-            lower.includes("404") ||
-            lower.includes("not found") ||
-            lower.includes("model does not exist")
+            lower.includes("invalid input") ||
+            lower.includes("input validation") ||
+            lower.includes("validation error") ||
+            lower.includes("422")
         ) {
 
             return `
-### Replicate model not found
+### Replicate model input problem
 
-The model configured in your Vercel API could not be found.
+The Replicate model rejected the input sent by \`api/chat.js\`.
 
-Please check the Replicate model name in \`api/chat.js\`.
+This usually means the model uses a different input field.
+
+Send me your Replicate model name and I can adjust the backend to its exact input format.
 `;
-        }
 
-
-        // SERVER ERRORS
-
-        if (
-            lower.includes("500") ||
-            lower.includes("502") ||
-            lower.includes("503") ||
-            lower.includes("504")
-        ) {
-
-            return `
-### AI server problem
-
-The Vercel server or Replicate could not complete the request.
-
-Please try again in a moment.
-`;
         }
 
 
@@ -962,34 +1194,57 @@ Please try again in a moment.
             return `
 ### Connection problem
 
-The browser could not reach the AI server.
+The browser could not reach the Vercel AI server.
 
-Check your internet connection and make sure your Vercel deployment is online.
+Check your internet connection and Vercel deployment.
 `;
+
         }
 
 
-        // MISSING TOKEN
+        // INVALID JSON
 
         if (
-            lower.includes("missing_api_key") ||
-            lower.includes("missing_api_token") ||
-            lower.includes("token is missing")
+            lower.includes("invalid_json_response") ||
+            lower.includes("non_json_response")
         ) {
 
             return `
-### Replicate token is not configured
+### Vercel API response problem
 
-The Vercel server cannot find your Replicate API token.
+The Vercel function did not return the expected JSON response.
 
-Add your Replicate token to your Vercel Environment Variables and redeploy the project.
-
-Keep the secret token out of this HTML file.
+Open the Vercel deployment logs and check \`api/chat.js\`.
 `;
+
         }
 
 
-        // INVALID API DATA
+        // SERVER ERROR
+
+        if (
+            lower.includes("500") ||
+            lower.includes("502") ||
+            lower.includes("503") ||
+            lower.includes("504")
+        ) {
+
+            return `
+### AI server problem
+
+The Vercel server or Replicate could not complete the request.
+
+The detailed error was:
+
+\`${escapeHtml(message)}\`
+
+Check the Vercel deployment logs for \`api/chat.js\`.
+`;
+
+        }
+
+
+        // INVALID DATA
 
         if (
             lower.includes("invalid_api_data")
@@ -998,14 +1253,15 @@ Keep the secret token out of this HTML file.
             return `
 ### AI response problem
 
-The AI server responded, but it did not return a usable answer.
+The server responded, but no usable AI answer was returned.
 
-Please check the Replicate model configuration in \`api/chat.js\`.
+This usually means the selected Replicate model returns its text in a different format.
 `;
+
         }
 
 
-        // EMPTY RESPONSE
+        // EMPTY SERVER
 
         if (
             lower.includes("empty_server_response")
@@ -1014,26 +1270,11 @@ Please check the Replicate model configuration in \`api/chat.js\`.
             return `
 ### Empty server response
 
-The AI server did not send a response.
+The Vercel AI function did not return a response.
 
 Please try again.
 `;
-        }
 
-
-        // GENERIC AI ERROR
-
-        if (
-            lower.includes("ai_request_failed")
-        ) {
-
-            return `
-### AI request failed
-
-The AI could not complete your request.
-
-Please try again in a moment.
-`;
         }
 
 
@@ -1044,31 +1285,41 @@ Please try again in a moment.
 
 The AI tutor could not complete this request.
 
-Please try again.
+**Server message:**
 
-If the problem continues, check your Vercel deployment logs and the \`api/chat.js\` function.
+\`${escapeHtml(message || "Unknown error")}\`
+
+Check the Vercel deployment logs if the problem continues.
 `;
+
     }
 
 
-    // =========================
+    // ==========================================
     // LOADING
-    // =========================
+    // ==========================================
 
     function setLoading(loading) {
 
-        isLoading = loading;
+        isLoading =
+            loading;
+
 
         const input =
-            document.getElementById("user-input");
+            document.getElementById(
+                "user-input"
+            );
+
 
         const button =
-            document.getElementById("send-btn");
+            document.getElementById(
+                "send-btn"
+            );
 
 
         /*
-         * Only disable while AI is responding.
-         * Otherwise the input stays usable.
+         * Input is disabled ONLY while the AI
+         * is actually processing the submitted message.
          */
 
         input.disabled =
@@ -1089,24 +1340,36 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
             removeLoadingMessage();
 
         }
+
     }
 
+
+    // ==========================================
+    // LOADING MESSAGE
+    // ==========================================
 
     function appendLoadingMessage() {
 
         removeLoadingMessage();
 
+
         const container =
-            document.getElementById("chat-messages");
+            document.getElementById(
+                "chat-messages"
+            );
+
 
         const loadingDiv =
             document.createElement("div");
 
+
         loadingDiv.id =
             "loading-message";
 
+
         loadingDiv.className =
             "flex gap-3 max-w-2xl";
+
 
         loadingDiv.innerHTML = `
 
@@ -1124,31 +1387,46 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
 
         `;
 
-        container.appendChild(loadingDiv);
+
+        container.appendChild(
+            loadingDiv
+        );
+
 
         scrollToBottom();
+
     }
 
 
     function removeLoadingMessage() {
 
         const loading =
-            document.getElementById("loading-message");
+            document.getElementById(
+                "loading-message"
+            );
+
 
         if (loading) {
             loading.remove();
         }
+
     }
 
 
-    // =========================
+    // ==========================================
     // NEW CHAT
-    // =========================
+    // ==========================================
 
     function startNewChat() {
 
+        if (isLoading) return;
+
+
         const container =
-            document.getElementById("chat-messages");
+            document.getElementById(
+                "chat-messages"
+            );
+
 
         container.innerHTML = `
 
@@ -1165,92 +1443,143 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
 
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
+                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09z">
                         </path>
 
                     </svg>
 
                 </div>
 
+
                 <h3 class="text-lg font-semibold text-white mb-2">
                     New Chat Started
                 </h3>
 
+
                 <p class="text-xs text-slate-400 mb-6">
+
                     Choose
-                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
+                    <span class="text-indigo-400 font-medium">
+                        Quiz Maker
+                    </span>
                     or
-                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
+                    <span class="text-purple-400 font-medium">
+                        AI Homework Tutor
+                    </span>
                     on the right panel.
+
                 </p>
 
             </div>
+
         `;
 
 
-        currentFeature = null;
-        isLoading = false;
+        currentFeature =
+            null;
+
+        isLoading =
+            false;
 
 
-        document.getElementById("chat-title").innerText =
+        document.getElementById(
+            "chat-title"
+        ).innerText =
             "Select a feature to begin";
 
-        document.getElementById("chat-subtitle").innerText =
+
+        document.getElementById(
+            "chat-subtitle"
+        ).innerText =
             "Choose Quiz Maker or AI Homework Tutor from the right panel.";
 
-        document.getElementById("current-mode-indicator").className =
+
+        document.getElementById(
+            "current-mode-indicator"
+        ).className =
             "h-2.5 w-2.5 rounded-full bg-indigo-500";
 
 
-        /*
-         * IMPORTANT:
-         * Keep the input and send button enabled.
-         */
+        const input =
+            document.getElementById(
+                "user-input"
+            );
 
-        document.getElementById("user-input").disabled =
+
+        const button =
+            document.getElementById(
+                "send-btn"
+            );
+
+
+        input.disabled =
             false;
 
-        document.getElementById("user-input").value =
+
+        button.disabled =
+            false;
+
+
+        input.value =
             "";
 
-        document.getElementById("user-input").placeholder =
+
+        input.placeholder =
             "Ask a question or select a feature first...";
 
-        document.getElementById("send-btn").disabled =
-            false;
 
-        document.getElementById("user-input").focus();
+        input.focus();
+
     }
 
 
-    // =========================
+    // ==========================================
     // CLEAR CHAT
-    // =========================
+    // ==========================================
 
     function clearCurrentChat() {
+
+        if (isLoading) return;
+
 
         const oldFeature =
             currentFeature;
 
+
         startNewChat();
 
+
         if (oldFeature) {
-            selectFeature(oldFeature);
+
+            selectFeature(
+                oldFeature
+            );
+
         }
+
     }
 
 
-    // =========================
+    // ==========================================
     // HISTORY
-    // =========================
+    // ==========================================
 
-    function addHistoryItem(text, feature) {
+    function addHistoryItem(
+        text,
+        feature
+    ) {
 
         const history =
-            document.getElementById("history-list");
+            document.getElementById(
+                "history-list"
+            );
+
 
         const empty =
-            document.getElementById("empty-history");
+            document.getElementById(
+                "empty-history"
+            );
+
 
         if (empty) {
             empty.remove();
@@ -1258,7 +1587,10 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
 
 
         const item =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         item.className =
             "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
@@ -1283,68 +1615,149 @@ If the problem continues, check your Vercel deployment logs and the \`api/chat.j
         `;
 
 
-        item.onclick = function () {
+        item.onclick =
+            function() {
 
-            selectFeature(feature);
-
-            document.getElementById("user-input").value =
-                text;
-
-            document.getElementById("user-input").focus();
-        };
+                if (isLoading) return;
 
 
-        history.prepend(item);
+                selectFeature(
+                    feature
+                );
+
+
+                /*
+                 * Clicking history intentionally restores
+                 * that old question into the input.
+                 */
+
+                document.getElementById(
+                    "user-input"
+                ).value =
+                    text;
+
+
+                document.getElementById(
+                    "user-input"
+                ).focus();
+
+            };
+
+
+        history.prepend(
+            item
+        );
+
     }
 
 
-    // =========================
+    // ==========================================
     // SCROLL
-    // =========================
+    // ==========================================
 
     function scrollToBottom() {
 
         const container =
-            document.getElementById("chat-messages");
+            document.getElementById(
+                "chat-messages"
+            );
+
 
         container.scrollTop =
             container.scrollHeight;
+
     }
 
 
-    // =========================
+    // ==========================================
     // ESCAPE HTML
-    // =========================
+    // ==========================================
 
     function escapeHtml(text) {
 
         return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
     }
 
 
-    // =========================
-    // ENTER KEY
-    // =========================
+    // ==========================================
+    // INITIALIZE
+    // ==========================================
 
-    document
-        .getElementById("user-input")
-        .addEventListener("keydown", function(event) {
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
 
-            if (event.key === "Enter" && !event.shiftKey) {
+            const input =
+                document.getElementById(
+                    "user-input"
+                );
 
-                event.preventDefault();
 
-                document
-                    .getElementById("chat-form")
-                    .requestSubmit();
-            }
+            /*
+             * Make absolutely sure the input starts
+             * enabled and empty.
+             */
 
-        });
+            input.disabled =
+                false;
+
+
+            document.getElementById(
+                "send-btn"
+            ).disabled =
+                false;
+
+
+            /*
+             * Do NOT automatically call startNewChat()
+             * here. That could reset the input.
+             */
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (
+                        event.key === "Enter" &&
+                        !event.shiftKey
+                    ) {
+
+                        event.preventDefault();
+
+                        document
+                            .getElementById(
+                                "chat-form"
+                            )
+                            .requestSubmit();
+
+                    }
+
+                }
+            );
+
+        }
+    );
 
 </script>
 
