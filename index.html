@@ -9,250 +9,55 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        .glass-panel { background: rgba(255,255,255,0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 9999px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.65);
-            animation: typing 1.2s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: .15s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: .3s;
-        }
-
+        .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.65); animation: typing 1.2s infinite ease-in-out; }
+        .typing-dot:nth-child(2) { animation-delay: .15s; }
+        .typing-dot:nth-child(3) { animation-delay: .3s; }
         @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: .35;
-            }
-
-            30% {
-                transform: translateY(-4px);
-                opacity: 1;
-            }
+            0%, 60%, 100% { transform: translateY(0); opacity: .35; }
+            30% { transform: translateY(-4px); opacity: 1; }
         }
 
-        .message-content p {
-            margin-bottom: .6rem;
-        }
+        .message-content p { margin-bottom: .6rem; }
+        .message-content p:last-child { margin-bottom: 0; }
+        .message-content ul, .message-content ol { padding-left: 1.3rem; margin: .5rem 0; }
+        .message-content ul { list-style: disc; }
+        .message-content ol { list-style: decimal; }
+        .message-content strong { color: white; }
+        .message-content code { background: rgba(0,0,0,.3); padding: .15rem .35rem; border-radius: .35rem; }
+        .message-content pre { background: rgba(0,0,0,.35); padding: .8rem; border-radius: .75rem; overflow-x: auto; margin: .7rem 0; }
+        .message-content blockquote { border-left: 3px solid rgba(129,140,248,.7); padding-left: .8rem; color: #cbd5e1; margin: .7rem 0; }
 
-        .message-content p:last-child {
-            margin-bottom: 0;
-        }
+        .quiz-option { position: relative; width: 100%; min-height: 62px; padding: 15px 18px; border-radius: 18px; text-align: left; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .quiz-option:hover:not(:disabled) { transform: translateY(-3px) scale(1.01); background: rgba(255,255,255,.09); border-color: rgba(129,140,248,.55); box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+        .quiz-option:active:not(:disabled) { transform: translateY(0) scale(.99); }
+        .quiz-option:disabled { cursor: default; }
+        .quiz-option.correct { background: rgba(34,197,94,.20) !important; border-color: rgba(74,222,128,.8) !important; box-shadow: 0 0 25px rgba(34,197,94,.18); }
+        .quiz-option.incorrect { background: rgba(239,68,68,.18) !important; border-color: rgba(248,113,113,.75) !important; box-shadow: 0 0 25px rgba(239,68,68,.12); }
+        .quiz-option.correct .quiz-letter { background: rgba(34,197,94,.8); border-color: rgba(134,239,172,.8); }
+        .quiz-option.incorrect .quiz-letter { background: rgba(239,68,68,.8); border-color: rgba(252,165,165,.8); }
+        .quiz-letter { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(99,102,241,.18); border: 1px solid rgba(129,140,248,.3); color: #c7d2fe; font-size: 13px; font-weight: 700; transition: all .2s ease; }
 
-        .message-content ul,
-        .message-content ol {
-            padding-left: 1.3rem;
-            margin: .5rem 0;
-        }
+        .quiz-progress-track { height: 7px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+        .quiz-progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width .35s ease; }
 
-        .message-content ul {
-            list-style: disc;
-        }
-
-        .message-content ol {
-            list-style: decimal;
-        }
-
-        .message-content strong {
-            color: white;
-        }
-
-        .message-content code {
-            background: rgba(0,0,0,.3);
-            padding: .15rem .35rem;
-            border-radius: .35rem;
-        }
-
-        .message-content pre {
-            background: rgba(0,0,0,.35);
-            padding: .8rem;
-            border-radius: .75rem;
-            overflow-x: auto;
-            margin: .7rem 0;
-        }
-
-        .message-content blockquote {
-            border-left: 3px solid rgba(129,140,248,.7);
-            padding-left: .8rem;
-            color: #cbd5e1;
-            margin: .7rem 0;
-        }
-
-        .quiz-option {
-            position: relative;
-            width: 100%;
-            min-height: 62px;
-            padding: 15px 18px;
-            border-radius: 18px;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            cursor: pointer;
-            transition:
-                transform .2s ease,
-                background .2s ease,
-                border-color .2s ease,
-                box-shadow .2s ease;
-        }
-
-        .quiz-option:hover:not(:disabled) {
-            transform: translateY(-3px) scale(1.01);
-            background: rgba(255,255,255,.09);
-            border-color: rgba(129,140,248,.55);
-            box-shadow: 0 12px 30px rgba(0,0,0,.18);
-        }
-
-        .quiz-option:active:not(:disabled) {
-            transform: translateY(0) scale(.99);
-        }
-
-        .quiz-option:disabled {
-            cursor: default;
-        }
-
-        .quiz-option.correct {
-            background: rgba(34,197,94,.20) !important;
-            border-color: rgba(74,222,128,.8) !important;
-            box-shadow: 0 0 25px rgba(34,197,94,.18);
-        }
-
-        .quiz-option.incorrect {
-            background: rgba(239,68,68,.18) !important;
-            border-color: rgba(248,113,113,.75) !important;
-            box-shadow: 0 0 25px rgba(239,68,68,.12);
-        }
-
-        .quiz-option.correct .quiz-letter {
-            background: rgba(34,197,94,.8);
-            border-color: rgba(134,239,172,.8);
-        }
-
-        .quiz-option.incorrect .quiz-letter {
-            background: rgba(239,68,68,.8);
-            border-color: rgba(252,165,165,.8);
-        }
-
-        .quiz-letter {
-            width: 34px;
-            height: 34px;
-            min-width: 34px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(99,102,241,.18);
-            border: 1px solid rgba(129,140,248,.3);
-            color: #c7d2fe;
-            font-size: 13px;
-            font-weight: 700;
-            transition: all .2s ease;
-        }
-
-        .quiz-progress-track {
-            height: 7px;
-            background: rgba(255,255,255,.07);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .quiz-progress-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #6366f1, #a855f7);
-            transition: width .35s ease;
-        }
-
-        .quiz-feedback {
-            animation: feedbackIn .25s ease;
-        }
-
+        .quiz-feedback { animation: feedbackIn .25s ease; }
         @keyframes feedbackIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .quiz-score-ring {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            background:
-                radial-gradient(
-                    circle at center,
-                    rgba(15,23,42,.95) 58%,
-                    transparent 59%
-                ),
-                conic-gradient(
-                    #6366f1 0deg,
-                    #a855f7 0deg,
-                    rgba(255,255,255,.08) 0deg
-                );
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .5s ease;
-        }
-
-        .quiz-score-inner {
-            text-align: center;
-        }
-
-        .quiz-stat {
-            background: rgba(255,255,255,.035);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 18px;
-            padding: 15px;
-        }
+        .quiz-score-ring { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle at center, rgba(15,23,42,.95) 58%, transparent 59%), conic-gradient(#6366f1 0deg, #a855f7 0deg, rgba(255,255,255,.08) 0deg); display: flex; align-items: center; justify-content: center; transition: background .5s ease; }
+        .quiz-score-inner { text-align: center; }
+        .quiz-stat { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 15px; }
     </style>
 </head>
 
@@ -261,454 +66,210 @@
 <div class="flex h-screen w-screen p-4 gap-4">
 
     <!-- LEFT SIDEBAR -->
-
     <aside class="w-72 glass-panel rounded-3xl flex flex-col justify-between p-4 shadow-2xl transition-all duration-300">
-
         <div>
-
             <div class="flex items-center gap-3 px-3 py-2 mb-6">
-
                 <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-
-                    <svg class="w-5 h-5 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.867 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.867-4.5 1.253">
-                        </path>
-
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.867 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.867-4.5 1.253"></path>
                     </svg>
-
                 </div>
-
                 <div>
-
-                    <h1 class="font-bold text-base tracking-wide">
-                        AI Tutor
-                    </h1>
-
-                    <p class="text-xs text-indigo-300">
-                        Your Personal Study Guide
-                    </p>
-
+                    <h1 class="font-bold text-base tracking-wide">AI Tutor</h1>
+                    <p class="text-xs text-indigo-300">Your Personal Study Guide</p>
                 </div>
-
             </div>
 
-
-            <button
-                type="button"
-                onclick="startNewChat()"
+            <button type="button" onclick="startNewChat()"
                 class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium py-3 px-4 rounded-2xl shadow-lg shadow-indigo-600/20 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-
-                <svg class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24">
-
-                    <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 4.5v15m7.5-7.5h-15">
-                    </path>
-
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
                 </svg>
-
                 New Chat
-
             </button>
 
-
             <div class="mt-6">
-
-                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
-                    Chat History
-                </h2>
-
-                <div id="history-list"
-                    class="space-y-1 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
-
-                    <div id="empty-history"
-                        class="px-3 py-4 text-xs text-slate-500 text-center">
-
-                        No previous chats yet.
-
-                    </div>
-
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Chat History</h2>
+                <div id="history-list" class="space-y-1 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
+                    <div id="empty-history" class="px-3 py-4 text-xs text-slate-500 text-center">No previous chats yet.</div>
                 </div>
-
             </div>
-
         </div>
-
 
         <div class="pt-4 border-t border-white/10 flex items-center gap-3 px-2">
-
-            <div class="h-8 w-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs">
-                AI
-            </div>
-
+            <div class="h-8 w-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs">AI</div>
             <div class="flex-1 overflow-hidden">
-
-                <p class="text-xs font-medium text-white truncate">
-                    Ready to learn
-                </p>
-
+                <p class="text-xs font-medium text-white truncate">Ready to learn</p>
                 <p class="text-[10px] text-emerald-400 flex items-center gap-1">
-
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-
                     Online
-
                 </p>
-
             </div>
-
         </div>
-
     </aside>
 
 
     <!-- CENTER -->
-
     <main class="flex-1 glass-panel rounded-3xl flex flex-col overflow-hidden shadow-2xl relative">
 
         <header class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.01]">
-
             <div class="flex items-center gap-3">
-
-                <div id="current-mode-indicator"
-                    class="h-2.5 w-2.5 rounded-full bg-indigo-500">
-                </div>
-
+                <div id="current-mode-indicator" class="h-2.5 w-2.5 rounded-full bg-indigo-500"></div>
                 <div>
-
-                    <h2 id="chat-title"
-                        class="font-semibold text-sm text-white">
-
-                        Select a feature to begin
-
-                    </h2>
-
-                    <p id="chat-subtitle"
-                        class="text-xs text-slate-400">
-
-                        Choose Quiz Maker or AI Homework Tutor from the right panel.
-
-                    </p>
-
+                    <h2 id="chat-title" class="font-semibold text-sm text-white">Select a feature to begin</h2>
+                    <p id="chat-subtitle" class="text-xs text-slate-400">Choose Quiz Maker or AI Homework Tutor from the right panel.</p>
                 </div>
-
             </div>
 
-
-            <button
-                type="button"
-                onclick="clearCurrentChat()"
+            <button type="button" onclick="clearCurrentChat()"
                 class="p-2 rounded-xl glass-card hover:bg-white/10 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-1.5 cursor-pointer">
-
-                <svg class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24">
-
-                    <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
-
                 Clear Chat
-
             </button>
-
         </header>
 
-
         <!-- CHAT -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6">
 
-        <div id="chat-messages"
-            class="flex-1 overflow-y-auto p-6 space-y-6">
-
-            <div id="empty-state"
-                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+            <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
 
                 <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
-
-                    <svg class="w-8 h-8"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
-                        </path>
-
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"></path>
                     </svg>
-
                 </div>
 
-
-                <h3 class="text-lg font-semibold text-white mb-2">
-                    Welcome to your AI Tutor
-                </h3>
-
+                <!-- CHANGE 1: typewriter heading (filled by typeWriter() on first load) -->
+                <h3 id="typewriter-title" class="text-lg font-semibold text-white mb-2 min-h-[28px]"></h3>
 
                 <p class="text-xs text-slate-400 mb-6">
-
                     Select
-                    <span class="text-indigo-400 font-medium">
-                        Quiz Maker
-                    </span>
+                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
                     or
-                    <span class="text-purple-400 font-medium">
-                        AI Homework Tutor
-                    </span>
+                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
                     from the right control panel to start learning.
-
                 </p>
-
             </div>
 
         </div>
 
-
         <!-- INPUT -->
-
         <div class="p-4 border-t border-white/10 bg-white/[0.01]">
-
-            <form id="chat-form"
-                onsubmit="handleSendMessage(event)"
-                class="flex items-center gap-2">
-
-                <input
-                    type="text"
-                    id="user-input"
-                    placeholder="Ask a question or select a feature first..."
+            <form id="chat-form" onsubmit="handleSendMessage(event)" class="flex items-center gap-2">
+                <input type="text" id="user-input" placeholder="Ask a question or select a feature first..."
                     class="flex-1 glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                    autocomplete="off"
-                    spellcheck="true"
-                />
+                    autocomplete="off" spellcheck="true" />
 
-
-                <button
-                    type="submit"
-                    id="send-btn"
+                <button type="submit" id="send-btn"
                     class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-2xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-
-                    <svg class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5">
-                        </path>
-
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"></path>
                     </svg>
-
                 </button>
-
             </form>
-
         </div>
 
     </main>
 
 
     <!-- RIGHT SIDEBAR -->
-
     <aside class="w-80 glass-panel rounded-3xl flex flex-col p-4 shadow-2xl justify-between">
 
-        <div>
+        <div class="overflow-y-auto min-h-0">
 
-            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-4">
-                Tutor Features
-            </h2>
-
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-4">Tutor Features</h2>
 
             <div class="space-y-3">
 
-                <div
-                    onclick="selectFeature('quiz')"
+                <div onclick="selectFeature('quiz')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-indigo-500/30">
-
                     <div class="flex items-center gap-3 mb-2">
-
                         <div class="h-10 w-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-md">
-
-                            <svg class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
-                                </path>
-
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                             </svg>
-
                         </div>
-
-
                         <div>
-
-                            <h3 class="font-semibold text-sm text-white group-hover:text-indigo-300 transition-colors">
-                                1. Quiz Maker
-                            </h3>
-
-                            <p class="text-[11px] text-slate-400">
-                                Generate custom practice tests
-                            </p>
-
+                            <h3 class="font-semibold text-sm text-white group-hover:text-indigo-300 transition-colors">1. Quiz Maker</h3>
+                            <p class="text-[11px] text-slate-400">Generate custom practice tests</p>
                         </div>
-
                     </div>
-
-
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Test your understanding with instant multiple-choice or open-ended quizzes.
                     </p>
-
                 </div>
 
-
-                <div
-                    onclick="selectFeature('homework')"
+                <div onclick="selectFeature('homework')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-purple-500/30">
-
                     <div class="flex items-center gap-3 mb-2">
-
                         <div class="h-10 w-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-md">
-
-                            <svg class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.477 4.5 1.253v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25">
-                                </path>
-
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.477 4.5 1.253v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path>
                             </svg>
-
                         </div>
-
-
                         <div>
-
-                            <h3 class="font-semibold text-sm text-white group-hover:text-purple-300 transition-colors">
-                                2. AI Homework Tutor
-                            </h3>
-
-                            <p class="text-[11px] text-slate-400">
-                                Step-by-step problem solver
-                            </p>
-
+                            <h3 class="font-semibold text-sm text-white group-hover:text-purple-300 transition-colors">2. AI Homework Tutor</h3>
+                            <p class="text-[11px] text-slate-400">Step-by-step problem solver</p>
                         </div>
-
                     </div>
-
-
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Ask questions about assignments, equations, or essays with full markdown explanations.
                     </p>
-
                 </div>
 
-
-                <div
-                    onclick="selectFeature('planner')"
+                <div onclick="selectFeature('planner')"
                     class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-emerald-500/30">
-
                     <div class="flex items-center gap-3 mb-2">
-
                         <div class="h-10 w-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-md">
-
-                            <svg class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H3a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-
                         </div>
-
-
                         <div>
-
-                            <h3 class="font-semibold text-sm text-white group-hover:text-emerald-300 transition-colors">
-                                3. Study Planner
-                            </h3>
-
-                            <p class="text-[11px] text-slate-400">
-                                Build daily or weekly schedules
-                            </p>
-
+                            <h3 class="font-semibold text-sm text-white group-hover:text-emerald-300 transition-colors">3. Study Planner</h3>
+                            <p class="text-[11px] text-slate-400">Build daily or weekly schedules</p>
                         </div>
-
                     </div>
-
-
                     <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
                         Create a balanced study schedule from your subjects and available study time.
                     </p>
+                </div>
 
+                <!-- CHANGE 3: Concept Explainer card -->
+                <div onclick="selectFeature('concept')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-amber-500/30">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-sm text-white group-hover:text-amber-300 transition-colors">4. Concept Explainer</h3>
+                            <p class="text-[11px] text-slate-400">Understand any concept simply</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Type a concept or question and get a clear, easy explanation with examples.
+                    </p>
                 </div>
 
             </div>
 
         </div>
 
-
         <div class="glass-card p-3.5 rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.02] to-white/[0.05]">
-
             <div class="flex items-center gap-2 mb-1">
-
-                <svg class="w-4 h-4 text-amber-400"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24">
-
-                    <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z">
-                    </path>
-
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path>
                 </svg>
-
-                <span class="text-xs font-semibold text-white">
-                    Pro Tip
-                </span>
-
+                <span class="text-xs font-semibold text-white">Pro Tip</span>
             </div>
-
-
             <p class="text-[11px] text-slate-300 leading-relaxed">
                 Markdown syntax is fully supported in answers for code snippets, formulas, and bullet points.
             </p>
-
         </div>
 
     </aside>
@@ -721,9 +282,7 @@
     let currentFeature = null;
     let isLoading = false;
 
-    /*
-     * Stores completed/saved chat snapshots.
-     */
+    /* Stores completed/saved chat snapshots. */
     let savedChats = [];
 
     let quizTopic = "";
@@ -745,6 +304,34 @@
 
 
     /* ==========================================
+       TYPEWRITER (CHANGE 1)
+    ========================================== */
+
+    function typeWriter(el, text, totalMs = 4500) {
+
+        el.textContent = "";
+
+        const delay = totalMs / text.length;
+        let i = 0;
+
+        const timer = setInterval(() => {
+
+            if (!el.isConnected) {
+                clearInterval(timer);
+                return;
+            }
+
+            el.textContent += text.charAt(i++);
+
+            if (i >= text.length) {
+                clearInterval(timer);
+            }
+
+        }, delay);
+    }
+
+
+    /* ==========================================
        SELECT FEATURE
     ========================================== */
 
@@ -754,20 +341,11 @@
 
         currentFeature = feature;
 
-        const titleElem =
-            document.getElementById("chat-title");
-
-        const subtitleElem =
-            document.getElementById("chat-subtitle");
-
-        const indicator =
-            document.getElementById("current-mode-indicator");
-
-        const userInput =
-            document.getElementById("user-input");
-
-        const sendBtn =
-            document.getElementById("send-btn");
+        const titleElem = document.getElementById("chat-title");
+        const subtitleElem = document.getElementById("chat-subtitle");
+        const indicator = document.getElementById("current-mode-indicator");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
 
         userInput.disabled = false;
         sendBtn.disabled = false;
@@ -776,51 +354,39 @@
 
         if (feature === "quiz") {
 
-            titleElem.innerText =
-                "Quiz Maker Mode";
-
-            subtitleElem.innerText =
-                "Type a topic to generate a 20-question interactive quiz.";
-
-            userInput.placeholder =
-                "Enter a topic to generate a 20-question quiz...";
-
-            indicator.className =
-                "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
+            titleElem.innerText = "Quiz Maker Mode";
+            subtitleElem.innerText = "Type a topic to generate a 20-question interactive quiz.";
+            userInput.placeholder = "Enter a topic to generate a 20-question quiz...";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
 
         }
 
         else if (feature === "homework") {
 
-            titleElem.innerText =
-                "AI Homework Tutor Mode";
-
-            subtitleElem.innerText =
-                "Ask a homework question for a detailed, step-by-step explanation.";
-
-            userInput.placeholder =
-                "Paste your homework question or problem here...";
-
-            indicator.className =
-                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+            titleElem.innerText = "AI Homework Tutor Mode";
+            subtitleElem.innerText = "Ask a homework question for a detailed, step-by-step explanation.";
+            userInput.placeholder = "Paste your homework question or problem here...";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
 
         }
 
         else if (feature === "planner") {
 
-            titleElem.innerText =
-                "Study Planner Mode";
-
-            subtitleElem.innerText =
-                "Create a daily or weekly study plan based on your subjects and available time.";
-
-            userInput.placeholder =
-                "Or type: Math, Science, English | 2 hours/day | weekly";
-
-            indicator.className =
-                "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+            titleElem.innerText = "Study Planner Mode";
+            subtitleElem.innerText = "Create a daily or weekly study plan based on your subjects and available time.";
+            userInput.placeholder = "Or type: Math, Science, English | 2 hours/day | weekly";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
 
             renderPlannerSetup();
+        }
+
+        else if (feature === "concept") {
+
+            titleElem.innerText = "Concept Explainer Mode";
+            subtitleElem.innerText = "Type any concept and get a simple, clear explanation.";
+            userInput.placeholder = "Type a concept, e.g. Photosynthesis, Gravity, Recursion...";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50";
+
         }
 
         userInput.focus();
@@ -833,8 +399,7 @@
 
     function removeEmptyState() {
 
-        const emptyState =
-            document.getElementById("empty-state");
+        const emptyState = document.getElementById("empty-state");
 
         if (emptyState) {
             emptyState.remove();
@@ -852,11 +417,8 @@
 
         if (isLoading) return;
 
-        const input =
-            document.getElementById("user-input");
-
-        const text =
-            input.value.trim();
+        const input = document.getElementById("user-input");
+        const text = input.value.trim();
 
         if (!text) {
             input.focus();
@@ -866,7 +428,7 @@
         if (!currentFeature) {
 
             showErrorMessage(
-                "Please select Quiz Maker, AI Homework Tutor, or Study Planner first."
+                "Please select Quiz Maker, AI Homework Tutor, Study Planner, or Concept Explainer first."
             );
 
             return;
@@ -889,20 +451,15 @@
             }
 
             quizTopic = text;
-
             input.value = "";
-
             startQuiz();
-
             return;
         }
 
         if (currentFeature === "planner") {
 
             input.value = "";
-
             await generateStudyPlanFromText(text);
-
             return;
         }
 
@@ -917,31 +474,24 @@
 
         try {
 
-            const result =
-                await callTutorAPI(
-                    text,
-                    currentFeature
-                );
+            // Concept Explainer: wrap the input in explainer instructions.
+            // Sent as "homework" so the existing api/chat.js accepts it unchanged.
+            const result = await callTutorAPI(
+                currentFeature === "concept" ? buildConceptPrompt(text) : text,
+                currentFeature === "concept" ? "homework" : currentFeature
+            );
 
             appendAIMessage(result);
 
-            addHistoryItem(
-                text,
-                currentFeature
-            );
+            addHistoryItem(text, currentFeature);
 
         }
 
         catch (error) {
 
-            console.error(
-                "Tutor API error:",
-                error
-            );
+            console.error("Tutor API error:", error);
 
-            appendAIMessage(
-                getFriendlyErrorMessage(error)
-            );
+            appendAIMessage(getFriendlyErrorMessage(error));
 
         }
 
@@ -956,25 +506,41 @@
 
 
     /* ==========================================
+       CONCEPT EXPLAINER PROMPT (CHANGE 3)
+    ========================================== */
+
+    function buildConceptPrompt(concept) {
+
+        return `You are a friendly concept explainer for school students. Explain the following concept or question clearly.
+
+Student input: ${concept}
+
+Requirements:
+- Start with a simple 1-2 sentence definition.
+- Explain it step by step in plain language.
+- Give one real-life analogy or example.
+- Add a short "Key Points" list.
+- Use markdown headings. Do not ask follow-up questions.`;
+    }
+
+
+    /* ==========================================
        STUDY PLANNER
     ========================================== */
 
     function renderPlannerSetup() {
 
-        const container =
-            document.getElementById("chat-messages");
+        const container = document.getElementById("chat-messages");
 
         if (!container) return;
 
-        const oldSetup =
-            document.getElementById("planner-setup");
+        const oldSetup = document.getElementById("planner-setup");
 
         if (oldSetup) {
             oldSetup.remove();
         }
 
-        const setup =
-            document.createElement("div");
+        const setup = document.createElement("div");
 
         setup.id = "planner-setup";
         setup.className = "max-w-2xl mx-auto w-full";
@@ -1042,28 +608,16 @@
 
         if (isLoading) return;
 
-        const subjectsInput =
-            document.getElementById("planner-subjects");
+        const subjectsInput = document.getElementById("planner-subjects");
+        const timeInput = document.getElementById("planner-time");
+        const typeInput = document.getElementById("planner-type");
 
-        const timeInput =
-            document.getElementById("planner-time");
-
-        const typeInput =
-            document.getElementById("planner-type");
-
-        const subjects =
-            subjectsInput ? subjectsInput.value.trim() : "";
-
-        const availableTime =
-            timeInput ? timeInput.value.trim() : "";
-
-        const type =
-            typeInput ? typeInput.value : "daily";
+        const subjects = subjectsInput ? subjectsInput.value.trim() : "";
+        const availableTime = timeInput ? timeInput.value.trim() : "";
+        const type = typeInput ? typeInput.value : "daily";
 
         if (!subjects || !availableTime) {
-            showErrorMessage(
-                "Please enter your subjects and available study time first."
-            );
+            showErrorMessage("Please enter your subjects and available study time first.");
             return;
         }
 
@@ -1071,55 +625,35 @@
         plannerTime = availableTime;
         plannerType = type;
 
-        const planLabel =
-            type === "weekly" ? "weekly" : "daily";
+        const planLabel = type === "weekly" ? "weekly" : "daily";
 
-        const prompt = buildStudyPlanPrompt(
-            subjects,
-            availableTime,
-            planLabel
-        );
+        const prompt = buildStudyPlanPrompt(subjects, availableTime, planLabel);
 
-        const setup =
-            document.getElementById("planner-setup");
+        const setup = document.getElementById("planner-setup");
 
         if (setup) setup.remove();
 
         removeEmptyState();
 
-        appendUserMessage(
-            `Study Planner: ${subjects} | ${availableTime} | ${planLabel}`
-        );
+        appendUserMessage(`Study Planner: ${subjects} | ${availableTime} | ${planLabel}`);
 
         setLoading(true);
 
         try {
 
-            const result =
-                await callTutorAPI(
-                    prompt,
-                    "planner"
-                );
+            const result = await callTutorAPI(prompt, "planner");
 
             appendAIMessage(result);
 
-            addHistoryItem(
-                `Study Plan: ${subjects}`,
-                "planner"
-            );
+            addHistoryItem(`Study Plan: ${subjects}`, "planner");
 
         }
 
         catch (error) {
 
-            console.error(
-                "Study Planner API error:",
-                error
-            );
+            console.error("Study Planner API error:", error);
 
-            appendAIMessage(
-                getFriendlyErrorMessage(error)
-            );
+            appendAIMessage(getFriendlyErrorMessage(error));
 
         }
 
@@ -1127,18 +661,14 @@
 
             setLoading(false);
 
-            const input =
-                document.getElementById("user-input");
-
-            input.focus();
+            document.getElementById("user-input").focus();
         }
     }
 
 
     async function generateStudyPlanFromText(text) {
 
-        const parts =
-            text.split("|").map(part => part.trim()).filter(Boolean);
+        const parts = text.split("|").map(part => part.trim()).filter(Boolean);
 
         let subjects = parts[0] || text;
         let availableTime = parts[1] || "the available time described by the student";
@@ -1154,50 +684,34 @@
         plannerTime = availableTime;
         plannerType = type;
 
-        const setup =
-            document.getElementById("planner-setup");
+        const setup = document.getElementById("planner-setup");
 
         if (setup) setup.remove();
 
         removeEmptyState();
 
-        appendUserMessage(
-            `Study Planner: ${subjects} | ${availableTime} | ${type}`
-        );
+        appendUserMessage(`Study Planner: ${subjects} | ${availableTime} | ${type}`);
 
         setLoading(true);
 
         try {
 
-            const result =
-                await callTutorAPI(
-                    buildStudyPlanPrompt(
-                        subjects,
-                        availableTime,
-                        type
-                    ),
-                    "planner"
-                );
+            const result = await callTutorAPI(
+                buildStudyPlanPrompt(subjects, availableTime, type),
+                "planner"
+            );
 
             appendAIMessage(result);
 
-            addHistoryItem(
-                `Study Plan: ${subjects}`,
-                "planner"
-            );
+            addHistoryItem(`Study Plan: ${subjects}`, "planner");
 
         }
 
         catch (error) {
 
-            console.error(
-                "Study Planner API error:",
-                error
-            );
+            console.error("Study Planner API error:", error);
 
-            appendAIMessage(
-                getFriendlyErrorMessage(error)
-            );
+            appendAIMessage(getFriendlyErrorMessage(error));
 
         }
 
@@ -1205,9 +719,7 @@
 
             setLoading(false);
 
-            document.getElementById(
-                "user-input"
-            ).focus();
+            document.getElementById("user-input").focus();
         }
     }
 
@@ -1260,24 +772,13 @@ Requirements:
 
         currentFeature = "quiz";
 
-        const container =
-            document.getElementById("chat-messages");
+        document.getElementById("chat-messages").innerHTML = "";
 
-        container.innerHTML = "";
+        document.getElementById("chat-title").innerText = "Interactive Quiz";
 
-        document.getElementById(
-            "chat-title"
-        ).innerText =
-            "Interactive Quiz";
+        document.getElementById("chat-subtitle").innerText = `Topic: ${quizTopic}`;
 
-        document.getElementById(
-            "chat-subtitle"
-        ).innerText =
-            `Topic: ${quizTopic}`;
-
-        document.getElementById(
-            "current-mode-indicator"
-        ).className =
+        document.getElementById("current-mode-indicator").className =
             "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
 
         await loadNextQuizQuestion();
@@ -1292,10 +793,7 @@ Requirements:
 
         if (!quizTopic || isLoading) return;
 
-        /*
-         * Save the completed quiz before starting
-         * another quiz on the same topic.
-         */
+        /* Save the completed quiz before starting another quiz on the same topic. */
         saveCurrentChat("quiz");
 
         quizQuestionNumber = 0;
@@ -1308,6 +806,22 @@ Requirements:
         quizAskedQuestions = [];
 
         startQuiz();
+    }
+
+
+    /* ==========================================
+       GO TO NEXT QUIZ QUESTION (CHANGE 2)
+    ========================================== */
+
+    function goToNextQuizQuestion() {
+
+        if (isLoading) return;
+
+        if (quizQuestionNumber >= TOTAL_QUESTIONS) {
+            showQuizResults();
+        } else {
+            loadNextQuizQuestion();
+        }
     }
 
 
@@ -1336,18 +850,11 @@ Requirements:
 
         try {
 
-            const question =
-                await getQuizQuestion(
-                    quizTopic,
-                    quizQuestionNumber
-                );
+            const question = await getQuizQuestion(quizTopic, quizQuestionNumber);
 
-            quizCurrentQuestion =
-                question;
+            quizCurrentQuestion = question;
 
-            quizAskedQuestions.push(
-                question.question
-            );
+            quizAskedQuestions.push(question.question);
 
             renderQuizQuestion(question);
 
@@ -1355,16 +862,11 @@ Requirements:
 
         catch (error) {
 
-            console.error(
-                "Quiz error:",
-                error
-            );
+            console.error("Quiz error:", error);
 
             quizQuestionNumber--;
 
-            renderQuizError(
-                getFriendlyErrorMessage(error)
-            );
+            renderQuizError(getFriendlyErrorMessage(error));
 
         }
 
@@ -1395,85 +897,43 @@ Requirements:
        CHECK DUPLICATE QUESTION
     ========================================== */
 
-    function isDuplicateQuizQuestion(
-        question,
-        previousQuestions
-    ) {
+    function isDuplicateQuizQuestion(question, previousQuestions) {
 
-        const newQuestion =
-            normalizeQuizQuestion(question);
+        const newQuestion = normalizeQuizQuestion(question);
 
         if (!newQuestion) {
             return true;
         }
 
-        return previousQuestions.some(
-            previous => {
+        return previousQuestions.some(previous => {
 
-                const oldQuestion =
-                    normalizeQuizQuestion(
-                        previous
-                    );
+            const oldQuestion = normalizeQuizQuestion(previous);
 
-                if (
-                    newQuestion === oldQuestion
-                ) {
-                    return true;
-                }
-
-                const newWords =
-                    new Set(
-                        newQuestion
-                            .split(" ")
-                            .filter(
-                                word =>
-                                    word.length > 3
-                            )
-                    );
-
-                const oldWords =
-                    new Set(
-                        oldQuestion
-                            .split(" ")
-                            .filter(
-                                word =>
-                                    word.length > 3
-                            )
-                    );
-
-                if (
-                    newWords.size < 5 ||
-                    oldWords.size < 5
-                ) {
-                    return false;
-                }
-
-                let common = 0;
-
-                newWords.forEach(
-                    word => {
-
-                        if (
-                            oldWords.has(word)
-                        ) {
-                            common++;
-                        }
-
-                    }
-                );
-
-                const smaller =
-                    Math.min(
-                        newWords.size,
-                        oldWords.size
-                    );
-
-                const similarity =
-                    common / smaller;
-
-                return similarity >= 0.78;
+            if (newQuestion === oldQuestion) {
+                return true;
             }
-        );
+
+            const newWords = new Set(newQuestion.split(" ").filter(word => word.length > 3));
+            const oldWords = new Set(oldQuestion.split(" ").filter(word => word.length > 3));
+
+            if (newWords.size < 5 || oldWords.size < 5) {
+                return false;
+            }
+
+            let common = 0;
+
+            newWords.forEach(word => {
+                if (oldWords.has(word)) {
+                    common++;
+                }
+            });
+
+            const smaller = Math.min(newWords.size, oldWords.size);
+
+            const similarity = common / smaller;
+
+            return similarity >= 0.78;
+        });
     }
 
 
@@ -1481,30 +941,17 @@ Requirements:
        GET QUIZ QUESTION FROM AI
     ========================================== */
 
-    async function getQuizQuestion(
-        topic,
-        number
-    ) {
+    async function getQuizQuestion(topic, number) {
 
-        const previousQuestions =
-            [...quizAskedQuestions];
+        const previousQuestions = [...quizAskedQuestions];
 
         const MAX_ATTEMPTS = 5;
 
-        for (
-            let attempt = 1;
-            attempt <= MAX_ATTEMPTS;
-            attempt++
-        ) {
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
 
             const previousText =
                 previousQuestions.length
-                    ? previousQuestions
-                        .map(
-                            (question, index) =>
-                                `${index + 1}. ${question}`
-                        )
-                        .join("\n")
+                    ? previousQuestions.map((question, index) => `${index + 1}. ${question}`).join("\n")
                     : "NONE";
 
             const prompt = `
@@ -1566,20 +1013,11 @@ Return exactly:
 This is attempt ${attempt} to create a UNIQUE question.
 `;
 
-            const answer =
-                await callTutorAPI(
-                    prompt,
-                    "quiz"
-                );
+            const answer = await callTutorAPI(prompt, "quiz");
 
-            const question =
-                parseQuizJSON(answer);
+            const question = parseQuizJSON(answer);
 
-            const duplicate =
-                isDuplicateQuizQuestion(
-                    question.question,
-                    previousQuestions
-                );
+            const duplicate = isDuplicateQuizQuestion(question.question, previousQuestions);
 
             if (!duplicate) {
                 return question;
@@ -1591,9 +1029,7 @@ This is attempt ${attempt} to create a UNIQUE question.
             );
         }
 
-        throw new Error(
-            "QUIZ_DUPLICATE_QUESTION"
-        );
+        throw new Error("QUIZ_DUPLICATE_QUESTION");
     }
 
 
@@ -1603,68 +1039,38 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function parseQuizJSON(raw) {
 
-        let text =
-            String(raw)
-                .trim();
+        let text = String(raw).trim();
 
-        text =
-            text.replace(
-                /^```(?:json)?\s*/i,
-                ""
-            );
+        text = text.replace(/^```(?:json)?\s*/i, "");
 
-        text =
-            text.replace(
-                /\s*```$/i,
-                ""
-            );
+        text = text.replace(/\s*```$/i, "");
 
         let data;
 
         try {
 
-            data =
-                JSON.parse(text);
+            data = JSON.parse(text);
 
         }
 
         catch {
 
-            const first =
-                text.indexOf("{");
+            const first = text.indexOf("{");
+            const last = text.lastIndexOf("}");
 
-            const last =
-                text.lastIndexOf("}");
-
-            if (
-                first === -1 ||
-                last === -1 ||
-                last <= first
-            ) {
-
-                throw new Error(
-                    "QUIZ_INVALID_JSON"
-                );
-
+            if (first === -1 || last === -1 || last <= first) {
+                throw new Error("QUIZ_INVALID_JSON");
             }
 
             try {
 
-                data =
-                    JSON.parse(
-                        text.slice(
-                            first,
-                            last + 1
-                        )
-                    );
+                data = JSON.parse(text.slice(first, last + 1));
 
             }
 
             catch {
 
-                throw new Error(
-                    "QUIZ_INVALID_JSON"
-                );
+                throw new Error("QUIZ_INVALID_JSON");
 
             }
         }
@@ -1680,52 +1086,27 @@ This is attempt ${attempt} to create a UNIQUE question.
             data.correct > 3
         ) {
 
-            throw new Error(
-                "QUIZ_INVALID_STRUCTURE"
-            );
+            throw new Error("QUIZ_INVALID_STRUCTURE");
 
         }
 
 
-        data.question =
-            data.question.trim();
+        data.question = data.question.trim();
 
+        data.options = data.options.map(option => String(option).trim());
 
-        data.options =
-            data.options.map(
-                option =>
-                    String(option).trim()
-            );
+        const uniqueOptions = new Set(data.options.map(option => option.toLowerCase().trim()));
 
-
-        const uniqueOptions =
-            new Set(
-                data.options.map(
-                    option =>
-                        option.toLowerCase().trim()
-                )
-            );
-
-        if (
-            uniqueOptions.size !== 4
-        ) {
-
-            throw new Error(
-                "QUIZ_INVALID_STRUCTURE"
-            );
-
+        if (uniqueOptions.size !== 4) {
+            throw new Error("QUIZ_INVALID_STRUCTURE");
         }
 
-
-        data.correct =
-            Number(data.correct);
-
+        data.correct = Number(data.correct);
 
         data.explanation =
             typeof data.explanation === "string"
                 ? data.explanation
                 : "That is the correct answer.";
-
 
         return data;
     }
@@ -1737,67 +1118,35 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function renderQuizLoading() {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
         container.innerHTML = `
 
             <div class="max-w-3xl mx-auto w-full">
 
                 <div class="flex items-center justify-between mb-4">
-
-                    <span class="text-xs text-slate-400">
-                        Preparing a new question...
-                    </span>
-
-                    <span class="text-xs text-slate-500">
-                        ${quizQuestionNumber} / ${TOTAL_QUESTIONS}
-                    </span>
-
+                    <span class="text-xs text-slate-400">Preparing a new question...</span>
+                    <span class="text-xs text-slate-500">${quizQuestionNumber} / ${TOTAL_QUESTIONS}</span>
                 </div>
 
                 <div class="quiz-progress-track mb-8">
-
-                    <div
-                        class="quiz-progress-fill"
-                        style="width:${(
-                            (quizQuestionNumber - 1) /
-                            TOTAL_QUESTIONS
-                        ) * 100}%">
-                    </div>
-
+                    <div class="quiz-progress-fill" style="width:${((quizQuestionNumber - 1) / TOTAL_QUESTIONS) * 100}%"></div>
                 </div>
 
                 <div class="glass-card rounded-3xl p-7 shadow-xl">
 
                     <div class="flex gap-3 items-center mb-7">
-
-                        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
-                            AI
-                        </div>
-
+                        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">AI</div>
                         <div>
-
-                            <p class="text-sm font-semibold text-white">
-                                AI is creating a unique question
-                            </p>
-
-                            <p class="text-xs text-slate-500">
-                                Topic: ${escapeHtml(quizTopic)}
-                            </p>
-
+                            <p class="text-sm font-semibold text-white">AI is creating a unique question</p>
+                            <p class="text-xs text-slate-500">Topic: ${escapeHtml(quizTopic)}</p>
                         </div>
-
                     </div>
 
                     <div class="flex gap-1.5 items-center py-10 justify-center">
-
                         <span class="typing-dot"></span>
                         <span class="typing-dot"></span>
                         <span class="typing-dot"></span>
-
                     </div>
 
                 </div>
@@ -1815,19 +1164,11 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function renderQuizQuestion(question) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
-        const progress =
-            (
-                (quizQuestionNumber - 1) /
-                TOTAL_QUESTIONS
-            ) * 100;
+        const progress = ((quizQuestionNumber - 1) / TOTAL_QUESTIONS) * 100;
 
-        const letters =
-            ["A", "B", "C", "D"];
+        const letters = ["A", "B", "C", "D"];
 
         container.innerHTML = `
 
@@ -1836,41 +1177,20 @@ This is attempt ${attempt} to create a UNIQUE question.
                 <div class="flex items-center justify-between mb-3">
 
                     <div>
-
-                        <p class="text-xs text-indigo-300 font-medium">
-                            ${escapeHtml(quizTopic)}
-                        </p>
-
-                        <p class="text-[11px] text-slate-500 mt-0.5">
-                            Interactive Quiz
-                        </p>
-
+                        <p class="text-xs text-indigo-300 font-medium">${escapeHtml(quizTopic)}</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Interactive Quiz</p>
                     </div>
 
                     <div class="text-right">
-
-                        <p class="text-sm font-semibold text-white">
-                            ${quizQuestionNumber} / ${TOTAL_QUESTIONS}
-                        </p>
-
-                        <p class="text-[10px] text-slate-500">
-                            ${quizCorrect} correct
-                        </p>
-
+                        <p class="text-sm font-semibold text-white">${quizQuestionNumber} / ${TOTAL_QUESTIONS}</p>
+                        <p class="text-[10px] text-slate-500">${quizCorrect} correct</p>
                     </div>
 
                 </div>
-
 
                 <div class="quiz-progress-track mb-7">
-
-                    <div
-                        class="quiz-progress-fill"
-                        style="width:${progress}%">
-                    </div>
-
+                    <div class="quiz-progress-fill" style="width:${progress}%"></div>
                 </div>
-
 
                 <div class="glass-card rounded-3xl p-7 shadow-xl">
 
@@ -1881,85 +1201,41 @@ This is attempt ${attempt} to create a UNIQUE question.
                         </div>
 
                         <div class="flex-1">
-
-                            <p class="text-[11px] text-slate-500 uppercase tracking-wider mb-2">
-                                Question
-                            </p>
-
+                            <p class="text-[11px] text-slate-500 uppercase tracking-wider mb-2">Question</p>
                             <h3 class="text-lg md:text-xl font-semibold text-white leading-relaxed">
                                 ${escapeHtml(question.question)}
                             </h3>
-
                         </div>
 
                     </div>
 
+                    <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-                    <div
-                        id="quiz-options"
-                        class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${question.options.map((option, index) => `
 
-                        ${question.options.map(
-                            (option, index) => `
+                            <button type="button" class="quiz-option glass-card" onclick="answerQuiz(${index})">
+                                <span class="quiz-letter">${letters[index]}</span>
+                                <span class="text-sm text-slate-200 leading-relaxed">${escapeHtml(option)}</span>
+                            </button>
 
-                                <button
-                                    type="button"
-                                    class="quiz-option glass-card"
-                                    onclick="answerQuiz(${index})">
-
-                                    <span class="quiz-letter">
-                                        ${letters[index]}
-                                    </span>
-
-                                    <span class="text-sm text-slate-200 leading-relaxed">
-                                        ${escapeHtml(option)}
-                                    </span>
-
-                                </button>
-
-                            `
-                        ).join("")}
+                        `).join("")}
 
                     </div>
 
-
-                    <div
-                        id="quiz-feedback"
-                        class="hidden mt-5 p-4 rounded-2xl border">
-
-                    </div>
+                    <div id="quiz-feedback" class="hidden mt-5 p-4 rounded-2xl border"></div>
 
                 </div>
-
 
                 <div class="grid grid-cols-2 gap-3 mt-4">
 
                     <div class="quiz-stat">
-
-                        <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                            Correct
-                        </p>
-
-                        <p
-                            id="live-correct"
-                            class="text-lg font-bold text-emerald-400 mt-1">
-                            ${quizCorrect}
-                        </p>
-
+                        <p class="text-[10px] uppercase tracking-wider text-slate-500">Correct</p>
+                        <p id="live-correct" class="text-lg font-bold text-emerald-400 mt-1">${quizCorrect}</p>
                     </div>
 
                     <div class="quiz-stat">
-
-                        <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                            Incorrect
-                        </p>
-
-                        <p
-                            id="live-incorrect"
-                            class="text-lg font-bold text-rose-400 mt-1">
-                            ${quizIncorrect}
-                        </p>
-
+                        <p class="text-[10px] uppercase tracking-wider text-slate-500">Incorrect</p>
+                        <p id="live-incorrect" class="text-lg font-bold text-rose-400 mt-1">${quizIncorrect}</p>
                     </div>
 
                 </div>
@@ -1977,51 +1253,32 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function answerQuiz(selectedIndex) {
 
-        if (
-            quizAnswered ||
-            !quizCurrentQuestion ||
-            isLoading
-        ) {
+        if (quizAnswered || !quizCurrentQuestion || isLoading) {
             return;
         }
 
         quizAnswered = true;
 
-        const correctIndex =
-            quizCurrentQuestion.correct;
+        const correctIndex = quizCurrentQuestion.correct;
 
-        const buttons =
-            document.querySelectorAll(
-                "#quiz-options .quiz-option"
-            );
+        const buttons = document.querySelectorAll("#quiz-options .quiz-option");
 
-        buttons.forEach(
-            button => {
-                button.disabled = true;
-            }
-        );
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
 
-        const selectedButton =
-            buttons[selectedIndex];
+        const selectedButton = buttons[selectedIndex];
 
-        const correctButton =
-            buttons[correctIndex];
+        const correctButton = buttons[correctIndex];
 
-        const feedback =
-            document.getElementById(
-                "quiz-feedback"
-            );
+        const feedback = document.getElementById("quiz-feedback");
 
 
-        if (
-            selectedIndex === correctIndex
-        ) {
+        if (selectedIndex === correctIndex) {
 
             quizCorrect++;
 
-            selectedButton.classList.add(
-                "correct"
-            );
+            selectedButton.classList.add("correct");
 
             feedback.className =
                 "quiz-feedback mt-5 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-200";
@@ -2030,22 +1287,11 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                 <div class="flex items-start gap-3">
 
-                    <div class="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold">
-                        ✓
-                    </div>
+                    <div class="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold">✓</div>
 
                     <div>
-
-                        <p class="font-semibold text-emerald-300">
-                            Correct!
-                        </p>
-
-                        <p class="text-xs text-emerald-100/80 mt-1">
-                            ${escapeHtml(
-                                quizCurrentQuestion.explanation
-                            )}
-                        </p>
-
+                        <p class="font-semibold text-emerald-300">Correct!</p>
+                        <p class="text-xs text-emerald-100/80 mt-1">${escapeHtml(quizCurrentQuestion.explanation)}</p>
                     </div>
 
                 </div>
@@ -2058,13 +1304,9 @@ This is attempt ${attempt} to create a UNIQUE question.
 
             quizIncorrect++;
 
-            selectedButton.classList.add(
-                "incorrect"
-            );
+            selectedButton.classList.add("incorrect");
 
-            correctButton.classList.add(
-                "correct"
-            );
+            correctButton.classList.add("correct");
 
             feedback.className =
                 "quiz-feedback mt-5 p-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-200";
@@ -2073,31 +1315,15 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                 <div class="flex items-start gap-3">
 
-                    <div class="h-8 w-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold">
-                        !
-                    </div>
+                    <div class="h-8 w-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold">!</div>
 
                     <div>
-
-                        <p class="font-semibold text-rose-300">
-                            Not quite
-                        </p>
-
+                        <p class="font-semibold text-rose-300">Not quite</p>
                         <p class="text-xs text-slate-300 mt-1">
                             Correct answer:
-                            <strong class="text-emerald-300">
-                                ${escapeHtml(
-                                    quizCurrentQuestion.options[correctIndex]
-                                )}
-                            </strong>
+                            <strong class="text-emerald-300">${escapeHtml(quizCurrentQuestion.options[correctIndex])}</strong>
                         </p>
-
-                        <p class="text-xs text-slate-400 mt-1">
-                            ${escapeHtml(
-                                quizCurrentQuestion.explanation
-                            )}
-                        </p>
-
+                        <p class="text-xs text-slate-400 mt-1">${escapeHtml(quizCurrentQuestion.explanation)}</p>
                     </div>
 
                 </div>
@@ -2107,50 +1333,36 @@ This is attempt ${attempt} to create a UNIQUE question.
         }
 
 
-        document.getElementById(
-            "live-correct"
-        ).innerText =
-            quizCorrect;
+        document.getElementById("live-correct").innerText = quizCorrect;
 
-        document.getElementById(
-            "live-incorrect"
-        ).innerText =
-            quizIncorrect;
+        document.getElementById("live-incorrect").innerText = quizIncorrect;
 
 
         quizHistory.push({
-            question:
-                quizCurrentQuestion.question,
-            selected:
-                selectedIndex,
-            correct:
-                correctIndex,
-            isCorrect:
-                selectedIndex === correctIndex
+            question: quizCurrentQuestion.question,
+            selected: selectedIndex,
+            correct: correctIndex,
+            isCorrect: selectedIndex === correctIndex
         });
 
 
-        setTimeout(
-            function() {
+        /* CHANGE 2: show a Next Question button instead of auto-advancing */
+        const isLast = quizQuestionNumber >= TOTAL_QUESTIONS;
 
-                if (
-                    quizQuestionNumber >=
-                    TOTAL_QUESTIONS
-                ) {
+        const nextWrap = document.createElement("div");
 
-                    showQuizResults();
+        nextWrap.className = "mt-4 flex justify-end";
 
-                }
+        nextWrap.innerHTML = `
+            <button type="button" onclick="goToNextQuizQuestion()"
+                class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
+                ${isLast ? "See Results" : "Next Question"}
+            </button>
+        `;
 
-                else {
+        feedback.appendChild(nextWrap);
 
-                    loadNextQuizQuestion();
-
-                }
-
-            },
-            1400
-        );
+        scrollToBottom();
     }
 
 
@@ -2162,42 +1374,30 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         quizAnswered = true;
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
-        const percentage =
-            Math.round(
-                (quizCorrect / TOTAL_QUESTIONS) *
-                100
-            );
+        const percentage = Math.round((quizCorrect / TOTAL_QUESTIONS) * 100);
 
         let message = "";
 
         if (percentage >= 90) {
-            message =
-                "Excellent work! You have a very strong understanding of this topic.";
+            message = "Excellent work! You have a very strong understanding of this topic.";
         }
 
         else if (percentage >= 75) {
-            message =
-                "Great job! You have a good understanding of the topic.";
+            message = "Great job! You have a good understanding of the topic.";
         }
 
         else if (percentage >= 50) {
-            message =
-                "Good effort! Review the questions you missed and try again.";
+            message = "Good effort! Review the questions you missed and try again.";
         }
 
         else {
-            message =
-                "Keep practicing! Reviewing the topic will help you improve.";
+            message = "Keep practicing! Reviewing the topic will help you improve.";
         }
 
 
-        const degrees =
-            percentage * 3.6;
+        const degrees = percentage * 3.6;
 
 
         container.innerHTML = `
@@ -2207,149 +1407,67 @@ This is attempt ${attempt} to create a UNIQUE question.
                 <div class="glass-card rounded-3xl p-7 md:p-9 shadow-2xl w-full text-center">
 
                     <div class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 mb-4">
-
-                        <svg
-                            class="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            viewBox="0 0 24 24">
-
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                            </path>
-
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-
                     </div>
 
+                    <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">Quiz Complete</p>
 
-                    <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">
-                        Quiz Complete
-                    </p>
+                    <h3 class="text-2xl font-bold text-white mt-2">${escapeHtml(quizTopic)}</h3>
 
-
-                    <h3 class="text-2xl font-bold text-white mt-2">
-                        ${escapeHtml(quizTopic)}
-                    </h3>
-
-
-                    <p class="text-sm text-slate-400 mt-2">
-                        You completed all 20 questions.
-                    </p>
-
+                    <p class="text-sm text-slate-400 mt-2">You completed all 20 questions.</p>
 
                     <div class="flex justify-center my-7">
 
-                        <div
-                            class="quiz-score-ring"
-                            style="
-                                background:
-                                radial-gradient(
-                                    circle at center,
-                                    rgba(15,23,42,.95) 58%,
-                                    transparent 59%
-                                ),
-                                conic-gradient(
-                                    #6366f1 ${degrees}deg,
-                                    rgba(255,255,255,.08) ${degrees}deg
-                                );
-                            ">
+                        <div class="quiz-score-ring"
+                            style="background: radial-gradient(circle at center, rgba(15,23,42,.95) 58%, transparent 59%), conic-gradient(#6366f1 ${degrees}deg, rgba(255,255,255,.08) ${degrees}deg);">
 
                             <div class="quiz-score-inner">
-
-                                <p class="text-3xl font-bold text-white">
-                                    ${percentage}%
-                                </p>
-
-                                <p class="text-[10px] text-slate-500">
-                                    SCORE
-                                </p>
-
+                                <p class="text-3xl font-bold text-white">${percentage}%</p>
+                                <p class="text-[10px] text-slate-500">SCORE</p>
                             </div>
 
                         </div>
 
                     </div>
 
-
-                    <p class="text-sm text-slate-300 max-w-lg mx-auto mb-6">
-                        ${message}
-                    </p>
-
+                    <p class="text-sm text-slate-300 max-w-lg mx-auto mb-6">${message}</p>
 
                     <div class="grid grid-cols-3 gap-3 mb-6">
 
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Correct
-                            </p>
-
-                            <p class="text-xl font-bold text-emerald-400 mt-1">
-                                ${quizCorrect}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Correct</p>
+                            <p class="text-xl font-bold text-emerald-400 mt-1">${quizCorrect}</p>
                         </div>
 
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Incorrect
-                            </p>
-
-                            <p class="text-xl font-bold text-rose-400 mt-1">
-                                ${quizIncorrect}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Incorrect</p>
+                            <p class="text-xl font-bold text-rose-400 mt-1">${quizIncorrect}</p>
                         </div>
 
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Questions
-                            </p>
-
-                            <p class="text-xl font-bold text-indigo-300 mt-1">
-                                ${TOTAL_QUESTIONS}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Questions</p>
+                            <p class="text-xl font-bold text-indigo-300 mt-1">${TOTAL_QUESTIONS}</p>
                         </div>
 
                     </div>
 
-
                     <div class="flex flex-col sm:flex-row gap-3 justify-center">
 
-                        <button
-                            type="button"
-                            onclick="previewQuizProgress()"
+                        <button type="button" onclick="previewQuizProgress()"
                             class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
-
                             Preview Progress
-
                         </button>
 
-
-                        <button
-                            type="button"
-                            onclick="startNextQuiz()"
+                        <button type="button" onclick="startNextQuiz()"
                             class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.02] active:scale-[.98]">
-
                             Next Question
-
                         </button>
 
-
-                        <button
-                            type="button"
-                            onclick="restartQuiz()"
+                        <button type="button" onclick="restartQuiz()"
                             class="flex-1 sm:flex-none px-5 py-3 rounded-2xl glass-card hover:bg-white/10 text-white text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[.98]">
-
                             Try Again
-
                         </button>
 
                     </div>
@@ -2361,10 +1479,7 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         scrollToBottom();
 
-        addHistoryItem(
-            `Quiz: ${quizTopic}`,
-            "quiz"
-        );
+        addHistoryItem(`Quiz: ${quizTopic}`, "quiz");
     }
 
 
@@ -2374,16 +1489,9 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function previewQuizProgress() {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
-        const percentage =
-            Math.round(
-                (quizCorrect / TOTAL_QUESTIONS) *
-                100
-            );
+        const percentage = Math.round((quizCorrect / TOTAL_QUESTIONS) * 100);
 
 
         container.innerHTML = `
@@ -2395,17 +1503,9 @@ This is attempt ${attempt} to create a UNIQUE question.
                     <div class="flex items-center justify-between mb-7">
 
                         <div>
-
-                            <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">
-                                Progress Preview
-                            </p>
-
-                            <h3 class="text-xl font-bold text-white mt-1">
-                                ${escapeHtml(quizTopic)}
-                            </h3>
-
+                            <p class="text-xs uppercase tracking-wider text-indigo-300 font-semibold">Progress Preview</p>
+                            <h3 class="text-xl font-bold text-white mt-1">${escapeHtml(quizTopic)}</h3>
                         </div>
-
 
                         <div class="h-10 w-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-sm">
                             ${percentage}%
@@ -2413,175 +1513,89 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                     </div>
 
-
                     <div class="mb-7">
 
                         <div class="flex justify-between text-xs mb-2">
-
-                            <span class="text-slate-400">
-                                Overall progress
-                            </span>
-
-                            <span class="text-white font-medium">
-                                ${quizCorrect} / ${TOTAL_QUESTIONS} correct
-                            </span>
-
+                            <span class="text-slate-400">Overall progress</span>
+                            <span class="text-white font-medium">${quizCorrect} / ${TOTAL_QUESTIONS} correct</span>
                         </div>
 
                         <div class="quiz-progress-track">
-
-                            <div
-                                class="quiz-progress-fill"
-                                style="width:${percentage}%">
-                            </div>
-
+                            <div class="quiz-progress-fill" style="width:${percentage}%"></div>
                         </div>
 
                     </div>
-
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Correct
-                            </p>
-
-                            <p class="text-2xl font-bold text-emerald-400 mt-1">
-                                ${quizCorrect}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Correct</p>
+                            <p class="text-2xl font-bold text-emerald-400 mt-1">${quizCorrect}</p>
                         </div>
 
-
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Incorrect
-                            </p>
-
-                            <p class="text-2xl font-bold text-rose-400 mt-1">
-                                ${quizIncorrect}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Incorrect</p>
+                            <p class="text-2xl font-bold text-rose-400 mt-1">${quizIncorrect}</p>
                         </div>
 
-
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Accuracy
-                            </p>
-
-                            <p class="text-2xl font-bold text-indigo-300 mt-1">
-                                ${percentage}%
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Accuracy</p>
+                            <p class="text-2xl font-bold text-indigo-300 mt-1">${percentage}%</p>
                         </div>
 
-
                         <div class="quiz-stat">
-
-                            <p class="text-[10px] uppercase tracking-wider text-slate-500">
-                                Total
-                            </p>
-
-                            <p class="text-2xl font-bold text-white mt-1">
-                                ${TOTAL_QUESTIONS}
-                            </p>
-
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500">Total</p>
+                            <p class="text-2xl font-bold text-white mt-1">${TOTAL_QUESTIONS}</p>
                         </div>
 
                     </div>
-
 
                     <div class="mt-7">
 
                         <div class="flex items-center justify-between mb-3">
-
-                            <h4 class="text-sm font-semibold text-white">
-                                Question Review
-                            </h4>
-
-                            <span class="text-[10px] text-slate-500">
-                                20 questions
-                            </span>
-
+                            <h4 class="text-sm font-semibold text-white">Question Review</h4>
+                            <span class="text-[10px] text-slate-500">20 questions</span>
                         </div>
-
 
                         <div class="space-y-2">
 
-                            ${
-                                quizHistory.map(
-                                    (item, index) => `
+                            ${quizHistory.map((item, index) => `
 
-                                    <div class="glass-card rounded-xl p-3 flex items-center gap-3">
+                                <div class="glass-card rounded-xl p-3 flex items-center gap-3">
 
-                                        <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold
-                                            ${
-                                                item.isCorrect
-                                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                                                    : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                                            }">
-
-                                            ${
-                                                item.isCorrect
-                                                    ? "✓"
-                                                    : "✕"
-                                            }
-
-                                        </div>
-
-                                        <p class="text-xs text-slate-300 flex-1 truncate">
-                                            ${index + 1}. ${escapeHtml(item.question)}
-                                        </p>
-
-                                        <span class="text-[10px] ${
-                                            item.isCorrect
-                                                ? "text-emerald-400"
-                                                : "text-rose-400"
-                                        }">
-
-                                            ${
-                                                item.isCorrect
-                                                    ? "Correct"
-                                                    : "Incorrect"
-                                            }
-
-                                        </span>
-
+                                    <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold
+                                        ${item.isCorrect
+                                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                            : "bg-rose-500/20 text-rose-300 border border-rose-500/30"}">
+                                        ${item.isCorrect ? "✓" : "✕"}
                                     </div>
 
-                                `
-                                ).join("")
-                            }
+                                    <p class="text-xs text-slate-300 flex-1 truncate">
+                                        ${index + 1}. ${escapeHtml(item.question)}
+                                    </p>
+
+                                    <span class="text-[10px] ${item.isCorrect ? "text-emerald-400" : "text-rose-400"}">
+                                        ${item.isCorrect ? "Correct" : "Incorrect"}
+                                    </span>
+
+                                </div>
+
+                            `).join("")}
 
                         </div>
 
                     </div>
 
-
                     <div class="flex gap-3 mt-7">
 
-                        <button
-                            type="button"
-                            onclick="restartQuiz()"
+                        <button type="button" onclick="restartQuiz()"
                             class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:scale-[1.01]">
-
                             Take Quiz Again
-
                         </button>
 
-
-                        <button
-                            type="button"
-                            onclick="startNextQuiz()"
+                        <button type="button" onclick="startNextQuiz()"
                             class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-purple-600/20 transition-all hover:scale-[1.01]">
-
                             Next Question
-
                         </button>
 
                     </div>
@@ -2603,12 +1617,7 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         if (!quizTopic) return;
 
-        const input =
-            document.getElementById(
-                "user-input"
-            );
-
-        input.value = "";
+        document.getElementById("user-input").value = "";
 
         startQuiz();
     }
@@ -2620,24 +1629,11 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function setQuizLoading(loading) {
 
-        isLoading =
-            loading;
+        isLoading = loading;
 
-        const input =
-            document.getElementById(
-                "user-input"
-            );
+        document.getElementById("user-input").disabled = loading;
 
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
-
-        input.disabled =
-            loading;
-
-        button.disabled =
-            loading;
+        document.getElementById("send-btn").disabled = loading;
     }
 
 
@@ -2647,10 +1643,7 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function renderQuizError(message) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
         container.innerHTML = `
 
@@ -2658,27 +1651,15 @@ This is attempt ${attempt} to create a UNIQUE question.
 
                 <div class="glass-card rounded-3xl p-7 text-center shadow-xl border border-rose-500/20">
 
-                    <div class="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 flex items-center justify-center mx-auto mb-4">
+                    <div class="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 flex items-center justify-center mx-auto mb-4">!</div>
 
-                        !
+                    <h3 class="text-lg font-semibold text-white mb-2">Quiz question could not be created</h3>
 
-                    </div>
+                    <p class="text-xs text-slate-400 mb-5">${escapeHtml(message)}</p>
 
-                    <h3 class="text-lg font-semibold text-white mb-2">
-                        Quiz question could not be created
-                    </h3>
-
-                    <p class="text-xs text-slate-400 mb-5">
-                        ${escapeHtml(message)}
-                    </p>
-
-                    <button
-                        type="button"
-                        onclick="loadNextQuizQuestion()"
+                    <button type="button" onclick="loadNextQuizQuestion()"
                         class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all">
-
                         Try Again
-
                     </button>
 
                 </div>
@@ -2700,62 +1681,42 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         try {
 
-            response =
-                await fetch(
-                    "/api/chat",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            message: message,
-                            feature: feature
-                        })
-                    }
-                );
+            response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message,
+                    feature: feature
+                })
+            });
 
         }
 
         catch (networkError) {
 
-            throw new Error(
-                "NETWORK_ERROR"
-            );
+            throw new Error("NETWORK_ERROR");
 
         }
 
 
-        const contentType =
-            response.headers.get(
-                "content-type"
-            ) || "";
-
+        const contentType = response.headers.get("content-type") || "";
 
         let data = null;
 
-
-        if (
-            contentType
-                .toLowerCase()
-                .includes("application/json")
-        ) {
+        if (contentType.toLowerCase().includes("application/json")) {
 
             try {
 
-                data =
-                    await response.json();
+                data = await response.json();
 
             }
 
             catch (jsonError) {
 
-                throw new Error(
-                    "INVALID_JSON_RESPONSE"
-                );
+                throw new Error("INVALID_JSON_RESPONSE");
 
             }
 
@@ -2763,13 +1724,9 @@ This is attempt ${attempt} to create a UNIQUE question.
 
         else {
 
-            const rawText =
-                await response.text();
+            const rawText = await response.text();
 
-            console.error(
-                "Non-JSON server response:",
-                rawText
-            );
+            console.error("Non-JSON server response:", rawText);
 
             throw new Error(
                 rawText
@@ -2787,25 +1744,17 @@ This is attempt ${attempt} to create a UNIQUE question.
                 data?.error ||
                 `HTTP_${response.status}`;
 
-            const error =
-                new Error(
-                    String(serverMessage)
-                );
+            const error = new Error(String(serverMessage));
 
-            error.status =
-                response.status;
+            error.status = response.status;
 
-            error.serverData =
-                data;
+            error.serverData = data;
 
             throw error;
         }
 
 
-        if (
-            !data ||
-            data.success === false
-        ) {
+        if (!data || data.success === false) {
 
             throw new Error(
                 data?.message ||
@@ -2816,14 +1765,9 @@ This is attempt ${attempt} to create a UNIQUE question.
         }
 
 
-        if (
-            typeof data.answer !== "string" ||
-            !data.answer.trim()
-        ) {
+        if (typeof data.answer !== "string" || !data.answer.trim()) {
 
-            throw new Error(
-                "INVALID_API_DATA"
-            );
+            throw new Error("INVALID_API_DATA");
 
         }
 
@@ -2838,32 +1782,21 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function appendUserMessage(text) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
+        const userDiv = document.createElement("div");
 
-        const userDiv =
-            document.createElement("div");
-
-
-        userDiv.className =
-            "flex gap-3 max-w-2xl ml-auto flex-row-reverse";
-
+        userDiv.className = "flex gap-3 max-w-2xl ml-auto flex-row-reverse";
 
         userDiv.innerHTML = `
 
-            <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">
-                You
-            </div>
+            <div class="h-8 w-8 rounded-xl bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">You</div>
 
             <div class="bg-indigo-600/30 border border-indigo-500/30 p-4 rounded-2xl text-sm text-white leading-relaxed shadow-lg">
                 ${escapeHtml(text)}
             </div>
 
         `;
-
 
         container.appendChild(userDiv);
 
@@ -2877,52 +1810,35 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function appendAIMessage(markdownText) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
+        const aiDiv = document.createElement("div");
 
-        const aiDiv =
-            document.createElement("div");
-
-
-        aiDiv.className =
-            "flex gap-3 max-w-2xl";
-
+        aiDiv.className = "flex gap-3 max-w-2xl";
 
         let rendered;
 
-
         try {
 
-            rendered =
-                marked.parse(
-                    String(markdownText)
-                );
+            rendered = marked.parse(String(markdownText));
 
         }
 
         catch {
 
-            rendered =
-                `<p>${escapeHtml(markdownText)}</p>`;
+            rendered = `<p>${escapeHtml(markdownText)}</p>`;
 
         }
 
-
         aiDiv.innerHTML = `
 
-            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
-                AI
-            </div>
+            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">AI</div>
 
             <div class="glass-card p-4 rounded-2xl text-sm text-slate-200 leading-relaxed shadow-lg w-full space-y-2 message-content">
                 ${rendered}
             </div>
 
         `;
-
 
         container.appendChild(aiDiv);
 
@@ -2936,9 +1852,7 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function showErrorMessage(message) {
 
-        appendAIMessage(
-            `### Tutor Error\n\n${message}`
-        );
+        appendAIMessage(`### Tutor Error\n\n${message}`);
 
     }
 
@@ -2949,27 +1863,14 @@ This is attempt ${attempt} to create a UNIQUE question.
 
     function getFriendlyErrorMessage(error) {
 
-        const message =
-            String(
-                error?.message ||
-                error ||
-                ""
-            );
+        const message = String(error?.message || error || "");
+
+        const lower = message.toLowerCase();
+
+        console.error("Detailed API error:", message);
 
 
-        const lower =
-            message.toLowerCase();
-
-
-        console.error(
-            "Detailed API error:",
-            message
-        );
-
-
-        if (
-            lower.includes("quiz_duplicate_question")
-        ) {
+        if (lower.includes("quiz_duplicate_question")) {
 
             return `
 ### New question could not be generated
@@ -2983,10 +1884,7 @@ Press **Try Again** to generate another unique question.
         }
 
 
-        if (
-            lower.includes("quiz_invalid_json") ||
-            lower.includes("quiz_invalid_structure")
-        ) {
+        if (lower.includes("quiz_invalid_json") || lower.includes("quiz_invalid_structure")) {
 
             return `
 ### Quiz generation problem
@@ -3054,10 +1952,7 @@ Check your Vercel environment variable and redeploy the project.
         }
 
 
-        if (
-            lower.includes("403") ||
-            lower.includes("forbidden")
-        ) {
+        if (lower.includes("403") || lower.includes("forbidden")) {
 
             return `
 ### Replicate access was denied
@@ -3087,11 +1982,7 @@ Check the model configuration in your Vercel project.
         }
 
 
-        if (
-            lower.includes("429") ||
-            lower.includes("rate limit") ||
-            lower.includes("quota")
-        ) {
+        if (lower.includes("429") || lower.includes("rate limit") || lower.includes("quota")) {
 
             return `
 ### AI usage limit reached
@@ -3139,10 +2030,7 @@ Check your internet connection and Vercel deployment.
         }
 
 
-        if (
-            lower.includes("invalid_json_response") ||
-            lower.includes("non_json_response")
-        ) {
+        if (lower.includes("invalid_json_response") || lower.includes("non_json_response")) {
 
             return `
 ### Vercel API response problem
@@ -3175,9 +2063,7 @@ Detailed message:
         }
 
 
-        if (
-            lower.includes("invalid_api_data")
-        ) {
+        if (lower.includes("invalid_api_data")) {
 
             return `
 ### AI response problem
@@ -3188,9 +2074,7 @@ The server responded, but no usable AI answer was returned.
         }
 
 
-        if (
-            lower.includes("empty_server_response")
-        ) {
+        if (lower.includes("empty_server_response")) {
 
             return `
 ### Empty server response
@@ -3224,39 +2108,18 @@ Check the Vercel deployment logs if the problem continues.
 
     function setLoading(loading) {
 
-        isLoading =
-            loading;
+        isLoading = loading;
 
+        document.getElementById("user-input").disabled = loading;
 
-        const input =
-            document.getElementById(
-                "user-input"
-            );
-
-
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
-
-
-        input.disabled =
-            loading;
-
-        button.disabled =
-            loading;
-
+        document.getElementById("send-btn").disabled = loading;
 
         if (loading) {
-
             appendLoadingMessage();
-
         }
 
         else {
-
             removeLoadingMessage();
-
         }
 
     }
@@ -3270,46 +2133,27 @@ Check the Vercel deployment logs if the problem continues.
 
         removeLoadingMessage();
 
+        const container = document.getElementById("chat-messages");
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const loadingDiv = document.createElement("div");
 
+        loadingDiv.id = "loading-message";
 
-        const loadingDiv =
-            document.createElement("div");
-
-
-        loadingDiv.id =
-            "loading-message";
-
-
-        loadingDiv.className =
-            "flex gap-3 max-w-2xl";
-
+        loadingDiv.className = "flex gap-3 max-w-2xl";
 
         loadingDiv.innerHTML = `
 
-            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">
-                AI
-            </div>
+            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold text-xs shadow-md">AI</div>
 
             <div class="glass-card px-4 py-3 rounded-2xl shadow-lg flex items-center gap-1.5">
-
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
-
             </div>
 
         `;
 
-
-        container.appendChild(
-            loadingDiv
-        );
-
+        container.appendChild(loadingDiv);
 
         scrollToBottom();
 
@@ -3318,11 +2162,7 @@ Check the Vercel deployment logs if the problem continues.
 
     function removeLoadingMessage() {
 
-        const loading =
-            document.getElementById(
-                "loading-message"
-            );
-
+        const loading = document.getElementById("loading-message");
 
         if (loading) {
             loading.remove();
@@ -3332,102 +2172,71 @@ Check the Vercel deployment logs if the problem continues.
 
 
     /* ==========================================
+       HISTORY LABEL HELPER
+    ========================================== */
+
+    function featureLabel(feature) {
+
+        if (feature === "quiz") return "Quiz";
+        if (feature === "planner") return "Planner";
+        if (feature === "concept") return "Concept";
+
+        return "Tutor";
+    }
+
+
+    /* ==========================================
        SAVE CURRENT CHAT
     ========================================== */
 
     function saveCurrentChat(featureOverride = null) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
         if (!container) return;
 
-        const visibleMessages =
-            Array.from(
-                container.children
-            ).filter(
-                element =>
-                    !element.id ||
-                    element.id !== "empty-state"
-            );
+        const visibleMessages = Array.from(container.children).filter(
+            element => !element.id || element.id !== "empty-state"
+        );
 
         if (!visibleMessages.length) {
             return;
         }
 
-        const feature =
-            featureOverride ||
-            currentFeature;
+        const feature = featureOverride || currentFeature;
 
         let title = "";
 
         if (feature === "quiz") {
-            title =
-                `Quiz: ${quizTopic || "Quiz"}`;
+            title = `Quiz: ${quizTopic || "Quiz"}`;
         }
 
         else if (feature === "planner") {
-            title =
-                `Study Plan: ${plannerSubjects || "Study Planner"}`;
+            title = `Study Plan: ${plannerSubjects || "Study Planner"}`;
         }
 
         else {
 
-            const userMessages =
-                Array.from(
-                    container.querySelectorAll(
-                        ".ml-auto"
-                    )
-                );
+            const userMessages = Array.from(container.querySelectorAll(".ml-auto"));
 
-            const lastUser =
-                userMessages.length
-                    ? userMessages[
-                        userMessages.length - 1
-                    ]
-                    : null;
+            const lastUser = userMessages.length ? userMessages[userMessages.length - 1] : null;
 
-            title =
-                lastUser
-                    ? lastUser.innerText.trim()
-                    : "Homework Chat";
+            title = lastUser ? lastUser.innerText.trim() : "Homework Chat";
         }
 
-        const snapshot =
-            container.innerHTML;
+        const snapshot = container.innerHTML;
 
         savedChats.push({
-            id:
-                Date.now(),
-            title:
-                title,
-            feature:
-                feature,
-            html:
-                snapshot,
-            quizTopic:
-                quizTopic,
-            quizHistory:
-                feature === "quiz"
-                    ? JSON.parse(
-                        JSON.stringify(
-                            quizHistory
-                        )
-                    )
-                    : [],
-            quizAskedQuestions:
-                feature === "quiz"
-                    ? [...quizAskedQuestions]
-                    : []
+            id: Date.now(),
+            title: title,
+            feature: feature,
+            html: snapshot,
+            quizTopic: quizTopic,
+            quizHistory: feature === "quiz" ? JSON.parse(JSON.stringify(quizHistory)) : [],
+            quizAskedQuestions: feature === "quiz" ? [...quizAskedQuestions] : []
         });
 
-        addSavedChatToHistory(
-            savedChats[
-                savedChats.length - 1
-            ]
-        );
+        addSavedChatToHistory(savedChats[savedChats.length - 1]);
     }
 
 
@@ -3437,56 +2246,36 @@ Check the Vercel deployment logs if the problem continues.
 
     function addSavedChatToHistory(chat) {
 
-        const history =
-            document.getElementById(
-                "history-list"
-            );
+        const history = document.getElementById("history-list");
 
-        const empty =
-            document.getElementById(
-                "empty-history"
-            );
+        const empty = document.getElementById("empty-history");
 
         if (empty) {
             empty.remove();
         }
 
-        const item =
-            document.createElement(
-                "div"
-            );
+        const item = document.createElement("div");
 
-        item.className =
-            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+        item.className = "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
 
-        const title =
-            chat.title.length > 32
-                ? chat.title.slice(0, 32) + "..."
-                : chat.title;
+        const title = chat.title.length > 32 ? chat.title.slice(0, 32) + "..." : chat.title;
 
         item.innerHTML = `
 
-            <span class="text-sm text-slate-300 group-hover:text-white truncate">
-                ${escapeHtml(title)}
-            </span>
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">${escapeHtml(title)}</span>
 
-            <span class="text-[10px] text-slate-500">
-                ${chat.feature === "quiz" ? "Quiz" : chat.feature === "planner" ? "Planner" : "Tutor"}
-            </span>
+            <span class="text-[10px] text-slate-500">${featureLabel(chat.feature)}</span>
 
         `;
 
-        item.onclick =
-            function() {
+        item.onclick = function() {
 
-                if (isLoading) return;
+            if (isLoading) return;
 
-                restoreSavedChat(chat);
-            };
+            restoreSavedChat(chat);
+        };
 
-        history.prepend(
-            item
-        );
+        history.prepend(item);
     }
 
 
@@ -3496,118 +2285,80 @@ Check the Vercel deployment logs if the problem continues.
 
     function restoreSavedChat(chat) {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
-        container.innerHTML =
-            chat.html;
+        container.innerHTML = chat.html;
 
-        currentFeature =
-            chat.feature;
+        currentFeature = chat.feature;
 
-        if (
-            chat.feature === "quiz"
-        ) {
+        if (chat.feature === "quiz") {
 
-            quizTopic =
-                chat.quizTopic || "";
+            quizTopic = chat.quizTopic || "";
 
-            quizHistory =
-                JSON.parse(
-                    JSON.stringify(
-                        chat.quizHistory || []
-                    )
-                );
+            quizHistory = JSON.parse(JSON.stringify(chat.quizHistory || []));
 
-            quizAskedQuestions =
-                [...(
-                    chat.quizAskedQuestions || []
-                )];
+            quizAskedQuestions = [...(chat.quizAskedQuestions || [])];
 
-            quizQuestionNumber =
-                TOTAL_QUESTIONS;
+            quizQuestionNumber = TOTAL_QUESTIONS;
 
-            quizCurrentQuestion =
-                null;
+            quizCurrentQuestion = null;
 
-            quizAnswered =
-                true;
+            quizAnswered = true;
 
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "Interactive Quiz";
+            document.getElementById("chat-title").innerText = "Interactive Quiz";
 
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
-                `Topic: ${quizTopic}`;
+            document.getElementById("chat-subtitle").innerText = `Topic: ${quizTopic}`;
 
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
+            document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50";
 
         }
 
         else if (chat.feature === "planner") {
 
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "Study Planner Mode";
+            document.getElementById("chat-title").innerText = "Study Planner Mode";
 
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
+            document.getElementById("chat-subtitle").innerText =
                 "Create a daily or weekly study plan based on your subjects and available time.";
 
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
+            document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50";
+
+        }
+
+        else if (chat.feature === "concept") {
+
+            document.getElementById("chat-title").innerText = "Concept Explainer Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Type any concept and get a simple, clear explanation.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50";
 
         }
 
         else {
 
-            document.getElementById(
-                "chat-title"
-            ).innerText =
-                "AI Homework Tutor Mode";
+            document.getElementById("chat-title").innerText = "AI Homework Tutor Mode";
 
-            document.getElementById(
-                "chat-subtitle"
-            ).innerText =
+            document.getElementById("chat-subtitle").innerText =
                 "Ask a homework question for a detailed, step-by-step explanation.";
 
-            document.getElementById(
-                "current-mode-indicator"
-            ).className =
+            document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
 
         }
 
-        const input =
-            document.getElementById(
-                "user-input"
-            );
+        const input = document.getElementById("user-input");
 
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
+        const button = document.getElementById("send-btn");
 
-        input.disabled =
-            false;
+        input.disabled = false;
 
-        button.disabled =
-            false;
+        button.disabled = false;
 
-        input.value =
-            "";
+        input.value = "";
 
         scrollToBottom();
 
@@ -3623,21 +2374,10 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
-        /*
-         * IMPORTANT:
-         * Save the current chat FIRST.
-         *
-         * Previously the function cleared the
-         * chat immediately, which meant the current
-         * conversation disappeared without being saved.
-         */
+        /* Save the current chat FIRST, then clear. */
         saveCurrentChat();
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
-
+        const container = document.getElementById("chat-messages");
 
         container.innerHTML = `
 
@@ -3646,131 +2386,65 @@ Check the Vercel deployment logs if the problem continues.
 
                 <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
 
-                    <svg class="w-8 h-8"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z">
-                        </path>
-
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"></path>
                     </svg>
 
                 </div>
 
-
-                <h3 class="text-lg font-semibold text-white mb-2">
-                    New Chat Started
-                </h3>
-
+                <h3 class="text-lg font-semibold text-white mb-2">New Chat Started</h3>
 
                 <p class="text-xs text-slate-400 mb-6">
-
                     Choose
-                    <span class="text-indigo-400 font-medium">
-                        Quiz Maker
-                    </span>
+                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
                     or
-                    <span class="text-purple-400 font-medium">
-                        AI Homework Tutor
-                    </span>
+                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
                     or
-                    <span class="text-emerald-400 font-medium">
-                        Study Planner
-                    </span>
+                    <span class="text-emerald-400 font-medium">Study Planner</span>
+                    or
+                    <span class="text-amber-400 font-medium">Concept Explainer</span>
                     on the right panel.
-
                 </p>
 
             </div>
 
         `;
 
+        currentFeature = null;
 
-        currentFeature =
-            null;
-
-        quizTopic =
-            "";
-
-        quizQuestionNumber =
-            0;
-
-        quizCorrect =
-            0;
-
-        quizIncorrect =
-            0;
-
-        quizCurrentQuestion =
-            null;
-
-        quizAnswered =
-            false;
-
-        quizHistory =
-            [];
-
-        quizAskedQuestions =
-            [];
+        quizTopic = "";
+        quizQuestionNumber = 0;
+        quizCorrect = 0;
+        quizIncorrect = 0;
+        quizCurrentQuestion = null;
+        quizAnswered = false;
+        quizHistory = [];
+        quizAskedQuestions = [];
 
         plannerSubjects = "";
         plannerTime = "";
         plannerType = "daily";
 
+        isLoading = false;
 
-        isLoading =
-            false;
+        document.getElementById("chat-title").innerText = "Select a feature to begin";
 
+        document.getElementById("chat-subtitle").innerText =
+            "Choose Quiz Maker, AI Homework Tutor, Study Planner, or Concept Explainer from the right panel.";
 
-        document.getElementById(
-            "chat-title"
-        ).innerText =
-            "Select a feature to begin";
+        document.getElementById("current-mode-indicator").className = "h-2.5 w-2.5 rounded-full bg-indigo-500";
 
+        const input = document.getElementById("user-input");
 
-        document.getElementById(
-            "chat-subtitle"
-        ).innerText =
-            "Choose Quiz Maker, AI Homework Tutor, or Study Planner from the right panel.";
+        const button = document.getElementById("send-btn");
 
+        input.disabled = false;
 
-        document.getElementById(
-            "current-mode-indicator"
-        ).className =
-            "h-2.5 w-2.5 rounded-full bg-indigo-500";
+        button.disabled = false;
 
+        input.value = "";
 
-        const input =
-            document.getElementById(
-                "user-input"
-            );
-
-
-        const button =
-            document.getElementById(
-                "send-btn"
-            );
-
-
-        input.disabled =
-            false;
-
-
-        button.disabled =
-            false;
-
-
-        input.value =
-            "";
-
-
-        input.placeholder =
-            "Ask a question or select a feature first...";
-
+        input.placeholder = "Ask a question or select a feature first...";
 
         input.focus();
 
@@ -3785,17 +2459,12 @@ Check the Vercel deployment logs if the problem continues.
 
         if (isLoading) return;
 
-        const oldFeature =
-            currentFeature;
+        const oldFeature = currentFeature;
 
         startNewChat();
 
         if (oldFeature) {
-
-            selectFeature(
-                oldFeature
-            );
-
+            selectFeature(oldFeature);
         }
 
     }
@@ -3805,129 +2474,77 @@ Check the Vercel deployment logs if the problem continues.
        HISTORY
     ========================================== */
 
-    function addHistoryItem(
-        text,
-        feature
-    ) {
+    function addHistoryItem(text, feature) {
 
-        const history =
-            document.getElementById(
-                "history-list"
-            );
+        const history = document.getElementById("history-list");
 
-
-        const empty =
-            document.getElementById(
-                "empty-history"
-            );
-
+        const empty = document.getElementById("empty-history");
 
         if (empty) {
             empty.remove();
         }
 
+        const item = document.createElement("div");
 
-        const item =
-            document.createElement(
-                "div"
-            );
+        item.className = "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
 
-
-        item.className =
-            "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
-
-
-        const title =
-            text.length > 32
-                ? text.slice(0, 32) + "..."
-                : text;
-
+        const title = text.length > 32 ? text.slice(0, 32) + "..." : text;
 
         item.innerHTML = `
 
-            <span class="text-sm text-slate-300 group-hover:text-white truncate">
-                ${escapeHtml(title)}
-            </span>
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">${escapeHtml(title)}</span>
 
-            <span class="text-[10px] text-slate-500">
-                ${feature === "quiz" ? "Quiz" : feature === "planner" ? "Planner" : "Tutor"}
-            </span>
+            <span class="text-[10px] text-slate-500">${featureLabel(feature)}</span>
 
         `;
 
+        item.onclick = function() {
 
-        item.onclick =
-            function() {
-
-                if (isLoading) return;
+            if (isLoading) return;
 
 
-                if (feature === "quiz") {
+            if (feature === "quiz") {
 
-                    quizTopic =
-                        text.replace(
-                            /^Quiz:\s*/i,
-                            ""
-                        );
+                quizTopic = text.replace(/^Quiz:\s*/i, "");
 
-                    currentFeature =
-                        "quiz";
+                currentFeature = "quiz";
 
-                    restartQuiz();
+                restartQuiz();
 
-                    return;
+                return;
+            }
+
+
+            if (feature === "planner") {
+
+                plannerSubjects = text.replace(/^Study Plan:\s*/i, "");
+
+                plannerTime = "";
+                plannerType = "daily";
+
+                selectFeature("planner");
+
+                document.getElementById("user-input").value = "";
+
+                const plannerSubjectInput = document.getElementById("planner-subjects");
+
+                if (plannerSubjectInput) {
+                    plannerSubjectInput.value = plannerSubjects;
                 }
 
-
-                if (feature === "planner") {
-
-                    plannerSubjects =
-                        text.replace(
-                            /^Study Plan:\s*/i,
-                            ""
-                        );
-
-                    plannerTime = "";
-                    plannerType = "daily";
-
-                    selectFeature("planner");
-
-                    document.getElementById(
-                        "user-input"
-                    ).value = "";
-
-                    const plannerSubjectInput =
-                        document.getElementById("planner-subjects");
-
-                    if (plannerSubjectInput) {
-                        plannerSubjectInput.value = plannerSubjects;
-                    }
-
-                    return;
-                }
+                return;
+            }
 
 
-                selectFeature(
-                    feature
-                );
+            selectFeature(feature);
 
+            document.getElementById("user-input").value = text;
 
-                document.getElementById(
-                    "user-input"
-                ).value =
-                    text;
+            document.getElementById("user-input").focus();
 
+        };
 
-                document.getElementById(
-                    "user-input"
-                ).focus();
-
-            };
-
-
-        history.prepend(
-            item
-        );
+        history.prepend(item);
 
     }
 
@@ -3938,14 +2555,9 @@ Check the Vercel deployment logs if the problem continues.
 
     function scrollToBottom() {
 
-        const container =
-            document.getElementById(
-                "chat-messages"
-            );
+        const container = document.getElementById("chat-messages");
 
-
-        container.scrollTop =
-            container.scrollHeight;
+        container.scrollTop = container.scrollHeight;
 
     }
 
@@ -3957,26 +2569,11 @@ Check the Vercel deployment logs if the problem continues.
     function escapeHtml(text) {
 
         return String(text)
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
-            );
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
     }
 
@@ -3985,50 +2582,34 @@ Check the Vercel deployment logs if the problem continues.
        INITIALIZE
     ========================================== */
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        function() {
+    document.addEventListener("DOMContentLoaded", function() {
 
-            const input =
-                document.getElementById(
-                    "user-input"
-                );
+        const input = document.getElementById("user-input");
 
+        input.disabled = false;
 
-            input.disabled =
-                false;
+        document.getElementById("send-btn").disabled = false;
 
+        input.addEventListener("keydown", function(event) {
 
-            document.getElementById(
-                "send-btn"
-            ).disabled =
-                false;
+            if (event.key === "Enter") {
 
+                event.preventDefault();
 
-            input.addEventListener(
-                "keydown",
-                function(event) {
+                document.getElementById("chat-form").requestSubmit();
 
-                    if (
-                        event.key === "Enter"
-                    ) {
+            }
 
-                        event.preventDefault();
+        });
 
-                        document
-                            .getElementById(
-                                "chat-form"
-                            )
-                            .requestSubmit();
+        /* CHANGE 1: typewriter on first open, 4.5 seconds total */
+        const tw = document.getElementById("typewriter-title");
 
-                    }
-
-                }
-
-            );
-
+        if (tw) {
+            typeWriter(tw, "New Chat Started", 4500);
         }
-    );
+
+    });
 
 </script>
 
