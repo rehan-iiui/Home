@@ -2777,10 +2777,651 @@ Check the Vercel deployment logs if the problem continues.
             document.getElementById("chat-subtitle").innerText =
                 "Type a topic to get a set of revision flashcards.";
 
-            document.getElementById
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
 
-            
-    </script>
-                
+        }
+
+        else if (chat.feature === "essay") {
+
+            document.getElementById("chat-title").innerText = "Essay Feedback Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Paste your writing to get feedback and an improved version.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-sky-500 shadow-lg shadow-sky-500/50";
+
+        }
+
+        else if (chat.feature === "summarizer") {
+
+            document.getElementById("chat-title").innerText = "Notes Summarizer Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Paste your notes to get a short summary and revision questions.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50";
+
+        }
+
+        else if (chat.feature === "mnemonic") {
+
+            document.getElementById("chat-title").innerText = "Mnemonic Maker Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Enter a list or topic to get memory tricks that help you remember it.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-fuchsia-500 shadow-lg shadow-fuchsia-500/50";
+
+        }
+
+        else {
+
+            document.getElementById("chat-title").innerText = "AI Homework Tutor Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Ask a homework question for a detailed, step-by-step explanation.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-purple-500 shadow-lg shadow-purple-500/50";
+
+        }
+
+        const input = document.getElementById("user-input");
+
+        const button = document.getElementById("send-btn");
+
+        input.disabled = false;
+
+        button.disabled = false;
+
+        input.value = "";
+
+        scrollToBottom();
+
+        input.focus();
+    }
+
+
+    /* ==========================================
+       NEW CHAT
+    ========================================== */
+
+    function startNewChat() {
+
+        if (isLoading) return;
+
+        /* Save the current chat FIRST, then clear. */
+        saveCurrentChat();
+
+        const container = document.getElementById("chat-messages");
+
+        container.innerHTML = `
+
+            <div id="empty-state"
+                class="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+
+                <div class="h-16 w-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-xl">
+
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09L9 5.25zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"></path>
+                    </svg>
+
+                </div>
+
+                <h3 class="text-lg font-semibold text-white mb-2">New Chat Started</h3>
+
+                <p class="text-xs text-slate-400 mb-6">
+                    Choose
+                    <span class="text-indigo-400 font-medium">Quiz Maker</span>
+                    or
+                    <span class="text-purple-400 font-medium">AI Homework Tutor</span>
+                    or
+                    <span class="text-emerald-400 font-medium">Study Planner</span>
+                    or
+                    <span class="text-amber-400 font-medium">Concept Explainer</span>
+                    on the right panel.
+                </p>
+
+            </div>
+
+        `;
+
+        currentFeature = null;
+
+        quizTopic = "";
+        quizQuestionNumber = 0;
+        quizCorrect = 0;
+        quizIncorrect = 0;
+        quizCurrentQuestion = null;
+        quizAnswered = false;
+        quizHistory = [];
+        quizAskedQuestions = [];
+
+        plannerSubjects = "";
+        plannerTime = "";
+        plannerType = "daily";
+
+        isLoading = false;
+
+        document.getElementById("chat-title").innerText = "Select a feature to begin";
+
+        document.getElementById("chat-subtitle").innerText =
+            "Choose Quiz Maker, AI Homework Tutor, Study Planner, or Concept Explainer from the right panel.";
+
+        document.getElementById("current-mode-indicator").className = "h-2.5 w-2.5 rounded-full bg-indigo-500";
+
+        const input = document.getElementById("user-input");
+
+        const button = document.getElementById("send-btn");
+
+        input.disabled = false;
+
+        button.disabled = false;
+
+        input.value = "";
+
+        input.placeholder = "Ask a question or select a feature first...";
+
+        input.focus();
+
+    }
+
+
+    /* ==========================================
+       CLEAR CHAT
+    ========================================== */
+
+    function clearCurrentChat() {
+
+        if (isLoading) return;
+
+        const oldFeature = currentFeature;
+
+        startNewChat();
+
+        if (oldFeature) {
+            selectFeature(oldFeature);
+        }
+
+    }
+
+
+    /* ==========================================
+       HISTORY
+    ========================================== */
+
+    function addHistoryItem(text, feature) {
+
+        const history = document.getElementById("history-list");
+
+        const empty = document.getElementById("empty-history");
+
+        if (empty) {
+            empty.remove();
+        }
+
+        const item = document.createElement("div");
+
+        item.className = "group flex items-center justify-between p-3 rounded-xl glass-card cursor-pointer transition-all";
+
+        const title = text.length > 32 ? text.slice(0, 32) + "..." : text;
+
+        item.innerHTML = `
+
+            <span class="text-sm text-slate-300 group-hover:text-white truncate">${escapeHtml(title)}</span>
+
+            <span class="text-[10px] text-slate-500">${featureLabel(feature)}</span>
+
+        `;
+
+        item.onclick = function() {
+
+            if (isLoading) return;
+
+
+            if (feature === "quiz") {
+
+                quizTopic = text.replace(/^Quiz:\s*/i, "");
+
+                currentFeature = "quiz";
+
+                restartQuiz();
+
+                return;
+            }
+
+
+            if (feature === "planner") {
+
+                plannerSubjects = text.replace(/^Study Plan:\s*/i, "");
+
+                plannerTime = "";
+                plannerType = "daily";
+
+                selectFeature("planner");
+
+                document.getElementById("user-input").value = "";
+
+                const plannerSubjectInput = document.getElementById("planner-subjects");
+
+                if (plannerSubjectInput) {
+                    plannerSubjectInput.value = plannerSubjects;
+                }
+
+                return;
+            }
+
+
+            selectFeature(feature);
+
+            document.getElementById("user-input").value = text;
+
+            document.getElementById("user-input").focus();
+
+        };
+
+        history.prepend(item);
+
+    }
+
+
+    /* ==========================================
+       SCROLL
+    ========================================== */
+
+    function scrollToBottom() {
+
+        const container = document.getElementById("chat-messages");
+
+        container.scrollTop = container.scrollHeight;
+
+    }
+
+
+    /* ==========================================
+       ESCAPE HTML
+    ========================================== */
+
+    function escapeHtml(text) {
+
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* ==========================================
+       INITIALIZE
+    ========================================== */
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const input = document.getElementById("user-input");
+
+        input.disabled = false;
+
+        document.getElementById("send-btn").disabled = false;
+
+        input.addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                document.getElementById("chat-form").requestSubmit();
+
+            }
+
+        });
+
+        /* CHANGE 1: typewriter on first open, 4.5 seconds total */
+        const tw = document.getElementById("typewriter-title");
+
+        if (tw) {
+            typeWriter(tw, "New Chat Started", 4500);
+        }
+
+    });
+
+</script>
+
+
+<!-- =====================================================
+     NEW FEATURES (5 additions, existing code untouched)
+     1. Saved chats persist across page reloads
+     2. Copy button on AI answers
+     3. Export chat as Markdown (Export button / Ctrl+Shift+E)
+     4. Quiz keyboard controls (A-D / 1-4, Enter / Right Arrow)
+     5. Global shortcuts (Ctrl+K, "/", Esc)
+     ===================================================== -->
+<script>
+(function () {
+
+    /* ==========================================
+       FEATURE 1: SAVED CHATS SURVIVE PAGE RELOAD
+    ========================================== */
+
+    const STORAGE_KEY = "aiTutorStudio.savedChats.v1";
+    const MAX_SAVED_CHATS = 30;
+
+    function persistSavedChats() {
+        try {
+            const trimmed = savedChats.slice(-MAX_SAVED_CHATS);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+        } catch (e) {
+            console.warn("Could not save chat history:", e);
+        }
+    }
+
+    function loadSavedChats() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return;
+
+            savedChats = parsed;
+            savedChats.forEach(chat => addSavedChatToHistory(chat)); // oldest first, newest ends on top
+        } catch (e) {
+            console.warn("Could not load chat history:", e);
+        }
+    }
+
+    const originalSaveCurrentChat = saveCurrentChat;
+
+    saveCurrentChat = function (featureOverride) {
+        const before = savedChats.length;
+        originalSaveCurrentChat(featureOverride || null);
+        if (savedChats.length > before) persistSavedChats();
+    };
+
+
+    /* ==========================================
+       FEATURE 2: COPY BUTTON ON AI ANSWERS
+    ========================================== */
+
+    const originalAppendAIMessage = appendAIMessage;
+
+    appendAIMessage = function (markdownText) {
+        originalAppendAIMessage(markdownText);
+
+        const container = document.getElementById("chat-messages");
+        const last = container.lastElementChild;
+        const content = last ? last.querySelector(".message-content") : null;
+
+        if (content) content.dataset.raw = String(markdownText);
+    };
+
+    function addCopyButtons() {
+        document.querySelectorAll("#chat-messages .message-content").forEach(el => {
+            if (el.querySelector(".copy-btn")) return;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "copy-btn";
+            btn.textContent = "Copy";
+            el.appendChild(btn);
+        });
+    }
+
+    document.addEventListener("click", async function (event) {
+
+        const btn = event.target.closest(".copy-btn");
+        if (!btn) return;
+
+        const content = btn.closest(".message-content");
+        if (!content) return;
+
+        let text = content.dataset.raw;
+
+        if (!text) {
+            const clone = content.cloneNode(true);
+            clone.querySelectorAll(".copy-btn").forEach(b => b.remove());
+            text = clone.textContent.trim();
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = "Copied!";
+        } catch (e) {
+            btn.textContent = "Failed";
+        }
+
+        setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+    });
+
+
+    /* ==========================================
+       FEATURE 3: EXPORT CHAT AS MARKDOWN FILE
+       (button next to "Clear Chat",
+        or Ctrl/Cmd + Shift + E)
+    ========================================== */
+
+    function buildExportText() {
+
+        const container = document.getElementById("chat-messages");
+        const lines = [];
+        const title = document.getElementById("chat-title").innerText.trim();
+
+        lines.push(`# ${title}`);
+        lines.push(`_Exported from AI Tutor Studio on ${new Date().toLocaleString()}_`);
+        lines.push("");
+
+        if (currentFeature === "quiz" && quizHistory.length) {
+
+            lines.push(`**Topic:** ${quizTopic}`);
+            lines.push(`**Score:** ${quizCorrect} correct, ${quizIncorrect} incorrect`);
+            lines.push("");
+
+            quizHistory.forEach((item, i) => {
+                lines.push(`${i + 1}. ${item.question} — ${item.isCorrect ? "Correct" : "Incorrect"}`);
+            });
+
+            return lines.join("\n");
+        }
+
+        Array.from(container.children).forEach(el => {
+
+            if (el.classList.contains("ml-auto")) {
+                lines.push(`**You:** ${el.innerText.trim()}`);
+                lines.push("");
+                return;
+            }
+
+            const deckEl = el.querySelector && el.querySelector("[data-deck-md]");
+
+            if (deckEl) {
+                lines.push("**AI Tutor:**");
+                lines.push("");
+                lines.push(deckEl.getAttribute("data-deck-md"));
+                lines.push("");
+                lines.push("---");
+                lines.push("");
+                return;
+            }
+
+            const content = el.querySelector && el.querySelector(".message-content");
+
+            if (content) {
+                let text = content.dataset.raw;
+
+                if (!text) {
+                    const clone = content.cloneNode(true);
+                    clone.querySelectorAll(".copy-btn").forEach(b => b.remove());
+                    text = clone.textContent.trim();
+                }
+
+                lines.push("**AI Tutor:**");
+                lines.push("");
+                lines.push(text);
+                lines.push("");
+                lines.push("---");
+                lines.push("");
+            }
+        });
+
+        return lines.join("\n");
+    }
+
+    function exportChat() {
+
+        const text = buildExportText();
+
+        if (text.split("\n").length <= 4) {
+            alert("There is nothing to export yet.");
+            return;
+        }
+
+        const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const stamp = new Date().toISOString().slice(0, 10);
+
+        a.href = url;
+        a.download = `ai-tutor-chat-${stamp}.md`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function addExportButton() {
+
+        const clearBtn = document.querySelector('button[onclick="clearCurrentChat()"]');
+        if (!clearBtn || document.getElementById("export-btn")) return;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "export-btn";
+        btn.title = "Export chat (Ctrl/Cmd + Shift + E)";
+        btn.className = clearBtn.className + " mr-2";
+        btn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"></path>
+            </svg>
+            Export`;
+        btn.addEventListener("click", exportChat);
+
+        const wrap = document.createElement("div");
+        wrap.className = "flex items-center";
+        clearBtn.parentNode.insertBefore(wrap, clearBtn);
+        wrap.appendChild(btn);
+        wrap.appendChild(clearBtn);
+    }
+
+
+    /* ==========================================
+       FEATURE 4: QUIZ KEYBOARD CONTROLS
+       A-D or 1-4 = choose answer
+       Enter / Right Arrow = Next Question
+    ========================================== */
+
+    document.addEventListener("keydown", function (event) {
+
+        if (currentFeature !== "quiz") return;
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+        const input = document.getElementById("user-input");
+        const inputHasText = input && input.value.trim().length > 0;
+        const tag = (document.activeElement && document.activeElement.tagName) || "";
+
+        if (inputHasText || tag === "SELECT" || tag === "TEXTAREA") return;
+
+        const optionsBox = document.getElementById("quiz-options");
+
+        if (optionsBox && !quizAnswered && quizCurrentQuestion && !isLoading) {
+
+            const map = { a: 0, b: 1, c: 2, d: 3, "1": 0, "2": 1, "3": 2, "4": 3 };
+            const idx = map[event.key.toLowerCase()];
+
+            if (idx !== undefined) {
+                event.preventDefault();
+                answerQuiz(idx);
+                return;
+            }
+        }
+
+        if (event.key === "Enter" || event.key === "ArrowRight") {
+
+            const nextBtn = document.querySelector('#quiz-feedback button[onclick="goToNextQuizQuestion()"]');
+
+            if (nextBtn && !isLoading) {
+                event.preventDefault();
+                event.stopPropagation();
+                nextBtn.click();
+            }
+        }
+
+    }, true);
+
+
+    /* ==========================================
+       FEATURE 5: GLOBAL SHORTCUTS
+       Ctrl/Cmd + K         = New chat
+       Ctrl/Cmd + Shift + E = Export chat
+       /                    = Focus message box
+       Esc                  = Leave message box
+    ========================================== */
+
+    document.addEventListener("keydown", function (event) {
+
+        const mod = event.ctrlKey || event.metaKey;
+        const input = document.getElementById("user-input");
+        const tag = (document.activeElement && document.activeElement.tagName) || "";
+        const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+        if (mod && event.key.toLowerCase() === "k") {
+            event.preventDefault();
+            startNewChat();
+            return;
+        }
+
+        if (mod && event.shiftKey && event.key.toLowerCase() === "e") {
+            event.preventDefault();
+            exportChat();
+            return;
+        }
+
+        if (event.key === "/" && !typing && !mod) {
+            event.preventDefault();
+            if (input && !input.disabled) input.focus();
+            return;
+        }
+
+        if (event.key === "Escape" && document.activeElement === input) {
+            input.blur();
+        }
+    });
+
+
+    /* ==========================================
+       INIT
+    ========================================== */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadSavedChats();
+        addExportButton();
+
+        const chat = document.getElementById("chat-messages");
+
+        new MutationObserver(addCopyButtons).observe(chat, { childList: true, subtree: true });
+
+        addCopyButtons();
+    });
+
+})();
+</script>
+
 </body>
 </html>
