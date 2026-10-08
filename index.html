@@ -58,6 +58,17 @@
         .quiz-score-ring { width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle at center, rgba(15,23,42,.95) 58%, transparent 59%), conic-gradient(#6366f1 0deg, #a855f7 0deg, rgba(255,255,255,.08) 0deg); display: flex; align-items: center; justify-content: center; transition: background .5s ease; }
         .quiz-score-inner { text-align: center; }
         .quiz-stat { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 15px; }
+
+        /* NEW FEATURE 2: copy button on AI answers */
+        .message-content { position: relative; }
+        .copy-btn {
+            position: absolute; top: .4rem; right: .5rem;
+            font-size: 10px; padding: 2px 8px; border-radius: 8px;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+            color: #cbd5e1; cursor: pointer; opacity: 0; transition: opacity .2s ease, background .2s ease;
+        }
+        .message-content:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
     </style>
 </head>
 
@@ -256,6 +267,44 @@
                     </p>
                 </div>
 
+                <!-- NEW: Flashcard Maker card -->
+                <div onclick="selectFeature('flashcards')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-rose-500/30">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="h-10 w-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-white transition-all shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-sm text-white group-hover:text-rose-300 transition-colors">5. Flashcard Maker</h3>
+                            <p class="text-[11px] text-slate-400">Quick revision question &amp; answer cards</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Enter a topic and get a set of flashcards to memorize key facts fast.
+                    </p>
+                </div>
+
+                <!-- NEW: Essay Feedback card -->
+                <div onclick="selectFeature('essay')"
+                    class="glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-sky-500/30">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="h-10 w-10 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 group-hover:bg-sky-500 group-hover:text-white transition-all shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-sm text-white group-hover:text-sky-300 transition-colors">6. Essay Feedback</h3>
+                            <p class="text-[11px] text-slate-400">Improve your writing</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                        Paste a paragraph or essay and get clear feedback, corrections, and an improved version.
+                    </p>
+                </div>
+
             </div>
 
         </div>
@@ -389,6 +438,24 @@
 
         }
 
+        if (feature === "flashcards") {
+
+            titleElem.innerText = "Flashcard Maker Mode";
+            subtitleElem.innerText = "Type a topic to get a set of revision flashcards.";
+            userInput.placeholder = "Enter a topic, e.g. World War II, Photosynthesis, Algebra...";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
+
+        }
+
+        else if (feature === "essay") {
+
+            titleElem.innerText = "Essay Feedback Mode";
+            subtitleElem.innerText = "Paste your writing to get feedback and an improved version.";
+            userInput.placeholder = "Paste your paragraph or essay here...";
+            indicator.className = "h-2.5 w-2.5 rounded-full bg-sky-500 shadow-lg shadow-sky-500/50";
+
+        }
+
         userInput.focus();
     }
 
@@ -477,8 +544,11 @@
             // Concept Explainer: wrap the input in explainer instructions.
             // Sent as "homework" so the existing api/chat.js accepts it unchanged.
             const result = await callTutorAPI(
-                currentFeature === "concept" ? buildConceptPrompt(text) : text,
-                currentFeature === "concept" ? "homework" : currentFeature
+                currentFeature === "concept" ? buildConceptPrompt(text)
+                : currentFeature === "flashcards" ? buildFlashcardPrompt(text)
+                : currentFeature === "essay" ? buildEssayPrompt(text)
+                : text,
+                ["concept", "flashcards", "essay"].includes(currentFeature) ? "homework" : currentFeature
             );
 
             appendAIMessage(result);
@@ -521,6 +591,48 @@ Requirements:
 - Give one real-life analogy or example.
 - Add a short "Key Points" list.
 - Use markdown headings. Do not ask follow-up questions.`;
+    }
+
+
+    /* ==========================================
+       FLASHCARD MAKER PROMPT (NEW)
+    ========================================== */
+
+    function buildFlashcardPrompt(topic) {
+
+        return `You are a flashcard maker for school students. Create revision flashcards for the topic below.
+
+Topic: ${topic}
+
+Requirements:
+- Create exactly 10 flashcards.
+- Format each card as: "### Card N", then "**Q:** question", then "**A:** short answer".
+- Keep answers short (1-2 sentences) and easy to memorize.
+- Cover different key facts, terms, or ideas. Do not repeat.
+- Order cards from basic to more advanced.
+- Do not ask follow-up questions.`;
+    }
+
+
+    /* ==========================================
+       ESSAY FEEDBACK PROMPT (NEW)
+    ========================================== */
+
+    function buildEssayPrompt(essayText) {
+
+        return `You are a supportive writing teacher giving feedback to a school student on their writing.
+
+Student's writing:
+"""
+${essayText}
+"""
+
+Requirements:
+- Start with a short "## Overall Feedback" (2-3 sentences).
+- Add "## What You Did Well" with 2-3 bullet points.
+- Add "## What To Improve" covering grammar, spelling, clarity, structure, and word choice, with specific examples from the text.
+- Add "## Improved Version" with a rewritten, improved version that keeps the student's ideas and voice.
+- Be encouraging and clear. Do not ask follow-up questions.`;
     }
 
 
@@ -2180,6 +2292,8 @@ Check the Vercel deployment logs if the problem continues.
         if (feature === "quiz") return "Quiz";
         if (feature === "planner") return "Planner";
         if (feature === "concept") return "Concept";
+        if (feature === "flashcards") return "Cards";
+        if (feature === "essay") return "Essay";
 
         return "Tutor";
     }
@@ -2335,6 +2449,30 @@ Check the Vercel deployment logs if the problem continues.
 
             document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50";
+
+        }
+
+        else if (chat.feature === "flashcards") {
+
+            document.getElementById("chat-title").innerText = "Flashcard Maker Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Type a topic to get a set of revision flashcards.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
+
+        }
+
+        else if (chat.feature === "essay") {
+
+            document.getElementById("chat-title").innerText = "Essay Feedback Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Paste your writing to get feedback and an improved version.";
+
+            document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-sky-500 shadow-lg shadow-sky-500/50";
 
         }
 
@@ -2613,5 +2751,155 @@ Check the Vercel deployment logs if the problem continues.
 
 </script>
 
-</body>
-</html>
+
+<!-- =====================================================
+     NEW FEATURES (5 additions, existing code untouched)
+     1. Saved chats persist across page reloads
+     2. Copy button on AI answers
+     3. Export chat as Markdown (Export button / Ctrl+Shift+E)
+     4. Quiz keyboard controls (A-D / 1-4, Enter / Right Arrow)
+     5. Global shortcuts (Ctrl+K, "/", Esc)
+     ===================================================== -->
+<script>
+(function () {
+
+    /* ==========================================
+       FEATURE 1: SAVED CHATS SURVIVE PAGE RELOAD
+    ========================================== */
+
+    const STORAGE_KEY = "aiTutorStudio.savedChats.v1";
+    const MAX_SAVED_CHATS = 30;
+
+    function persistSavedChats() {
+        try {
+            const trimmed = savedChats.slice(-MAX_SAVED_CHATS);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+        } catch (e) {
+            console.warn("Could not save chat history:", e);
+        }
+    }
+
+    function loadSavedChats() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return;
+
+            savedChats = parsed;
+            savedChats.forEach(chat => addSavedChatToHistory(chat)); // oldest first, newest ends on top
+        } catch (e) {
+            console.warn("Could not load chat history:", e);
+        }
+    }
+
+    const originalSaveCurrentChat = saveCurrentChat;
+
+    saveCurrentChat = function (featureOverride) {
+        const before = savedChats.length;
+        originalSaveCurrentChat(featureOverride || null);
+        if (savedChats.length > before) persistSavedChats();
+    };
+
+
+    /* ==========================================
+       FEATURE 2: COPY BUTTON ON AI ANSWERS
+    ========================================== */
+
+    const originalAppendAIMessage = appendAIMessage;
+
+    appendAIMessage = function (markdownText) {
+        originalAppendAIMessage(markdownText);
+
+        const container = document.getElementById("chat-messages");
+        const last = container.lastElementChild;
+        const content = last ? last.querySelector(".message-content") : null;
+
+        if (content) content.dataset.raw = String(markdownText);
+    };
+
+    function addCopyButtons() {
+        document.querySelectorAll("#chat-messages .message-content").forEach(el => {
+            if (el.querySelector(".copy-btn")) return;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "copy-btn";
+            btn.textContent = "Copy";
+            el.appendChild(btn);
+        });
+    }
+
+    document.addEventListener("click", async function (event) {
+
+        const btn = event.target.closest(".copy-btn");
+        if (!btn) return;
+
+        const content = btn.closest(".message-content");
+        if (!content) return;
+
+        let text = content.dataset.raw;
+
+        if (!text) {
+            const clone = content.cloneNode(true);
+            clone.querySelectorAll(".copy-btn").forEach(b => b.remove());
+            text = clone.textContent.trim();
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+            btn.textContent = "Copied!";
+        } catch (e) {
+            btn.textContent = "Failed";
+        }
+
+        setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+    });
+
+
+    /* ==========================================
+       FEATURE 3: EXPORT CHAT AS MARKDOWN FILE
+       (button next to "Clear Chat",
+        or Ctrl/Cmd + Shift + E)
+    ========================================== */
+
+    function buildExportText() {
+
+        const container = document.getElementById("chat-messages");
+        const lines = [];
+        const title = document.getElementById("chat-title").innerText.trim();
+
+        lines.push(`# ${title}`);
+        lines.push(`_Exported from AI Tutor Studio on ${new Date().toLocaleString()}_`);
+        lines.push("");
+
+        if (currentFeature === "quiz" && quizHistory.length) {
+
+            lines.push(`**Topic:** ${quizTopic}`);
+            lines.push(`**Score:** ${quizCorrect} correct, ${quizIncorrect} incorrect`);
+            lines.push("");
+
+            quizHistory.forEach((item, i) => {
+                lines.push(`${i + 1}. ${item.question} — ${item.isCorrect ? "Correct" : "Incorrect"}`);
+            });
+
+            return lines.join("\n");
+        }
+
+        Array.from(container.children).forEach(el => {
+
+            if (el.classList.contains("ml-auto")) {
+                lines.push(`**You:** ${el.innerText.trim()}`);
+                lines.push("");
+                return;
+            }
+
+            const content = el.querySelector && el.querySelector(".message-content");
+
+            if (content) {
+                let text = content.dataset.raw;
+
+                if (!text) {
+                    const clone = content.cloneNode(true);
+                    clone.querySelectorAll(".copy-btn").forE
