@@ -813,6 +813,17 @@ Please send the topic again.`);
     }
 
 
+    function flipAllFlashcards(button) {
+
+        const cards = button.closest(".flashcard-deck").querySelectorAll(".flip-card");
+
+        // If every card is already showing its answer, flip them all back; otherwise show all answers.
+        const allFlipped = Array.from(cards).every(card => card.classList.contains("flipped"));
+
+        cards.forEach(card => card.classList.toggle("flipped", !allFlipped));
+    }
+
+
     function appendFlashcards(topic, cards) {
 
         const container = document.getElementById("chat-messages");
@@ -837,7 +848,7 @@ Please send the topic again.`);
                 </div>
 
                 <button type="button"
-                    onclick="this.closest('.flashcard-deck').querySelectorAll('.flip-card').forEach(c => c.classList.toggle('flipped'))"
+                    onclick="flipAllFlashcards(this)"
                     class="px-3 py-1.5 rounded-xl glass-card hover:bg-white/10 text-xs text-slate-300 hover:text-white transition-all">
                     Flip all
                 </button>
@@ -2766,14 +2777,4 @@ Check the Vercel deployment logs if the problem continues.
             document.getElementById("chat-subtitle").innerText =
                 "Type a topic to get a set of revision flashcards.";
 
-            document.getElementById("current-mode-indicator").className =
-                "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
-
-        }
-
-        else if (chat.feature === "essay") {
-
-            document.getElementById("chat-title").innerText = "Essay Feedback Mode";
-
-            document.getElementById("chat-subtitle").innerText =
-  
+            document.getElementById
