@@ -2778,6 +2778,18 @@ Check the Vercel deployment logs if the problem continues.
                 "Type a topic to get a set of revision flashcards.";
 
             document.getElementById("current-mode-indicator").className =
+                "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
+
+        }
+
+        else if (chat.feature === "essay") {
+
+            document.getElementById("chat-title").innerText = "Essay Feedback Mode";
+
+            document.getElementById("chat-subtitle").innerText =
+                "Paste your writing to get feedback and an improved version.";
+
+            document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-sky-500 shadow-lg shadow-sky-500/50";
 
         }
@@ -5059,6 +5071,533 @@ Requirements:
 
 
     document.addEventListener("DOMContentLoaded", addTeachCard);
+
+})();
+</script>
+
+
+<!-- =====================================================
+     NEW FEATURE: USER PROFILE
+     - Profile button in the left sidebar (replaces the
+       "Ready to learn / Online" box)
+     - Profile screen: full name + email (required), photo (optional)
+     - Selecting a tutor feature without a profile opens the profile screen first
+     - Welcome heading uses the user's name on later visits
+     Existing code is untouched; this block only extends it.
+     ===================================================== -->
+<script>
+(function () {
+
+    const STORAGE_KEY = "aiTutorStudio.profile.v1";
+
+    const GREETINGS = [
+        name => "Ready when you are, " + name,
+        name => "Ready to dive in, " + name,
+        name => "The stage is yours, " + name
+    ];
+
+    let profile = loadProfile();
+    let pendingFeature = null;
+    let draftPhoto = "";
+
+
+    /* ---------- Storage ---------- */
+
+    function loadProfile() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data && typeof data.name === "string" && typeof data.email === "string") {
+                return { name: data.name, email: data.email, photo: typeof data.photo === "string" ? data.photo : "" };
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function saveProfile(data) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function removeProfile() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+
+    /* ---------- Helpers ---------- */
+
+    function isEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value).trim());
+    }
+
+    function profileComplete() {
+        return !!(profile && profile.name && isEmail(profile.email));
+    }
+
+    function firstName() {
+        return profile && profile.name ? profile.name.trim().split(/\s+/)[0] : "";
+    }
+
+    function initials(name) {
+        const parts = String(name).trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return "";
+        return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+    }
+
+    const USER_ICON = `
+        <svg class="w-1/2 h-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>`;
+
+    function setAvatar(el, photo, name) {
+
+        if (!el) return;
+
+        el.textContent = "";
+
+        if (photo) {
+            const img = document.createElement("img");
+            img.src = photo;
+            img.alt = "";
+            img.className = "h-full w-full object-cover";
+            el.appendChild(img);
+        }
+
+        else if (name) {
+            el.textContent = initials(name);
+        }
+
+        else {
+            el.innerHTML = USER_ICON;
+        }
+    }
+
+    function processPhoto(file) {
+
+        return new Promise(function (resolve, reject) {
+
+            if (!file || !/^image\//.test(file.type)) {
+                reject(new Error("TYPE"));
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onerror = function () { reject(new Error("READ")); };
+
+            reader.onload = function () {
+
+                const img = new Image();
+
+                img.onerror = function () { reject(new Error("READ")); };
+
+                img.onload = function () {
+
+                    const size = 256;
+                    const canvas = document.createElement("canvas");
+                    canvas.width = size;
+                    canvas.height = size;
+
+                    const ctx = canvas.getContext("2d");
+                    const min = Math.min(img.width, img.height);
+                    const sx = (img.width - min) / 2;
+                    const sy = (img.height - min) / 2;
+
+                    ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+
+                    resolve(canvas.toDataURL("image/jpeg", 0.85));
+                };
+
+                img.src = reader.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+
+    /* ---------- Left sidebar profile box ---------- */
+
+    function refreshSidebar() {
+
+        const box = document.querySelector("aside.w-72 .border-t");
+        if (!box) return;
+
+        box.innerHTML = `
+            <div id="sidebar-avatar" class="h-9 w-9 rounded-full overflow-hidden bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs flex-shrink-0"></div>
+            <div class="flex-1 overflow-hidden">
+                <p id="sidebar-name" class="text-xs font-medium text-white truncate"></p>
+                <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="sidebar-sub" class="truncate"></span>
+                </p>
+            </div>
+            <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+            </svg>
+        `;
+
+        const complete = profileComplete();
+
+        setAvatar(document.getElementById("sidebar-avatar"), complete ? profile.photo : "", complete ? profile.name : "");
+
+        document.getElementById("sidebar-name").textContent = complete ? profile.name : "Set up your profile";
+        document.getElementById("sidebar-sub").textContent = complete ? "Online" : "Tap to add your details";
+
+        box.title = complete ? "Open your profile" : "Set up your profile";
+
+        if (!box.dataset.profileReady) {
+
+            box.dataset.profileReady = "1";
+
+            box.classList.add("cursor-pointer", "hover:bg-white/5", "transition-all", "rounded-b-2xl", "pb-2");
+            box.setAttribute("role", "button");
+            box.setAttribute("tabindex", "0");
+
+            box.addEventListener("click", function () { openProfile(); });
+
+            box.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openProfile();
+                }
+            });
+        }
+    }
+
+
+    /* ---------- Profile screen ---------- */
+
+    function setProfileHeader() {
+
+        document.getElementById("chat-title").innerText = "Profile";
+        document.getElementById("chat-subtitle").innerText =
+            profileComplete() ? "Manage your name, email, and photo." : "Add your details to start using the tutor features.";
+        document.getElementById("current-mode-indicator").className =
+            "h-2.5 w-2.5 rounded-full bg-violet-500 shadow-lg shadow-violet-500/50";
+        document.getElementById("user-input").placeholder = "Fill in your profile in the form above...";
+    }
+
+    function openProfile(message) {
+
+        if (isLoading) return;
+
+        selectFeatureBase("profile"); // enables input, removes empty state, sets currentFeature
+
+        setProfileHeader();
+
+        draftPhoto = profile ? profile.photo : "";
+
+        renderProfilePanel(message || "", false);
+    }
+
+    function renderProfilePanel(message, ok) {
+
+        const container = document.getElementById("chat-messages");
+        if (!container) return;
+
+        const old = document.getElementById("profile-panel");
+        if (old) old.remove();
+
+        const complete = profileComplete();
+        const buttonLabel = complete ? "Update Profile" : (pendingFeature ? "Save & Continue" : "Save Profile");
+
+        const panel = document.createElement("div");
+        panel.id = "profile-panel";
+        panel.className = "max-w-2xl mx-auto w-full";
+
+        panel.innerHTML = `
+            <div class="glass-card rounded-3xl p-6 border border-violet-500/20 shadow-xl">
+
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-11 w-11 rounded-2xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center text-violet-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white">Your Profile</h3>
+                        <p class="text-xs text-slate-400">Full name and email are required. A photo is optional.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center mb-6">
+                    <div id="profile-avatar" class="h-24 w-24 rounded-full overflow-hidden bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-200 text-2xl font-bold"></div>
+
+                    <div class="flex items-center gap-2 mt-3">
+                        <label class="cursor-pointer px-3 py-1.5 rounded-xl glass-card hover:bg-white/10 text-xs text-slate-300 hover:text-white transition-all">
+                            Upload photo (optional)
+                            <input id="profile-photo" type="file" accept="image/*" class="hidden">
+                        </label>
+                        <button type="button" data-profile-remove-photo
+                            class="px-3 py-1.5 rounded-xl glass-card hover:bg-white/10 text-xs text-slate-300 hover:text-white transition-all">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Full name <span class="text-rose-300">*</span></label>
+                        <input id="profile-name" type="text" maxlength="60" autocomplete="name"
+                            placeholder="Your full name"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Email <span class="text-rose-300">*</span></label>
+                        <input id="profile-email" type="email" maxlength="120" autocomplete="email"
+                            placeholder="you@example.com"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40">
+                    </div>
+
+                    <p id="profile-msg" class="text-xs min-h-[16px]"></p>
+
+                    <button type="button" data-profile-save
+                        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium py-3 rounded-2xl shadow-lg shadow-violet-600/20 transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        ${buttonLabel}
+                    </button>
+
+                    ${complete ? `
+                    <button type="button" data-profile-clear
+                        class="w-full py-2 rounded-2xl text-xs text-slate-400 hover:text-rose-300 transition-all">
+                        Clear profile
+                    </button>` : ""}
+
+                    <p class="text-[11px] text-slate-500 text-center">
+                        Your details are stored only in this browser.
+                    </p>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(panel);
+
+        const nameInput = panel.querySelector("#profile-name");
+        const emailInput = panel.querySelector("#profile-email");
+
+        nameInput.value = profile ? profile.name : "";
+        emailInput.value = profile ? profile.email : "";
+
+        setAvatar(panel.querySelector("#profile-avatar"), draftPhoto, nameInput.value);
+
+        showProfileMessage(message, ok);
+
+        scrollToBottom();
+
+        if (!nameInput.value) nameInput.focus();
+    }
+
+    function showProfileMessage(text, ok) {
+
+        const el = document.getElementById("profile-msg");
+        if (!el) return;
+
+        el.textContent = text || "";
+        el.className = "text-xs min-h-[16px] " + (ok ? "text-emerald-300" : "text-rose-300");
+    }
+
+    function submitProfile() {
+
+        const nameEl = document.getElementById("profile-name");
+        const emailEl = document.getElementById("profile-email");
+        if (!nameEl || !emailEl) return;
+
+        const name = nameEl.value.replace(/\s+/g, " ").trim();
+        const email = emailEl.value.trim();
+
+        if (name.length < 2) {
+            showProfileMessage("Please enter your full name.", false);
+            nameEl.focus();
+            return;
+        }
+
+        if (!isEmail(email)) {
+            showProfileMessage("Please enter a valid email address.", false);
+            emailEl.focus();
+            return;
+        }
+
+        const next = { name: name, email: email, photo: draftPhoto || "" };
+
+        let saved = saveProfile(next);
+        let note = "";
+
+        if (!saved && next.photo) {
+            // The photo may be too large for browser storage: try again without it
+            next.photo = "";
+            draftPhoto = "";
+            saved = saveProfile(next);
+            note = " Your photo was too large to store, so it was skipped.";
+        }
+
+        profile = next;
+
+        refreshSidebar();
+
+        if (pendingFeature) {
+
+            const feature = pendingFeature;
+            pendingFeature = null;
+
+            const panel = document.getElementById("profile-panel");
+            if (panel) panel.remove();
+
+            selectFeature(feature);
+
+            return;
+        }
+
+        setProfileHeader();
+
+        renderProfilePanel("Profile saved." + note, true);
+    }
+
+
+    /* ---------- Clicks and events (event delegation) ---------- */
+
+    document.addEventListener("click", function (event) {
+
+        if (event.target.closest("[data-profile-save]")) {
+            submitProfile();
+            return;
+        }
+
+        if (event.target.closest("[data-profile-remove-photo]")) {
+            draftPhoto = "";
+            const nameEl = document.getElementById("profile-name");
+            setAvatar(document.getElementById("profile-avatar"), "", nameEl ? nameEl.value : "");
+            return;
+        }
+
+        if (event.target.closest("[data-profile-clear]")) {
+
+            if (!window.confirm("Remove your profile from this browser?")) return;
+
+            profile = null;
+            draftPhoto = "";
+            removeProfile();
+
+            refreshSidebar();
+            setProfileHeader();
+            renderProfilePanel("Profile cleared.", true);
+        }
+    });
+
+    document.addEventListener("change", async function (event) {
+
+        if (!event.target || event.target.id !== "profile-photo") return;
+
+        const input = event.target;
+        const file = input.files && input.files[0];
+
+        if (!file) return;
+
+        try {
+
+            draftPhoto = await processPhoto(file);
+
+            const nameEl = document.getElementById("profile-name");
+            setAvatar(document.getElementById("profile-avatar"), draftPhoto, nameEl ? nameEl.value : "");
+
+            showProfileMessage("", true);
+        }
+
+        catch (e) {
+            showProfileMessage("Please choose a valid image file.", false);
+        }
+
+        input.value = "";
+    });
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key !== "Enter") return;
+
+        const target = event.target;
+
+        if (target && target.closest && target.closest("#profile-panel") && target.tagName === "INPUT" && target.type !== "file") {
+            event.preventDefault();
+            submitProfile();
+        }
+    });
+
+
+    /* ---------- Hook into the existing app ---------- */
+
+    const selectFeatureBase = selectFeature;
+
+    // Gate: a profile is needed before using any tutor feature
+    selectFeature = function (feature) {
+
+        if (feature === "profile") {
+            openProfile();
+            return;
+        }
+
+        if (!profileComplete()) {
+
+            if (isLoading) return;
+
+            pendingFeature = feature;
+
+            openProfile("Please set up your profile to start using the tutor features.");
+
+            return;
+        }
+
+        pendingFeature = null;
+
+        return selectFeatureBase(feature);
+    };
+
+
+    // The message box does nothing on the profile screen
+    const originalHandleSendMessage = handleSendMessage;
+
+    handleSendMessage = function (event) {
+
+        if (currentFeature !== "profile") {
+            return originalHandleSendMessage(event);
+        }
+
+        event.preventDefault();
+
+        showProfileMessage("Please use the form above to set up your profile.", false);
+    };
+
+
+    // Do not save the profile screen as a chat in history
+    const originalSaveCurrentChat = saveCurrentChat;
+
+    saveCurrentChat = function (featureOverride) {
+
+        if ((featureOverride || currentFeature) === "profile") return;
+
+        return originalSaveCurrentChat(featureOverride);
+    };
+
+
+    // Personalised welcome heading on later visits (replaces "New Chat Started")
+    const originalTypeWriter = typeWriter;
+
+    typeWriter = function (el, text, totalMs) {
+
+        if (el && el.id === "typewriter-title" && profileComplete()) {
+            const pick = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+            text = pick(firstName());
+        }
+
+        return originalTypeWriter(el, text, totalMs);
+    };
+
+
+    document.addEventListener("DOMContentLoaded", refreshSidebar);
 
 })();
 </script>
