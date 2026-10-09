@@ -2778,18 +2778,6 @@ Check the Vercel deployment logs if the problem continues.
                 "Type a topic to get a set of revision flashcards.";
 
             document.getElementById("current-mode-indicator").className =
-                "h-2.5 w-2.5 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50";
-
-        }
-
-        else if (chat.feature === "essay") {
-
-            document.getElementById("chat-title").innerText = "Essay Feedback Mode";
-
-            document.getElementById("chat-subtitle").innerText =
-                "Paste your writing to get feedback and an improved version.";
-
-            document.getElementById("current-mode-indicator").className =
                 "h-2.5 w-2.5 rounded-full bg-sky-500 shadow-lg shadow-sky-500/50";
 
         }
@@ -4738,6 +4726,339 @@ Please choose a difficulty again.`);
 
 
     document.addEventListener("DOMContentLoaded", addQaCard);
+
+})();
+</script>
+
+
+<!-- =====================================================
+     NEW TUTOR FEATURE: 12. TEACH IT BACK
+     Explain a topic in your own words and get feedback,
+     a clarity score, and a follow-up question.
+     Existing code is untouched; this block only extends it.
+     ===================================================== -->
+<script>
+(function () {
+
+    let teachTopic = "";
+    let teachText = "";
+
+
+    /* ---------- Card in the Tutor Features panel ---------- */
+
+    function addTeachCard() {
+
+        const list = document.querySelector("aside.w-80 .space-y-3");
+        if (!list || document.getElementById("teach-card")) return;
+
+        const card = document.createElement("div");
+        card.id = "teach-card";
+        card.setAttribute("onclick", "selectFeature('teach')");
+        card.className = "glass-card p-4 rounded-2xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl group border border-white/5 hover:border-pink-500/30";
+
+        card.innerHTML = `
+            <div class="flex items-center gap-3 mb-2">
+                <div class="h-10 w-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm text-white group-hover:text-pink-300 transition-colors">12. Teach It Back</h3>
+                    <p class="text-[11px] text-slate-400">Explain it to learn it</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-300 mt-2 bg-white/[0.02] p-2.5 rounded-xl border border-white/5">
+                Explain a topic in your own words and get feedback, a clarity score, and a follow-up question.
+            </p>
+        `;
+
+        list.appendChild(card);
+    }
+
+
+    /* ---------- Setup panel ---------- */
+
+    function renderTeachPanel() {
+
+        const container = document.getElementById("chat-messages");
+        if (!container) return;
+
+        const old = document.getElementById("teach-panel");
+        if (old) old.remove();
+
+        const panel = document.createElement("div");
+        panel.id = "teach-panel";
+        panel.className = "max-w-2xl mx-auto w-full";
+
+        panel.innerHTML = `
+            <div class="glass-card rounded-3xl p-6 border border-pink-500/20 shadow-xl">
+
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-11 w-11 rounded-2xl bg-pink-500/15 border border-pink-500/25 flex items-center justify-center text-pink-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white">Teach It Back</h3>
+                        <p class="text-xs text-slate-400">Explain the topic as if you were teaching a younger student.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Topic</label>
+                        <input id="teach-topic" type="text"
+                            placeholder="Example: Photosynthesis"
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500/40">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Your explanation</label>
+                        <textarea id="teach-text" rows="6"
+                            placeholder="Explain it in your own words, without looking at your notes..."
+                            class="w-full glass-card px-4 py-3 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-pink-500/40 resize-none"></textarea>
+                    </div>
+
+                    <p id="teach-msg" class="text-xs text-rose-300 min-h-[16px]"></p>
+
+                    <button type="button" data-teach-submit
+                        class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-medium py-3 rounded-2xl shadow-lg shadow-pink-600/20 transition-all hover:scale-[1.01] active:scale-[0.99]">
+                        Get Feedback
+                    </button>
+
+                    <p class="text-[11px] text-slate-500 text-center">
+                        You can also use the message box with: <span class="text-pink-300">topic | your explanation</span>
+                    </p>
+                </div>
+            </div>
+        `;
+
+        panel.querySelector("#teach-topic").value = teachTopic;
+        panel.querySelector("#teach-text").value = teachText;
+
+        container.appendChild(panel);
+
+        scrollToBottom();
+    }
+
+    function setTeachMessage(text) {
+        const msg = document.getElementById("teach-msg");
+        if (msg) msg.textContent = text;
+    }
+
+
+    /* ---------- Prompt ---------- */
+
+    function buildTeachPrompt(topic, explanation) {
+
+        return `You are a kind, encouraging teacher using the Feynman technique. A student is practicing by explaining a topic in their own words. Review their explanation honestly.
+
+Topic: ${topic}
+
+Student's explanation:
+"""
+${explanation}
+"""
+
+Requirements:
+- Start with "## Clarity Score" giving a score out of 10 (for example "7/10") and one sentence explaining it.
+- Add "## What You Got Right" with 2-3 bullet points.
+- Add "## What's Missing or Wrong" with bullet points. Politely correct any mistakes and name any important ideas the student left out. If nothing is wrong, say so.
+- Add "## Unclear Parts" listing any confusing wording or jumps in logic, only if there are any.
+- Add "## A Simpler Way to Say It" with a short, clear model explanation the student could learn from.
+- End with "## Follow-up Question" containing exactly ONE question that pushes the student's understanding further. Do not answer it.
+- Use only accurate information. Be encouraging and school-friendly. Do not ask any other questions.`;
+    }
+
+
+    /* ---------- Generate feedback ---------- */
+
+    async function submitTeach(topic, explanation) {
+
+        if (isLoading) return;
+
+        topic = topic.trim();
+        explanation = explanation.trim();
+
+        if (!topic || explanation.length < 15) {
+            setTeachMessage("Please enter a topic and a longer explanation (at least a sentence or two).");
+            return;
+        }
+
+        teachTopic = topic;
+        teachText = explanation;
+
+        const panel = document.getElementById("teach-panel");
+        if (panel) panel.remove();
+
+        removeEmptyState();
+
+        appendUserMessage("Teach It Back: " + topic + " — " + explanation);
+
+        setLoading(true);
+
+        try {
+
+            // Sent as "homework" so the existing api/chat.js accepts it unchanged
+            const result = await callTutorAPI(buildTeachPrompt(topic, explanation), "homework");
+
+            appendAIMessage(result);
+
+            addHistoryItem("Teach: " + topic, "teach");
+
+            appendTeachAgainRow(topic);
+
+        }
+
+        catch (error) {
+
+            console.error("Teach It Back error:", error);
+
+            appendAIMessage(getFriendlyErrorMessage(error));
+
+            appendTeachAgainRow(topic);
+
+        }
+
+        finally {
+
+            setLoading(false);
+
+            document.getElementById("user-input").focus();
+        }
+    }
+
+    function appendTeachAgainRow(topic) {
+
+        const container = document.getElementById("chat-messages");
+
+        const row = document.createElement("div");
+        row.className = "flex max-w-2xl";
+        row.innerHTML = `
+            <button type="button" data-teach-again
+                class="ml-11 px-4 py-2 rounded-xl glass-card hover:bg-white/10 text-xs text-slate-300 hover:text-white transition-all">
+                Improve my explanation and try again
+            </button>
+        `;
+
+        container.appendChild(row);
+
+        scrollToBottom();
+    }
+
+
+    /* ---------- Clicks (event delegation, also works on restored chats) ---------- */
+
+    document.addEventListener("click", function (event) {
+
+        if (event.target.closest("[data-teach-submit]")) {
+
+            const topicEl = document.getElementById("teach-topic");
+            const textEl = document.getElementById("teach-text");
+
+            submitTeach(topicEl ? topicEl.value : "", textEl ? textEl.value : "");
+            return;
+        }
+
+        if (event.target.closest("[data-teach-again]")) {
+
+            if (isLoading) return;
+
+            currentFeature = "teach";
+            renderTeachPanel();
+        }
+    });
+
+
+    /* ---------- Hook into the existing app ---------- */
+
+    function setTeachHeader() {
+
+        document.getElementById("chat-title").innerText = "Teach It Back Mode";
+        document.getElementById("chat-subtitle").innerText = "Explain a topic in your own words and get feedback.";
+        document.getElementById("current-mode-indicator").className =
+            "h-2.5 w-2.5 rounded-full bg-pink-500 shadow-lg shadow-pink-500/50";
+        document.getElementById("user-input").placeholder = "Or type: topic | your explanation";
+    }
+
+    const originalSelectFeature = selectFeature;
+
+    selectFeature = function (feature) {
+
+        if (feature !== "teach") {
+            return originalSelectFeature(feature);
+        }
+
+        if (isLoading) return;
+
+        originalSelectFeature(feature); // enables input, removes empty state, sets currentFeature
+
+        setTeachHeader();
+
+        teachTopic = "";
+        teachText = "";
+
+        renderTeachPanel();
+    };
+
+
+    const originalHandleSendMessage = handleSendMessage;
+
+    handleSendMessage = function (event) {
+
+        if (currentFeature !== "teach") {
+            return originalHandleSendMessage(event);
+        }
+
+        event.preventDefault();
+
+        if (isLoading) return;
+
+        const input = document.getElementById("user-input");
+        const text = input.value.trim();
+
+        if (!text) {
+            input.focus();
+            return;
+        }
+
+        const divider = text.indexOf("|");
+
+        if (divider === -1) {
+
+            if (!document.getElementById("teach-panel")) renderTeachPanel();
+
+            setTeachMessage("Use the format: topic | your explanation, or fill in the form above.");
+
+            return;
+        }
+
+        input.value = "";
+
+        submitTeach(text.slice(0, divider), text.slice(divider + 1));
+    };
+
+
+    const originalFeatureLabel = featureLabel;
+
+    featureLabel = function (feature) {
+        return feature === "teach" ? "Teach" : originalFeatureLabel(feature);
+    };
+
+
+    const originalRestoreSavedChat = restoreSavedChat;
+
+    restoreSavedChat = function (chat) {
+
+        originalRestoreSavedChat(chat);
+
+        if (chat.feature === "teach") setTeachHeader();
+    };
+
+
+    document.addEventListener("DOMContentLoaded", addTeachCard);
 
 })();
 </script>
